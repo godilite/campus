@@ -38,7 +38,8 @@ dependencies:
   firebase_auth: ^0.18.0
   cloud_firestore: ^0.14.0
   firebase_storage: ^4.0.0
-  
+  floating_bottom_navigation_bar: ^1.4.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

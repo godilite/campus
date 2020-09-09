@@ -1,4 +1,4 @@
-package com.example.camp
+package com.campusel.campusel
 
 import io.flutter.embedding.android.FlutterActivity
 
