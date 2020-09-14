@@ -1,7 +1,12 @@
-import 'package:camp/views/home/homepage.dart';
+import 'package:camp/service_locator.dart';
+import 'package:camp/views/auth/register.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  setupLocator();
   runApp(MyApp());
 }
 
@@ -28,6 +33,6 @@ class InitialCheck extends StatefulWidget {
 class _InitialCheckState extends State<InitialCheck> {
   @override
   Widget build(BuildContext context) {
-    return HomeView();
+    return RegisterPage();
   }
 }

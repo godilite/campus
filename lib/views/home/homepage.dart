@@ -1,6 +1,7 @@
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/home/following.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
+import 'package:camp/views/styles.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,74 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     double _width = MediaQuery.of(context).size.width;
     double _height = MediaQuery.of(context).size.height;
+    void _showModalSheet(context) {
+      showModalBottomSheet(
+          backgroundColor: Colors.transparent,
+          context: context,
+          builder: (BuildContext bc) {
+            return Container(
+              height: _height * 0.45,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(50),
+                      topRight: Radius.circular(50))),
+              child: Stack(
+                children: <Widget>[
+                  Positioned(
+                    top: 10,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Container(
+                        height: 5,
+                        width: 100,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 40,
+                    left: 20,
+                    right: 0,
+                    child: ListTile(
+                        leading: Icon(Icons.music_note),
+                        title: Text('Music'),
+                        onTap: () => {}),
+                  ),
+                  Positioned(
+                    top: 100,
+                    left: 20,
+                    right: 0,
+                    child: ListTile(
+                        leading: Icon(Icons.music_note),
+                        title: Text('Music'),
+                        onTap: () => {}),
+                  ),
+                  Positioned(
+                    top: 150,
+                    left: 20,
+                    right: 0,
+                    child: ListTile(
+                        leading: Icon(Icons.music_note),
+                        title: Text('Music'),
+                        onTap: () => {}),
+                  ),
+                  Positioned(
+                    top: 200,
+                    left: 20,
+                    right: 0,
+                    child: ListTile(
+                        leading: Icon(Icons.music_note),
+                        title: Text('Music'),
+                        onTap: () => {}),
+                  ),
+                ],
+              ),
+            );
+          });
+    }
+
     return DrawScaffold('', LayoutBuilder(
       builder: (BuildContext context, BoxConstraints viewportConstraints) {
         return SingleChildScrollView(
@@ -102,7 +171,7 @@ class _HomeViewState extends State<HomeView> {
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                     decoration: BoxDecoration(
-                        color: Colors.grey,
+                        color: kGrey,
                         borderRadius: BorderRadius.all(Radius.circular(50))),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -110,91 +179,93 @@ class _HomeViewState extends State<HomeView> {
                         Icon(
                           FlutterIcons.users_faw5s,
                           size: 18,
+                          color: Colors.white,
                         ),
                         SizedBox(width: 13),
                         Text('All', style: TextStyle(color: Colors.white))
                       ],
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(50))),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Icon(
-                          FlutterIcons.users_fea,
-                          size: 18,
-                        ),
-                        Icon(
-                          FlutterIcons.check_ant,
-                          size: 18,
-                        ),
-                        SizedBox(width: 5),
-                        GestureDetector(
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        Following())),
-                            child: Text('Following',
-                                style: TextStyle(color: Colors.grey)))
-                      ],
+                  InkWell(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => Following())),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(50))),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(
+                            FlutterIcons.users_fea,
+                            size: 18,
+                          ),
+                          Icon(
+                            FlutterIcons.check_ant,
+                            size: 18,
+                          ),
+                          SizedBox(width: 5),
+                          Text('Following',
+                              style: TextStyle(color: Colors.grey))
+                        ],
+                      ),
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(50))),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Icon(
-                          FlutterIcons.equalizer_sli,
-                          size: 18,
-                        ),
-                        SizedBox(width: 5),
-                        Text('Filter', style: TextStyle(color: Colors.grey))
-                      ],
+                  InkWell(
+                    onTap: () => _showModalSheet(context),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(50))),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(
+                            FlutterIcons.tune_mdi,
+                            size: 18,
+                          ),
+                          SizedBox(width: 5),
+                          Text('Filter', style: TextStyle(color: Colors.grey))
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(left: 18.0, right: 18, top: 20),
-              child: Container(
-                height: viewportConstraints.maxHeight,
-                child: StaggeredGridView.count(
-                  padding: EdgeInsets.all(0),
-                  controller: _gridController,
-                  crossAxisCount: 4,
-                  physics: isBottom
-                      ? BouncingScrollPhysics(
-                          parent: AlwaysScrollableScrollPhysics())
-                      : NeverScrollableScrollPhysics(),
-                  children: [
-                    ItemWidget(width: _width),
-                    ItemWidget(width: _width),
-                    ItemWidget(width: _width),
-                    ItemWidget(width: _width),
-                    ItemWidget(width: _width),
-                  ],
-                  staggeredTiles: const <StaggeredTile>[
-                    const StaggeredTile.fit(2),
-                    const StaggeredTile.fit(2),
-                    const StaggeredTile.fit(2),
-                    const StaggeredTile.fit(2),
-                    const StaggeredTile.fit(2),
-                  ],
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                ),
+              padding: EdgeInsets.only(left: 10.0, right: 10, top: 20),
+              child: StaggeredGridView.count(
+                shrinkWrap: true,
+                padding: EdgeInsets.all(0),
+                controller: _gridController,
+                crossAxisCount: 4,
+                physics: isBottom
+                    ? BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics())
+                    : NeverScrollableScrollPhysics(),
+                children: [
+                  ItemWidget(width: _width),
+                  ItemWidget(width: _width),
+                  ItemWidget(width: _width),
+                  ItemWidget(width: _width),
+                  ItemWidget(width: _width),
+                ],
+                staggeredTiles: const <StaggeredTile>[
+                  const StaggeredTile.fit(2),
+                  const StaggeredTile.fit(2),
+                  const StaggeredTile.fit(2),
+                  const StaggeredTile.fit(2),
+                  const StaggeredTile.fit(2),
+                ],
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
               ),
             ),
           ]),

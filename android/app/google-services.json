@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "94336278201",
+    "firebase_url": "https://cmps-f985b.firebaseio.com",
+    "project_id": "cmps-f985b",
+    "storage_bucket": "cmps-f985b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:94336278201:android:6e3a6a9c65756dc92f0568",
+        "android_client_info": {
+          "package_name": "com.campusel.campusel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "94336278201-fa8sssm7s08h4lpo8de3gmeh8p07s3qo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.campusel.campusel",
+            "certificate_hash": "beda81884e66861b099bb5eab9f943e39a0cdb16"
+          }
+        },
+        {
+          "client_id": "94336278201-6anh90e2e8niprjnj9mmn3pi09nbtekp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyHpPF3g3eyrLHB5GqQDPG_ETx2B2_YkU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "94336278201-6anh90e2e8niprjnj9mmn3pi09nbtekp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

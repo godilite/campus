@@ -1,3 +1,7 @@
+import 'package:camp/views/home/homepage.dart';
+import 'package:camp/views/post/create_post.dart';
+import 'package:camp/views/profile/profile.dart';
+import 'package:camp/views/styles.dart';
 import 'package:floating_bottom_navigation_bar/floating_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -11,8 +15,8 @@ class DrawScaffold extends StatefulWidget {
   final String title;
   final Widget body;
   final bool bottomNav;
-
-  DrawScaffold(this.title, this.body, [this.bottomNav]);
+  final int currentPageIndex;
+  DrawScaffold(this.title, this.body, [this.bottomNav, this.currentPageIndex]);
 
   final drawerItems = [
     DrawerItem("Wallet"),
@@ -60,6 +64,42 @@ class _DrawScaffoldState extends State<DrawScaffold> {
 //    }
   }
 
+  _getPage(int pos) {
+    switch (pos) {
+      case 0:
+        return Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) => HomeView()));
+      case 2:
+        return Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) => CreatePost()));
+      case 4:
+        return Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => ProfilePage()));
+
+      //   case 3:
+      //     return Navigator.push(
+      //         context,
+      //         MaterialPageRoute(
+      //             builder: (BuildContext context) => TripHistory()));
+      //   case 4:
+      //     return Navigator.push(context,
+      //         MaterialPageRoute(builder: (BuildContext context) => Payout()));
+      //   case 5:
+      //     return Navigator.push(context,
+      //         MaterialPageRoute(builder: (BuildContext context) => Setting()));
+      //   case 6:
+      //     return Navigator.push(context,
+      //         MaterialPageRoute(builder: (BuildContext context) => Support()));
+      //   case 7:
+      //     return Navigator.push(context,
+      //         MaterialPageRoute(builder: (BuildContext context) => About()));
+      default:
+        return new Text("Error");
+    }
+  }
+
   // var loginService = locator<LoginService>();
   // var firestoreService = locator<FirestoreService>();
   _onSelectItem(int DrawScaffold) {
@@ -86,6 +126,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    int _currentPageIndex = widget.currentPageIndex ?? 0;
     var drawerOptions = <Widget>[
       DrawerHeader(
         decoration: BoxDecoration(color: Colors.white),
@@ -166,18 +207,17 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                 backgroundColor: Colors.white,
                 borderRadius: 50,
                 itemBorderRadius: 10,
-                iconSize: 30,
                 shadowBlurRadius: 5,
                 shadowSpreadRadius: 0,
-                unselectedItemColor: Colors.grey,
+                unselectedItemColor: kGrey,
                 padding: EdgeInsets.only(left: 5, right: 5, top: 8, bottom: 8),
                 margin: EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                selectedBackgroundColor: Colors.grey,
+                selectedBackgroundColor: kGrey,
                 selectedItemColor: Colors.white,
                 onTap: (int val) {
-                  print(val);
+                  _getPage(val);
                 },
-                currentIndex: 0,
+                currentIndex: _currentPageIndex,
                 items: [
                   FloatingNavbarItem(icon: FlutterIcons.home_ant),
                   FloatingNavbarItem(icon: FlutterIcons.favorite_border_mdi),

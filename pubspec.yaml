@@ -39,7 +39,11 @@ dependencies:
   cloud_firestore: ^0.14.0
   firebase_storage: ^4.0.0
   floating_bottom_navigation_bar: ^1.4.1
-
+  carousel_slider: ^2.2.1
+  multi_image_picker: ^4.7.13
+  dotted_border: ^1.0.6
+  geolocator: ^6.0.0+4
+  flutter_facebook_login: ^3.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -57,7 +61,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-     - assets/images.png
+     - assets/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
