@@ -1,3 +1,5 @@
+import 'package:camp/service_locator.dart';
+import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/home/homepage.dart';
 import 'package:camp/views/post/create_post.dart';
 import 'package:camp/views/profile/profile.dart';
@@ -30,38 +32,39 @@ class DrawScaffold extends StatefulWidget {
 }
 
 class _DrawScaffoldState extends State<DrawScaffold> {
+  var logout = locator<AuthService>();
+
   _getDrawerItemWidget(int pos) {
     print(pos);
-    // switch (pos) {
-    //   case 0:
-    //     return Navigator.push(context,
-    //         MaterialPageRoute(builder: (BuildContext context) => Dashboard()));
-    //   case 1:
-    //     return Navigator.push(context,
-    //         MaterialPageRoute(builder: (BuildContext context) => Wallet()));
-    //   case 2:
-    //     return Navigator.push(context,
-    //         MaterialPageRoute(builder: (BuildContext context) => Chat()));
-    //   case 3:
-    //     return Navigator.push(
-    //         context,
-    //         MaterialPageRoute(
-    //             builder: (BuildContext context) => TripHistory()));
-    //   case 4:
-    //     return Navigator.push(context,
-    //         MaterialPageRoute(builder: (BuildContext context) => Payout()));
-    //   case 5:
-    //     return Navigator.push(context,
-    //         MaterialPageRoute(builder: (BuildContext context) => Setting()));
-    //   case 6:
-    //     return Navigator.push(context,
-    //         MaterialPageRoute(builder: (BuildContext context) => Support()));
-    //   case 7:
-    //     return Navigator.push(context,
-    //         MaterialPageRoute(builder: (BuildContext context) => About()));
-    //   default:
-    //     return new Text("Error");
-//    }
+    switch (pos) {
+      //   case 0:
+      //     return Navigator.push(context,
+      //         MaterialPageRoute(builder: (BuildContext context) => Dashboard()));
+      //   case 1:
+      //     return Navigator.push(context,
+      //         MaterialPageRoute(builder: (BuildContext context) => Wallet()));
+      //   case 2:
+      //     return Navigator.push(context,
+      //         MaterialPageRoute(builder: (BuildContext context) => Chat()));
+      //   case 3:
+      //     return Navigator.push(
+      //         context,
+      //         MaterialPageRoute(
+      //             builder: (BuildContext context) => TripHistory()));
+      case 4:
+        return logout.logout();
+      //   case 5:
+      //     return Navigator.push(context,
+      //         MaterialPageRoute(builder: (BuildContext context) => Setting()));
+      //   case 6:
+      //     return Navigator.push(context,
+      //         MaterialPageRoute(builder: (BuildContext context) => Support()));
+      //   case 7:
+      //     return Navigator.push(context,
+      //         MaterialPageRoute(builder: (BuildContext context) => About()));
+      default:
+        return new Text("Error");
+    }
   }
 
   _getPage(int pos) {

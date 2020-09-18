@@ -43,7 +43,10 @@ dependencies:
   multi_image_picker: ^4.7.13
   dotted_border: ^1.0.6
   geolocator: ^6.0.0+4
+  geocoding: ^1.0.3+1
   flutter_facebook_login: ^3.0.0
+  uuid: ^2.2.2
+  google_sign_in: ^4.5.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

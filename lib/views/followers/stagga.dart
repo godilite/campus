@@ -121,18 +121,16 @@ class _AdCardState extends State<AdCard> {
   }
 }
 
-
-
- FutureBuilder<String>(
-        future: _fetchNetworkCall, // async work
-        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-           switch (snapshot.connectionState) {
-             case ConnectionState.waiting: return Text('Loading....');
-             default:
-               if (snapshot.hasError)
-                  return Text('Error: ${snapshot.error}');
-               else
-              return Text('Result: ${snapshot.data}');
-            }
-         },
-        )
+//  FutureBuilder<String>(
+//         future: _fetchNetworkCall, // async work
+//         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+//            switch (snapshot.connectionState) {
+//              case ConnectionState.waiting: return Text('Loading....');
+//              default:
+//                if (snapshot.hasError)
+//                   return Text('Error: ${snapshot.error}');
+//                else
+//               return Text('Result: ${snapshot.data}');
+//             }
+//          },
+//         )

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class UserAccount {
   final String id;
   final String email;
@@ -5,9 +7,8 @@ class UserAccount {
   final String profileUrl;
   final String phone;
   final String coverPhoto;
-  final String password;
-
-  //first stage registration ends here
+  final String username;
+  final String bio;
 
   UserAccount({
     this.id,
@@ -15,19 +16,21 @@ class UserAccount {
     this.email,
     this.profileUrl,
     this.coverPhoto,
-    this.password,
+    this.username,
     this.phone,
+    this.bio,
   });
 
-  factory UserAccount.fromData(Map<String, dynamic> data) {
+  factory UserAccount.fromData(DocumentSnapshot data) {
     return UserAccount(
-        id: data['id'],
-        name: data['name'],
-        email: data['email'],
-        profileUrl: data['profileUrl'],
-        coverPhoto: data['coverPhoto'],
-        password: data['password'],
-        phone: data['phone']);
+        id: data.id,
+        name: data.get('name'),
+        email: data.get('email'),
+        profileUrl: data.get('profileUrl'),
+        coverPhoto: data.get('coverPhoto'),
+        username: data.get('username'),
+        phone: data.get('phone'),
+        bio: data.get('bio'));
   }
   Map<String, dynamic> toJson() {
     return {
@@ -36,8 +39,9 @@ class UserAccount {
       email: email,
       profileUrl: profileUrl,
       coverPhoto: coverPhoto,
-      password: password,
-      phone: phone
+      username: username,
+      phone: phone,
+      bio: bio
     }..removeWhere((key, value) => key == null || value == null);
   }
 }
