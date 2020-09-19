@@ -10,7 +10,9 @@ import 'package:camp/main.dart';
 class AuthService {
   FirebaseAuth auth = FirebaseAuth.instance;
   final userReference = FirebaseFirestore.instance.collection("users");
+  final usernameReference = FirebaseFirestore.instance.collection("username");
   final DateTime timestamp = DateTime.now();
+
   Future signInWithFacebook() async {
     try {
       final facebookLogin = FacebookLogin();
@@ -180,9 +182,11 @@ class AuthService {
   Future<UserAccount> _createAccount(UserCredential user) async {
     DocumentSnapshot documentSnapshot =
         await userReference.doc(user.user.uid).get();
+
     if (!documentSnapshot.exists) {
       final userData = await navigatorKey.currentState
           .push(MaterialPageRoute(builder: (context) => CreateAccount()));
+
       userReference.doc(user.user.uid).set({
         'id': user.user.uid,
         'name': userData.displayName,
@@ -199,5 +203,13 @@ class AuthService {
     }
 
     return UserAccount.fromData(documentSnapshot);
+  }
+
+  Future<bool> checkifUsernameExist(String username) async {
+    DocumentSnapshot usernameSnapshot =
+        await usernameReference.doc(username).get();
+    if (usernameSnapshot.exists) return false;
+
+    return true;
   }
 }

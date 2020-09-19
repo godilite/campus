@@ -1,7 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:camp/models/post_model.dart';
+import 'package:camp/service_locator.dart';
+import 'package:camp/services/PostService.dart';
+import 'package:camp/services/UploadService.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hashtagable/hashtagable.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
@@ -28,6 +33,9 @@ class _CreatePostState extends State<CreatePost> {
   TextEditingController titleController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   TextEditingController amountController = TextEditingController();
+  PostService postService = locator<PostService>();
+  UploadService uploadService = locator<UploadService>();
+
   @override
   void initState() {
     super.initState();
@@ -113,15 +121,25 @@ class _CreatePostState extends State<CreatePost> {
     locationController.text = specificAddress;
   }
 
-  Future<String> uploadImage() async {
-    ByteData image = await images[0].getByteData();
-    final temps = await getTemporaryDirectory();
-    final path = temps.path;
-    //Todo::compress this file
-    final time = DateTime.now().toIso8601String();
-    final tempFile = File('$path/img_$_postId$time.jpg')
-      ..writeAsBytesSync(image.buffer.asUint8List());
-    imageList.add(tempFile.path);
+  Future<List> uploadImages() async {
+    List files = [];
+    for (var i = 0; i < images.length; i++) {
+      var image = await uploadService.saveImage(images[i]);
+      files.add(image);
+    }
+    return files;
+  }
+
+  void createPost() async {
+    List files = await uploadImages();
+    var post = PostModel(
+        content: descriptionController.text,
+        title: titleController.text,
+        hashtags: extractHashTags(descriptionController.text),
+        files: files);
+    var result = await postService.post(post);
+
+    print(result);
   }
 
   @override
@@ -137,7 +155,7 @@ class _CreatePostState extends State<CreatePost> {
                       borderRadius: BorderRadius.circular(4)),
                   key: _postKey,
                   color: kYellow.withOpacity(0.9),
-                  onPressed: () => {},
+                  onPressed: () => createPost(),
                   child: Text('Share'))),
         ],
       ),
@@ -227,7 +245,9 @@ class _CreatePostState extends State<CreatePost> {
                     padding: EdgeInsets.symmetric(horizontal: 15),
                     child: Wrap(
                       children: [
-                        TextField(
+                        HashTagTextField(
+                          decoratedStyle:
+                              TextStyle(fontSize: 14, color: Colors.blue),
                           controller: descriptionController,
                           decoration: InputDecoration(
                             filled: true,

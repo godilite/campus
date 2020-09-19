@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:camp/service_locator.dart';
+import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/styles.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
@@ -21,12 +24,21 @@ class _CreateAccountState extends State<CreateAccount> {
 
   UserData data = new UserData();
 
-  void _submitForm() {
+  AuthService _authService = locator<AuthService>();
+
+  void _submitForm() async {
     final form = _formKey.currentState;
+    if (!await _authService.checkifUsernameExist(data.username)) {
+      SnackBar usernameSnack = SnackBar(
+        content: Text('Username already exist'),
+      );
+      _scaffoldKey.currentState.showSnackBar(usernameSnack);
+
+      return;
+    }
+
     if (form.validate()) {
       form.save();
-
-      print(data.phone);
       SnackBar snackbar = SnackBar(
         content:
             Text('Welcome to Campusel, your account is saved successfully'),
@@ -127,15 +139,7 @@ class _CreateAccountState extends State<CreateAccount> {
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
                                 )),
-                            validator: (val) {
-                              if (val.trim().length < 3 || val.isEmpty) {
-                                return 'Username is too short';
-                              } else if (val.trim().length > 40) {
-                                return 'Username is too long';
-                              } else {
-                                return null;
-                              }
-                            },
+                            validator: validateUsername,
                             onSaved: (val) => data.username = val,
                           ),
                         ),
@@ -199,5 +203,15 @@ class _CreateAccountState extends State<CreateAccount> {
       return 'Please enter valid mobile number';
     }
     return null;
+  }
+
+  String validateUsername(String value) {
+    if (value.trim().length < 3 || value.isEmpty) {
+      return 'Username is too short';
+    } else if (value.trim().length > 40) {
+      return 'Username is too long';
+    } else {
+      return null;
+    }
   }
 }

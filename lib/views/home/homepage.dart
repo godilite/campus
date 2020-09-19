@@ -1,7 +1,10 @@
+import 'package:camp/service_locator.dart';
+import 'package:camp/services/PostService.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/home/following.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
 import 'package:camp/views/styles.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +18,7 @@ class _HomeViewState extends State<HomeView> {
   ScrollController _controller = ScrollController();
   ScrollController _gridController = ScrollController();
   bool isBottom = false;
+  PostService _postService = locator<PostService>();
   @override
   void initState() {
     super.initState();
@@ -154,7 +158,7 @@ class _HomeViewState extends State<HomeView> {
                           width: _width * 0.3)),
                 ],
               ),
-              height: _height * 0.35,
+              height: _height * 0.25,
               width: _width,
               decoration: BoxDecoration(
                   color: Colors.grey,
@@ -239,35 +243,34 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 10.0, right: 10, top: 20),
-              child: StaggeredGridView.count(
-                shrinkWrap: true,
-                padding: EdgeInsets.all(0),
-                controller: _gridController,
-                crossAxisCount: 4,
-                physics: isBottom
-                    ? BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics())
-                    : NeverScrollableScrollPhysics(),
-                children: [
-                  ItemWidget(width: _width),
-                  ItemWidget(width: _width),
-                  ItemWidget(width: _width),
-                  ItemWidget(width: _width),
-                  ItemWidget(width: _width),
-                ],
-                staggeredTiles: const <StaggeredTile>[
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                ],
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-              ),
-            ),
+            StreamBuilder<QuerySnapshot>(
+                stream: _postService.postReference.snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Something went wrong');
+                  }
+                  return Padding(
+                    padding: EdgeInsets.only(left: 10.0, right: 10, top: 20),
+                    child: StaggeredGridView.count(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.all(0),
+                      controller: _gridController,
+                      crossAxisCount: 4,
+                      physics: isBottom
+                          ? BouncingScrollPhysics(
+                              parent: AlwaysScrollableScrollPhysics())
+                          : NeverScrollableScrollPhysics(),
+                      children: snapshot.data.docs.map((DocumentSnapshot post) {
+                        return ItemWidget(post: post.data());
+                      }).toList(),
+                      staggeredTiles: snapshot.data.docs
+                          .map<StaggeredTile>((_) => StaggeredTile.fit(2))
+                          .toList(),
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                    ),
+                  );
+                }),
           ]),
         );
       },
