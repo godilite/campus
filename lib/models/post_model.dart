@@ -1,4 +1,3 @@
-import 'package:camp/models/user_account.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PostModel {
@@ -9,6 +8,9 @@ class PostModel {
   final List files;
   final String content;
   final List hashtags;
+  final List commentId;
+  final int likesCount;
+  final List likes;
 
   PostModel({
     this.id,
@@ -17,7 +19,10 @@ class PostModel {
     this.userId,
     this.files,
     this.hashtags,
+    this.commentId,
     this.content,
+    this.likesCount,
+    this.likes,
   });
 
   factory PostModel.fromData(DocumentSnapshot data) {
@@ -29,6 +34,7 @@ class PostModel {
       userId: data.get('userId'),
       hashtags: data.get('hashtags'),
       content: data.get('content'),
+      likesCount: data.get('likesCount'),
     );
   }
   Map<String, dynamic> toJson() {

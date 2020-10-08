@@ -143,6 +143,15 @@ class _CreatePostState extends State<CreatePost> {
   }
 
   @override
+  void dispose() {
+    descriptionController.dispose();
+    titleController.dispose();
+    locationController.dispose();
+    amountController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
