@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/styles.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 

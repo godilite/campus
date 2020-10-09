@@ -1,5 +1,3 @@
-import 'package:camp/models/user_account.dart';
-
 class CommentModel {
   final String id;
   final int likesCount;

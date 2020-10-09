@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:camp/models/post_model.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/PostService.dart';
@@ -8,8 +6,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hashtagable/hashtagable.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:camp/views/layouts/drawer_scaffold.dart';
 import 'package:camp/views/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -22,10 +18,8 @@ class CreatePost extends StatefulWidget {
 }
 
 class _CreatePostState extends State<CreatePost> {
-  String _postId = 'ssas';
   List<String> imageList = [];
   List<Asset> images = List<Asset>();
-  String _error = 'No Error Dectected';
   int _current = 0;
   final _postKey = GlobalKey();
   bool _isForSale = false;
@@ -70,7 +64,6 @@ class _CreatePostState extends State<CreatePost> {
 
   Future<void> loadAssets() async {
     List<Asset> resultList = List<Asset>();
-    String error = 'No Error Dectected';
     try {
       resultList = await MultiImagePicker.pickImages(
         maxImages: 4,
@@ -87,15 +80,12 @@ class _CreatePostState extends State<CreatePost> {
           selectCircleStrokeColor: "#FAB70A",
         ),
       );
-    } on Exception catch (e) {
-      error = e.toString();
-    }
+    } on Exception {}
 
     if (!mounted) return;
 
     setState(() {
       images = resultList;
-      _error = error;
     });
   }
 

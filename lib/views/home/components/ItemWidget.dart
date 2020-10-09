@@ -1,5 +1,5 @@
 import 'package:camp/views/home/single-item/singleview.dart';
-import 'package:camp/views/styles.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:shimmer/shimmer.dart';
@@ -16,11 +16,11 @@ class ItemWidget extends StatelessWidget {
     double _width = MediaQuery.of(context).size.width;
 
     return Stack(
-      fit: StackFit.passthrough,
+      fit: StackFit.loose,
       children: [
         Positioned(
             child: Card(
-          elevation: 8.0,
+          elevation: 1.0,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Hero(
@@ -64,20 +64,15 @@ class ItemWidget extends StatelessWidget {
               ),
             )),
         Positioned(
-          bottom: 20,
-          left: 30,
-          right: 30,
+          bottom: 0,
+          right: 10,
           child: Container(
-            height: 30,
-            decoration: BoxDecoration(
-                color: Colors.black12, borderRadius: BorderRadius.circular(20)),
+            height: 13,
             child: Center(
-              child: Text(
-                _post['title'],
-                style: TextStyle(color: Colors.white),
-                overflow: TextOverflow.fade,
-              ),
-            ),
+                child: Icon(
+              CupertinoIcons.ellipsis,
+              size: 40,
+            )),
           ),
         ),
       ],

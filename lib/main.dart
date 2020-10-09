@@ -1,7 +1,6 @@
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/auth/register.dart';
-import 'package:camp/views/followers/stagga.dart';
 import 'package:camp/views/home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';

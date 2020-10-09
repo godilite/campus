@@ -1,5 +1,3 @@
-import 'package:camp/models/user_account.dart';
-
 class ReplyModel {
   final String id;
   final String likesCount;

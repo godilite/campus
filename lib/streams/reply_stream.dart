@@ -1,4 +1,3 @@
-import 'package:camp/models/comment_model.dart';
 import 'package:camp/models/reply_model.dart';
 import 'package:camp/models/user_account.dart';
 

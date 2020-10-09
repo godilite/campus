@@ -105,8 +105,8 @@ class _DrawScaffoldState extends State<DrawScaffold> {
 
   // var loginService = locator<LoginService>();
   // var firestoreService = locator<FirestoreService>();
-  _onSelectItem(int DrawScaffold) {
-    _getDrawerItemWidget(DrawScaffold);
+  _onSelectItem(int drawScaffold) {
+    _getDrawerItemWidget(drawScaffold);
   }
 
   // UserModel user;
@@ -182,7 +182,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
             return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Material(
-                  elevation: 5,
+                  elevation: 1,
                   color: Colors.white24,
                   borderRadius: BorderRadius.circular(50),
                   child: IconButton(
@@ -191,15 +191,6 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                       onPressed: () => Scaffold.of(context).openDrawer()),
                 ));
           }),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                FlutterIcons.search_evi,
-                color: Colors.white,
-              ),
-            )
-          ],
         ),
         drawer: Drawer(
             child: ListView(padding: EdgeInsets.zero, children: drawerOptions)),

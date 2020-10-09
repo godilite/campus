@@ -1,9 +1,12 @@
+import 'package:camp/models/user_account.dart';
+import 'package:camp/service_locator.dart';
+import 'package:camp/services/UserService.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/home/single-item/comment.dart';
 import 'package:camp/views/profile/profile.dart';
 import 'package:camp/views/styles.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -20,6 +23,10 @@ class _SingleViewState extends State<SingleView> {
   final List<String> images = [];
   var _tapPosition;
 
+  UserService userService = locator<UserService>();
+
+  UserAccount user;
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -29,9 +36,15 @@ class _SingleViewState extends State<SingleView> {
       images.forEach((imageUrl) {
         precacheImage(NetworkImage(imageUrl), context);
       });
+      postUser();
       setState(() {});
     });
+    print(widget.post);
     super.initState();
+  }
+
+  postUser() async {
+    user = await userService.user(widget.post['userId']);
   }
 
   @override
@@ -45,7 +58,7 @@ class _SingleViewState extends State<SingleView> {
           elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios,
-                size: 30, color: Colors.grey.shade700),
+                size: 25, color: Colors.grey.shade700),
             onPressed: () => Navigator.pop(context),
           )),
       body: LayoutBuilder(
@@ -59,9 +72,9 @@ class _SingleViewState extends State<SingleView> {
                         children: [
                           Positioned(
                             top: 0,
-                            left: 0,
+                            bottom: 0,
                             right: 0,
-                            bottom: 200,
+                            left: 0,
                             child: CarouselSlider.builder(
                               options: CarouselOptions(
                                   autoPlay: false,
@@ -78,7 +91,7 @@ class _SingleViewState extends State<SingleView> {
                                 return Image.network(
                                   images[index],
                                   width: viewportConstraints.maxWidth,
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.fitWidth,
                                 );
                               },
                             ),
@@ -86,7 +99,7 @@ class _SingleViewState extends State<SingleView> {
                           Positioned(
                             left: 0,
                             right: 0,
-                            bottom: 200,
+                            bottom: 130,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: images.map((url) {
@@ -107,38 +120,23 @@ class _SingleViewState extends State<SingleView> {
                             ),
                           ),
                           Positioned(
-                            bottom: 200,
-                            right: 20,
-                            child: Container(
-                                height: 130,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(
-                                      FlutterIcons.md_repeat_ion,
-                                      color: Colors.white,
-                                      size: 25,
-                                    ),
-                                    Icon(
-                                      FlutterIcons.share_sli,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                    Icon(
-                                      FlutterIcons.favorite_border_mdi,
-                                      color: Colors.white,
-                                      size: 25,
-                                    )
-                                  ],
-                                ),
-                                width: viewportConstraints.maxWidth * 0.3),
+                            top: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTapDown: _storePosition,
+                              onTap: () {
+                                _showMenu();
+                              },
+                              child: Icon(
+                                FlutterIcons.ellipsis1_ant,
+                                size: 40,
+                              ),
+                            ),
                           ),
                           Positioned(
                             left: 0,
                             right: 0,
-                            bottom: 0,
+                            bottom: -70,
                             child: Container(
                               height: viewportConstraints.maxHeight * 0.3,
                               width: viewportConstraints.maxWidth,
@@ -149,41 +147,65 @@ class _SingleViewState extends State<SingleView> {
                               child: Stack(
                                 children: [
                                   ListTile(
-                                    leading: CircleAvatar(),
-                                    title: Row(
-                                      children: [
-                                        Text('from',
-                                            style: TextStyle(
-                                                color: Colors.grey,
-                                                fontWeight: FontWeight.w300)),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        InkWell(
-                                          onTap: () => Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ProfilePage())),
-                                          child: Text(
-                                            widget.post['author'],
-                                            style: TextStyle(
-                                                color: kText,
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                        ),
-                                      ],
+                                    leading: CircleAvatar(
+                                      backgroundImage: NetworkImage(
+                                          user != null ? user.profileUrl : ''),
                                     ),
-                                    trailing: GestureDetector(
-                                      onTapDown: _storePosition,
-                                      onTap: () {
-                                        _showMenu();
-                                      },
-                                      child: Icon(
-                                        FlutterIcons.ellipsis1_ant,
-                                        size: 40,
+                                    title: Padding(
+                                      padding: EdgeInsets.only(top: 15.0),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text('From',
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontWeight: FontWeight.w300)),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          InkWell(
+                                            onTap: () => Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ProfilePage())),
+                                            child: Text(
+                                              widget.post['author'],
+                                              style: TextStyle(
+                                                  color: kText,
+                                                  fontWeight: FontWeight.w900),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
+                                    trailing: Container(
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            Icon(
+                                              FlutterIcons.favorite_border_mdi,
+                                              color: Colors.grey,
+                                              size: 25,
+                                            ),
+                                            Icon(
+                                              FlutterIcons.share_sli,
+                                              color: Colors.grey,
+                                              size: 18,
+                                            ),
+                                            Icon(
+                                              CupertinoIcons.bookmark,
+                                              color: Colors.grey,
+                                              size: 25,
+                                            )
+                                          ],
+                                        ),
+                                        width:
+                                            viewportConstraints.maxWidth * 0.3),
                                     subtitle: Text('rating'),
                                   ),
                                   Positioned(
@@ -195,50 +217,54 @@ class _SingleViewState extends State<SingleView> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                widget.post['title'],
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w900),
+                                              ),
+                                              Text(
+                                                widget.post['content'],
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          height: 100,
+                                          color: Colors.grey,
+                                          width: 1,
+                                        ),
+                                        SizedBox(width: 25),
                                         Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              widget.post['title'],
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.w900),
+                                            Text('N 3131',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w600)),
+                                            SizedBox(
+                                              height: 10,
                                             ),
-                                            Text(
-                                              widget.post['content'],
-                                              style: TextStyle(fontSize: 14),
-                                            ),
+                                            Text('N 3131',
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w600)),
+                                            SizedBox(height: 40),
                                           ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 10,
-                                    left: 40,
-                                    right: 40,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          children: [
-                                            Text('Reviews'),
-                                            Text('1231')
-                                          ],
-                                        ),
-                                        FlatButton(
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(50)),
-                                            color: Color(0xffFAB70A),
-                                            onPressed: () => print('Save'),
-                                            child: Text('Save')),
-                                        Column(
-                                          children: [
-                                            Text('Price'),
-                                            Text('N 3131')
-                                          ],
-                                        ),
+                                        SizedBox(height: 20),
                                       ],
                                     ),
                                   ),
