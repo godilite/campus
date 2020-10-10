@@ -2,7 +2,10 @@ import 'package:camp/models/post_model.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/services/UploadService.dart';
+import 'package:camp/views/home/homepage.dart';
+import 'package:camp/views/post/widgets/color_loader_2.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hashtagable/hashtagable.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
@@ -29,11 +32,23 @@ class _CreatePostState extends State<CreatePost> {
   TextEditingController amountController = TextEditingController();
   PostService postService = locator<PostService>();
   UploadService uploadService = locator<UploadService>();
-
+  double long = 0;
+  double lat = 0;
+  bool posting = false;
   @override
   void initState() {
     super.initState();
     loadAssets();
+  }
+
+  List searchKeyword(name) {
+    var list = [];
+    for (var i = 1; i < name.length; i++) {
+      String keyWords = name.substring(0, i);
+
+      list.add(keyWords);
+    }
+    return list;
   }
 
   Widget buildPreview() {
@@ -71,20 +86,24 @@ class _CreatePostState extends State<CreatePost> {
         selectedAssets: images,
         cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
         materialOptions: MaterialOptions(
-          actionBarColor: "#FAB70A",
-          actionBarTitle: "Select photos",
-          allViewTitle: "All Photos",
-          useDetailsView: true,
-          startInAllView: true,
-          statusBarColor: "#000000",
-          selectCircleStrokeColor: "#FAB70A",
-        ),
+            actionBarColor: "#FAB70A",
+            actionBarTitle: "Select photos",
+            lightStatusBar: true,
+            allViewTitle: "All Photos",
+            useDetailsView: true,
+            startInAllView: true,
+            statusBarColor: "#000000",
+            selectCircleStrokeColor: "#FAB70A",
+            textOnNothingSelected: 'Select atleast one file'),
       );
     } on Exception {}
 
     if (!mounted) return;
 
     setState(() {
+      if (resultList.isEmpty) {
+        Navigator.pop(context);
+      }
       images = resultList;
     });
   }
@@ -108,7 +127,11 @@ class _CreatePostState extends State<CreatePost> {
         '${place.subThoroughfare} ${place.thoroughfare}, ${place.subLocality} ${place.locality}, ${place.subAdministrativeArea} ${place.administrativeArea}, ${place.country}';
     print(address);
     String specificAddress = '${place.locality}, ${place.country}';
-    locationController.text = specificAddress;
+    setState(() {
+      locationController.text = specificAddress;
+      long = position.longitude;
+      lat = position.latitude;
+    });
   }
 
   Future<List> uploadImages() async {
@@ -121,15 +144,32 @@ class _CreatePostState extends State<CreatePost> {
   }
 
   void createPost() async {
+    setState(() {
+      posting = true;
+    });
+
     List files = await uploadImages();
     var post = PostModel(
-        content: descriptionController.text,
-        title: titleController.text,
-        hashtags: extractHashTags(descriptionController.text),
-        files: files);
-    var result = await postService.post(post);
-
-    print(result);
+      forSale: _isForSale,
+      location: locationController.text,
+      content: descriptionController.text,
+      title: titleController.text,
+      hashtags: extractHashTags(descriptionController.text),
+      files: files,
+      lat: lat,
+      long: long,
+      keywords: searchKeyword(titleController.text),
+      amount: amountController.text.isEmpty
+          ? 0.0
+          : double.parse(amountController.text),
+    );
+    postService.post(post).then((value) {
+      setState(() {
+        posting = false;
+      });
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomeView()));
+    });
   }
 
   @override
@@ -143,162 +183,197 @@ class _CreatePostState extends State<CreatePost> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        actions: [
-          Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-              child: FlatButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4)),
-                  key: _postKey,
-                  color: kYellow.withOpacity(0.9),
-                  onPressed: () => createPost(),
-                  child: Text('Share'))),
-        ],
-      ),
-      extendBodyBehindAppBar: true,
-      body: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints viewportConstraints) {
-        return SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 60.0),
-            child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  images.isEmpty
-                      ? InkWell(
-                          onTap: () => loadAssets(),
-                          child: Container(
-                            height: viewportConstraints.maxHeight * 0.3,
-                            decoration: BoxDecoration(color: kLightGrey),
-                            child: DottedBorder(
-                              color: kYellow,
-                              strokeWidth: 2,
-                              dashPattern: [10, 10],
-                              child: Center(
-                                child: Icon(
-                                  FlutterIcons.add_a_photo_mdi,
-                                  color: kYellow,
-                                  size: 70,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: posting ? Colors.white12 : Colors.transparent,
+          leading: InkWell(
+            onTap: () => Navigator.pop(context, true),
+            child: Icon(
+              CupertinoIcons.chevron_back,
+              size: 30,
+              color: Colors.grey,
+            ),
+          ),
+          actions: [
+            Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                child: posting
+                    ? FlatButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4)),
+                        key: _postKey,
+                        color: kYellow.withOpacity(0.9),
+                        onPressed: () => null,
+                        child: Text('Processing...'),
+                      )
+                    : FlatButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4)),
+                        key: _postKey,
+                        color: kYellow.withOpacity(0.9),
+                        onPressed: () => createPost(),
+                        child: Text('Share'),
+                      )),
+          ],
+        ),
+        extendBodyBehindAppBar: true,
+        body: LayoutBuilder(builder:
+            (BuildContext context, BoxConstraints viewportConstraints) {
+          return SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: posting
+                ? Padding(
+                    padding: EdgeInsets.only(top: 300.0),
+                    child: Center(
+                      child: ColorLoader2(
+                        color1: Colors.red,
+                        color2: Colors.yellow,
+                        color3: Colors.blue,
+                      ),
+                    ),
+                  )
+                : Padding(
+                    padding: EdgeInsets.only(bottom: 60.0),
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          images.isEmpty
+                              ? InkWell(
+                                  onTap: () => loadAssets(),
+                                  child: Container(
+                                    height: viewportConstraints.maxHeight * 0.3,
+                                    decoration:
+                                        BoxDecoration(color: kLightGrey),
+                                    child: DottedBorder(
+                                      color: kYellow,
+                                      strokeWidth: 2,
+                                      dashPattern: [10, 10],
+                                      child: Center(
+                                        child: Icon(
+                                          FlutterIcons.add_a_photo_mdi,
+                                          color: kYellow,
+                                          size: 70,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Flexible(
+                                  fit: FlexFit.loose, child: buildPreview()),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: images.map((url) {
+                              int index = images.indexOf(url);
+                              return Container(
+                                width: 8.0,
+                                height: 8.0,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 2.0),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: _current == index
+                                      ? Color.fromRGBO(0, 0, 0, 0.9)
+                                      : Color.fromRGBO(0, 0, 0, 0.4),
                                 ),
+                              );
+                            }).toList(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                InkWell(
+                                  onTap: () => _getLocation(),
+                                  child: Row(
+                                    children: [
+                                      Text('Use current location',
+                                          style: TextStyle(color: kGrey)),
+                                      Icon(
+                                        FlutterIcons.add_location_mdi,
+                                        color: kYellow,
+                                        size: 25,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(right: 20.0),
+                                  child: IconButton(
+                                      icon: Icon(
+                                        FlutterIcons.add_a_photo_mdi,
+                                        color: kYellow,
+                                        size: 25,
+                                      ),
+                                      onPressed: () => loadAssets()),
+                                )
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            child: Wrap(
+                              children: [
+                                HashTagTextField(
+                                  decoratedStyle: TextStyle(
+                                      fontSize: 14, color: Colors.blue),
+                                  controller: descriptionController,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    border: InputBorder.none,
+                                    hintText: 'Write something...',
+                                  ),
+                                  keyboardType: TextInputType.multiline,
+                                  minLines: null,
+                                  maxLines: null,
+                                )
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 15),
+                          Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 15),
+                              child: TextField(
+                                controller: locationController,
+                                decoration: InputDecoration(
+                                    filled: true,
+                                    hintText: 'Write your location here',
+                                    border: InputBorder.none),
+                              )),
+                          SizedBox(height: 15),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 15),
+                              color: Colors.grey.shade200,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('For Sale?'),
+                                  Switch(
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.padded,
+                                      value: _isForSale,
+                                      activeTrackColor: kYellow,
+                                      activeColor: Colors.white,
+                                      onChanged: (value) => _setForSale(value))
+                                ],
                               ),
                             ),
                           ),
-                        )
-                      : Flexible(fit: FlexFit.loose, child: buildPreview()),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: images.map((url) {
-                      int index = images.indexOf(url);
-                      return Container(
-                        width: 8.0,
-                        height: 8.0,
-                        margin: EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 2.0),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _current == index
-                              ? Color.fromRGBO(0, 0, 0, 0.9)
-                              : Color.fromRGBO(0, 0, 0, 0.4),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        InkWell(
-                          onTap: () => _getLocation(),
-                          child: Row(
-                            children: [
-                              Text('Use current location',
-                                  style: TextStyle(color: kGrey)),
-                              Icon(
-                                FlutterIcons.add_location_mdi,
-                                color: kYellow,
-                                size: 25,
-                              ),
-                            ],
+                          Visibility(
+                            visible: _isForSale,
+                            child: buildForSaleColumn(),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(right: 20.0),
-                          child: IconButton(
-                              icon: Icon(
-                                FlutterIcons.add_a_photo_mdi,
-                                color: kYellow,
-                                size: 25,
-                              ),
-                              onPressed: () => loadAssets()),
-                        )
-                      ],
-                    ),
+                        ]),
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15),
-                    child: Wrap(
-                      children: [
-                        HashTagTextField(
-                          decoratedStyle:
-                              TextStyle(fontSize: 14, color: Colors.blue),
-                          controller: descriptionController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            border: InputBorder.none,
-                            hintText: 'Write something...',
-                          ),
-                          keyboardType: TextInputType.multiline,
-                          minLines: null,
-                          maxLines: null,
-                        )
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      child: TextField(
-                        controller: locationController,
-                        decoration: InputDecoration(
-                            filled: true,
-                            hintText: 'Write your location here',
-                            border: InputBorder.none),
-                      )),
-                  SizedBox(height: 15),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      color: Colors.grey.shade200,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('For Sale?'),
-                          Switch(
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.padded,
-                              value: _isForSale,
-                              activeTrackColor: kYellow,
-                              activeColor: Colors.white,
-                              onChanged: (value) => _setForSale(value))
-                        ],
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: _isForSale,
-                    child: buildForSaleColumn(),
-                  ),
-                ]),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 

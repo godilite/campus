@@ -10,7 +10,9 @@ var uuid = Uuid();
 
 class CommentService {
   final commentsReference = FirebaseFirestore.instance.collection("comments");
+  final postsReference = FirebaseFirestore.instance.collection("posts");
   final userReference = FirebaseFirestore.instance.collection("users");
+
   getComments(var postId) {
     Stream<List<CombineStream>> _combineStream;
 
@@ -97,7 +99,7 @@ class CommentService {
     return _combineStream;
   }
 
-  postComment(postId, content) {
+  postComment(postId, content) async {
     var id = uuid.v1();
     commentsReference.doc(postId).collection('comments').doc(id).set({
       'content': content,
@@ -109,6 +111,13 @@ class CommentService {
       'hasReply': null,
       'replies': null,
       'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    DocumentSnapshot documentSnapshot = await postsReference.doc(postId).get();
+    postsReference.doc(postId).update({
+      'commentCount': documentSnapshot.get('commentCount') != 0
+          ? int.parse(documentSnapshot.get('commentCount')) + 1
+          : 1
     });
   }
 }

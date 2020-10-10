@@ -78,12 +78,12 @@ class _CommentState extends State<Comment> {
           if (!dataSnapshot.hasData) {
             return Center(child: CircularProgressIndicator());
           }
-          return ListView.builder(
+          return ListView.separated(
+            separatorBuilder: (BuildContext context, int) => Divider(),
             controller: controller,
             itemCount: dataSnapshot.data.length,
             itemBuilder: (context, index) {
               return ListTile(
-                dense: true,
                 leading: CircleAvatar(
                   radius: 20,
                   backgroundImage: NetworkImage(
@@ -93,68 +93,7 @@ class _CommentState extends State<Comment> {
                   "${dataSnapshot.data[index].users.name}",
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("${dataSnapshot.data[index].comment.hasReply}"),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                            '${dataSnapshot.data[index].comment.timestamp.toDate()}'),
-                        dataSnapshot.data[index].comment.hasReply
-                            ? Column(
-                                children: [
-                                  ExpansionTile(
-                                    tilePadding: EdgeInsets.only(
-                                        left: 0, right: 0, top: 0),
-                                    expandedCrossAxisAlignment:
-                                        CrossAxisAlignment.end,
-                                    childrenPadding: EdgeInsets.zero,
-                                    title: Text(
-                                      'Reply (200)',
-                                      style: TextStyle(fontSize: 10),
-                                    ),
-                                    children: [
-                                      Column(children: [
-                                        ListTile(
-                                          contentPadding: EdgeInsets.zero,
-                                          leading: CircleAvatar(
-                                            backgroundColor: Colors.red,
-                                            radius: 20,
-                                          ),
-                                          title: Text(
-                                            'John Thomas',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          subtitle: Text(
-                                              'this is a really long comment i want to leave on a post in the app I nlpsd'),
-                                        ),
-                                        ListTile(
-                                          contentPadding: EdgeInsets.zero,
-                                          leading: CircleAvatar(
-                                            backgroundColor: Colors.red,
-                                            radius: 20,
-                                          ),
-                                          title: Text(
-                                            'John Thomas',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          subtitle: Text(
-                                              'this is a really long comment i want to leave on a post in the app I nlpsd'),
-                                        ),
-                                      ]),
-                                    ],
-                                  ),
-                                ],
-                              )
-                            : Text('reply'),
-                      ],
-                    )
-                  ],
-                ),
+                subtitle: Text('${dataSnapshot.data[index].comment.content}'),
                 trailing: Icon(
                   FlutterIcons.favorite_border_mdi,
                   size: 20,

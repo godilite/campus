@@ -1,10 +1,9 @@
-import 'package:camp/views/home/components/ItemWidget.dart';
-
 import 'package:camp/views/layouts/drawer_scaffold.dart';
 import 'package:camp/views/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -155,36 +154,54 @@ class _ProfilePageState extends State<ProfilePage> {
               style: TextStyle(fontSize: 18),
             ),
             Padding(
-              padding: EdgeInsets.only(left: 10.0, right: 10, top: 20),
-              child: StaggeredGridView.count(
-                shrinkWrap: true,
-                padding: EdgeInsets.all(0),
-                crossAxisCount: 4,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  ItemWidget(width: 100),
-                  ItemWidget(width: 100),
-                  ItemWidget(width: 100),
-                  ItemWidget(width: 100),
-                  ItemWidget(width: 100),
-                  ItemWidget(width: 100),
-                  ItemWidget(width: 100),
-                  ItemWidget(width: 100),
-                ],
-                staggeredTiles: const <StaggeredTile>[
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                  const StaggeredTile.fit(2),
-                ],
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-              ),
-            ),
+                padding: EdgeInsets.only(left: 10.0, right: 10, top: 20),
+                child: StaggeredGridView.countBuilder(
+                  crossAxisCount: 4,
+                  itemCount: 8,
+                  itemBuilder: (BuildContext context, int index) =>
+                      Shimmer.fromColors(
+                    baseColor: Colors.grey.shade100,
+                    highlightColor: Colors.white,
+                    child: Container(
+                      width: 200,
+                      height: 400,
+                      color: Colors.red,
+                    ),
+                  ),
+                  staggeredTileBuilder: (int index) =>
+                      StaggeredTile.count(2, index.isEven ? 2 : 1),
+                  mainAxisSpacing: 4.0,
+                  crossAxisSpacing: 4.0,
+                )
+                //  StaggeredGridView.count(
+                //   shrinkWrap: true,
+                //   padding: EdgeInsets.all(0),
+                //   crossAxisCount: 4,
+                //   physics: NeverScrollableScrollPhysics(),
+                //   children: [
+                // ItemWidget(width: 100),
+                // ItemWidget(width: 100),
+                // ItemWidget(width: 100),
+                // ItemWidget(width: 100),
+                // ItemWidget(width: 100),
+                // ItemWidget(width: 100),
+                // ItemWidget(width: 100),
+                // ItemWidget(width: 100),
+                //   ],
+                //   staggeredTiles: const <StaggeredTile>[
+                //     const StaggeredTile.fit(2),
+                //     const StaggeredTile.fit(2),
+                //     const StaggeredTile.fit(2),
+                //     const StaggeredTile.fit(2),
+                //     const StaggeredTile.fit(2),
+                //     const StaggeredTile.fit(2),
+                //     const StaggeredTile.fit(2),
+                //     const StaggeredTile.fit(2),
+                //   ],
+                //   mainAxisSpacing: 10,
+                //   crossAxisSpacing: 10,
+                // ),
+                ),
           ]),
         );
       },

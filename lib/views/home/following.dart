@@ -1,8 +1,8 @@
-import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/app_bar_back.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:shimmer/shimmer.dart';
 
 class Following extends StatefulWidget {
   @override
@@ -70,26 +70,57 @@ class _FollowingState extends State<Following> {
           title: Text('My friend name'),
         ),
         SizedBox(height: 10),
-        StaggeredGridView.count(
-          shrinkWrap: true,
-          padding: EdgeInsets.all(0),
+        StaggeredGridView.countBuilder(
           crossAxisCount: 4,
-          physics: NeverScrollableScrollPhysics(),
-          children: [
-            ItemWidget(width: viewportConstraints.maxWidth * 0.45),
-            ItemWidget(width: viewportConstraints.maxWidth * 0.45),
-            ItemWidget(width: viewportConstraints.maxWidth * 0.45),
-            ItemWidget(width: viewportConstraints.maxWidth * 0.45),
-          ],
-          staggeredTiles: const <StaggeredTile>[
-            const StaggeredTile.fit(2),
-            const StaggeredTile.fit(2),
-            const StaggeredTile.fit(2),
-            const StaggeredTile.fit(2),
-          ],
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
+          itemCount: 8,
+          itemBuilder: (BuildContext context, int index) => Shimmer.fromColors(
+            baseColor: Colors.grey.shade100,
+            highlightColor: Colors.white,
+            child: Container(
+              width: 200,
+              height: 400,
+              color: Colors.red,
+            ),
+          ),
+          staggeredTileBuilder: (int index) =>
+              StaggeredTile.count(2, index.isEven ? 2 : 1),
+          mainAxisSpacing: 4.0,
+          crossAxisSpacing: 4.0,
         ),
+
+        // StaggeredGridView.count(
+        //   shrinkWrap: true,
+        //   padding: EdgeInsets.all(0),
+        //   crossAxisCount: 4,
+        //   physics: NeverScrollableScrollPhysics(),
+        //   children: [],
+        //   staggeredTiles: const <StaggeredTile>[
+        //     const StaggeredTile.fit(2),
+        //     const StaggeredTile.fit(2),
+        //     const StaggeredTile.fit(2),
+        //     const StaggeredTile.fit(2),
+        //     const StaggeredTile.fit(2),
+        //     const StaggeredTile.fit(2),
+        //     const StaggeredTile.fit(2),
+        //     const StaggeredTile.fit(2),
+        //   ],
+        //   mainAxisSpacing: 10,
+        //   crossAxisSpacing: 10,
+        // ),
+        // ItemWidget(width: viewportConstraints.maxWidth * 0.45),
+        // ItemWidget(width: viewportConstraints.maxWidth * 0.45),
+        // ItemWidget(width: viewportConstraints.maxWidth * 0.45),
+        // ItemWidget(width: viewportConstraints.maxWidth * 0.45),
+        //   ],
+        //   staggeredTiles: const <StaggeredTile>[
+        //     const StaggeredTile.fit(2),
+        //     const StaggeredTile.fit(2),
+        //     const StaggeredTile.fit(2),
+        //     const StaggeredTile.fit(2),
+        //   ],
+        //   mainAxisSpacing: 10,
+        //   crossAxisSpacing: 10,
+        // ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [

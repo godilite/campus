@@ -55,7 +55,7 @@ class ItemWidget extends StatelessWidget {
         )),
         Positioned(
             top: 10,
-            right: 10,
+            right: 20,
             child: InkWell(
               onTap: () => print('Tap'),
               child: Icon(

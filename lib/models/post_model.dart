@@ -10,20 +10,32 @@ class PostModel {
   final List hashtags;
   final List commentId;
   final int likesCount;
+  final int commentCount;
   final List likes;
-
-  PostModel({
-    this.id,
-    this.title,
-    this.author,
-    this.userId,
-    this.files,
-    this.hashtags,
-    this.commentId,
-    this.content,
-    this.likesCount,
-    this.likes,
-  });
+  final bool forSale;
+  final double amount;
+  final String location;
+  final double long;
+  final double lat;
+  final List keywords;
+  PostModel(
+      {this.id,
+      this.title,
+      this.author,
+      this.userId,
+      this.files,
+      this.hashtags,
+      this.commentId,
+      this.content,
+      this.likesCount,
+      this.commentCount,
+      this.likes,
+      this.forSale,
+      this.amount,
+      this.location,
+      this.long,
+      this.lat,
+      this.keywords});
 
   factory PostModel.fromData(DocumentSnapshot data) {
     return PostModel(
@@ -35,6 +47,13 @@ class PostModel {
       hashtags: data.get('hashtags'),
       content: data.get('content'),
       likesCount: data.get('likesCount'),
+      commentCount: data.get('commentCount'),
+      amount: data.get('amount'),
+      forSale: data.get('forSale'),
+      location: data.get('location'),
+      lat: data.get('lat'),
+      long: data.get('long'),
+      keywords: data.get('keywords'),
     );
   }
   Map<String, dynamic> toJson() {

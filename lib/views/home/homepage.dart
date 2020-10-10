@@ -9,6 +9,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -18,23 +20,16 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   ScrollController _controller = ScrollController();
   ScrollController _gridController = ScrollController();
+
   bool isBottom = false;
+  List<DocumentSnapshot> documentList = [];
   PostService _postService = locator<PostService>();
+  BehaviorSubject<List<DocumentSnapshot>> postController;
   @override
   void initState() {
     super.initState();
     // listener for scroll controller
-    _controller.addListener(() {
-      if (_controller.position.atEdge) {
-        if (_controller.position.pixels == 0) {
-          isBottom = false;
-          setState(() {});
-        } else {
-          isBottom = true;
-          setState(() {});
-        }
-      }
-    });
+    _controller.addListener(_scrollListener);
 
     _gridController.addListener(() {
       if (_gridController.position.atEdge) {
@@ -44,6 +39,37 @@ class _HomeViewState extends State<HomeView> {
         }
       }
     });
+    postController = BehaviorSubject<List<DocumentSnapshot>>();
+    _fetchFirstList();
+  }
+
+  Stream<List<DocumentSnapshot>> get postStream => postController.stream;
+
+  _scrollListener() {
+    if (_controller.position.atEdge) {
+      if (_controller.position.pixels == 0) {
+        isBottom = false;
+        setState(() {});
+      } else {
+        isBottom = true;
+        print('butt');
+        _fetchMore();
+        setState(() {});
+      }
+    }
+  }
+
+  _fetchFirstList() async {
+    List<DocumentSnapshot> posts = await _postService.getPosts();
+    documentList.addAll(posts);
+    postController.sink.add(documentList);
+  }
+
+  _fetchMore() async {
+    List<DocumentSnapshot> posts =
+        await _postService.loadMorePosts(documentList[documentList.length - 1]);
+    documentList.addAll(posts);
+    postController.sink.add(documentList);
   }
 
 //Filter modalsheet
@@ -262,26 +288,52 @@ class _HomeViewState extends State<HomeView> {
             ),
           ]),
         ),
-        StreamBuilder<QuerySnapshot>(
-            stream: _postService.postReference.snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return SliverStaggeredGrid.count(
-                  crossAxisCount: 4,
-                  children: snapshot.data.docs.map((DocumentSnapshot post) {
-                    return ItemWidget(post: post.data());
-                  }).toList(),
-                  staggeredTiles: snapshot.data.docs
-                      .map<StaggeredTile>((_) => StaggeredTile.fit(2))
-                      .toList(),
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 10,
-                );
-              }
-              return SliverList(
-                  delegate: SliverChildListDelegate([Container()]));
-            }),
+        buildStreamBuilder(),
       ]);
     }), true);
+  }
+
+  StreamBuilder<List<DocumentSnapshot>> buildStreamBuilder() {
+    return StreamBuilder<List<DocumentSnapshot>>(
+        stream: postStream,
+        builder: (context, snapshot) {
+          if (snapshot.data == null &&
+              snapshot.connectionState != ConnectionState.done) {
+            return SliverStaggeredGrid.countBuilder(
+              crossAxisCount: 4,
+              itemCount: 8,
+              itemBuilder: (BuildContext context, int index) =>
+                  Shimmer.fromColors(
+                baseColor: Colors.grey.shade100,
+                highlightColor: Colors.white,
+                child: Container(
+                  width: 200,
+                  height: 400,
+                  color: Colors.red,
+                ),
+              ),
+              staggeredTileBuilder: (int index) =>
+                  StaggeredTile.count(2, index.isEven ? 2 : 1),
+              mainAxisSpacing: 4.0,
+              crossAxisSpacing: 4.0,
+            );
+          }
+          return SliverStaggeredGrid.count(
+            crossAxisCount: 4,
+            children: snapshot.data.map((DocumentSnapshot post) {
+              return ItemWidget(post: post.data());
+            }).toList(),
+            staggeredTiles: snapshot.data
+                .map<StaggeredTile>((_) => StaggeredTile.fit(2))
+                .toList(),
+            mainAxisSpacing: 20,
+            crossAxisSpacing: 10,
+          );
+        });
+  }
+
+  void dispose() {
+    super.dispose();
+    postController.close();
   }
 }

@@ -89,7 +89,8 @@ class _CreateAccountState extends State<CreateAccount> {
                               ]),
                           child: TextFormField(
                             cursorColor: kYellow,
-                            autovalidate: true,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             decoration: InputDecoration(
                                 prefixIcon: Icon(
                                   FlutterIcons.account_box_outline_mco,
@@ -127,7 +128,8 @@ class _CreateAccountState extends State<CreateAccount> {
                               ]),
                           child: TextFormField(
                             cursorColor: kYellow,
-                            autovalidate: true,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             decoration: InputDecoration(
                                 prefixIcon: Icon(
                                   FlutterIcons.account_circle_mdi,
@@ -157,7 +159,8 @@ class _CreateAccountState extends State<CreateAccount> {
                               ]),
                           child: TextFormField(
                             cursorColor: kYellow,
-                            autovalidate: true,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             validator: validateMobile,
                             decoration: InputDecoration(
                                 prefixIcon: Icon(
