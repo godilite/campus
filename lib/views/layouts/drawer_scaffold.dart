@@ -201,8 +201,6 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                 backgroundColor: Colors.white,
                 borderRadius: 50,
                 itemBorderRadius: 10,
-                shadowBlurRadius: 5,
-                shadowSpreadRadius: 0,
                 unselectedItemColor: kGrey,
                 padding: EdgeInsets.only(left: 5, right: 5, top: 8, bottom: 8),
                 margin: EdgeInsets.symmetric(horizontal: 40, vertical: 8),
