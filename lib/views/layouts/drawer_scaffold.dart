@@ -3,8 +3,10 @@ import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/home/homepage.dart';
 import 'package:camp/views/post/create_post.dart';
 import 'package:camp/views/profile/profile.dart';
+import 'package:camp/views/search/search.dart';
 import 'package:camp/views/styles.dart';
 import 'package:floating_bottom_navigation_bar/floating_bottom_navigation_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
@@ -72,6 +74,9 @@ class _DrawScaffoldState extends State<DrawScaffold> {
       case 0:
         return Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) => HomeView()));
+      case 1:
+        return Navigator.push(context,
+            MaterialPageRoute(builder: (BuildContext context) => SearchPage()));
       case 2:
         return Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) => CreatePost()));
@@ -201,6 +206,8 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                 backgroundColor: Colors.white,
                 borderRadius: 50,
                 itemBorderRadius: 10,
+                shadowBlurRadius: 5,
+                shadowSpreadRadius: 0,
                 unselectedItemColor: kGrey,
                 padding: EdgeInsets.only(left: 5, right: 5, top: 8, bottom: 8),
                 margin: EdgeInsets.symmetric(horizontal: 40, vertical: 8),
@@ -212,7 +219,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                 currentIndex: _currentPageIndex,
                 items: [
                   FloatingNavbarItem(icon: FlutterIcons.home_ant),
-                  FloatingNavbarItem(icon: FlutterIcons.favorite_border_mdi),
+                  FloatingNavbarItem(icon: CupertinoIcons.search),
                   FloatingNavbarItem(
                       icon: FlutterIcons.md_add_circle_outline_ion),
                   FloatingNavbarItem(icon: FlutterIcons.bell_outline_mco),

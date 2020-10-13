@@ -123,9 +123,8 @@ class _CreatePostState extends State<CreatePost> {
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
-    String address =
-        '${place.subThoroughfare} ${place.thoroughfare}, ${place.subLocality} ${place.locality}, ${place.subAdministrativeArea} ${place.administrativeArea}, ${place.country}';
-    print(address);
+    // String address =
+    //     '${place.subThoroughfare} ${place.thoroughfare}, ${place.subLocality} ${place.locality}, ${place.subAdministrativeArea} ${place.administrativeArea}, ${place.country}';
     String specificAddress = '${place.locality}, ${place.country}';
     setState(() {
       locationController.text = specificAddress;
