@@ -84,4 +84,21 @@ class PostService {
 
     return documentList;
   }
+
+  Future<List<DocumentSnapshot>> getUserPosts(String uid) async {
+    List<DocumentSnapshot> documentList;
+    documentList = (await postReference
+            .where('userId', isEqualTo: uid)
+            .orderBy('timestamp', descending: true)
+            .limit(10)
+            .get())
+        .docs;
+    return documentList;
+  }
+
+  addCount() {
+    userReference
+        .doc(auth.currentUser.uid)
+        .update({'postCount': FieldValue.increment(1)});
+  }
 }

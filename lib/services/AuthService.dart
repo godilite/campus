@@ -196,6 +196,14 @@ class AuthService {
         'phone': userData.phone,
         'bio': '',
         'coverPhoto': '',
+        'address': userData.address,
+        'long': '',
+        'lat': '',
+        'postCount': '0',
+        'rating': '0',
+        'ratingList': [],
+        'followers': [],
+        'following': [],
         'timestamp': timestamp
       });
 
@@ -211,5 +219,12 @@ class AuthService {
     if (usernameSnapshot.exists) return false;
 
     return true;
+  }
+
+  Future<UserAccount> currentUser() async {
+    DocumentSnapshot documentSnapshot =
+        await userReference.doc(auth.currentUser.uid).get();
+    UserAccount user = UserAccount.fromData(documentSnapshot);
+    return user;
   }
 }

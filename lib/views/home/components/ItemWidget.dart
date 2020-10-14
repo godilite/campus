@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/views/home/single-item/singleview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +39,7 @@ class ItemWidget extends StatelessWidget {
                     ? Image(
                         width: _width * 0.45,
                         fit: BoxFit.cover,
-                        image: NetworkImage(_post['files'][0]),
+                        image: CachedNetworkImageProvider(_post['files'][0]),
                       )
                     : Shimmer.fromColors(
                         baseColor: Colors.grey[200],
@@ -46,7 +47,7 @@ class ItemWidget extends StatelessWidget {
                         child: Image(
                           width: _width * 0.45,
                           fit: BoxFit.cover,
-                          image: NetworkImage(_post['files'][0]),
+                          image: CachedNetworkImageProvider(_post['files'][0]),
                         ),
                       ),
               ),

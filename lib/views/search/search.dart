@@ -4,6 +4,7 @@ import 'package:camp/models/user_account.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/SearchService.dart';
 import 'package:camp/views/post/widgets/color_loader_2.dart';
+import 'package:camp/views/profile/profile.dart';
 import 'package:camp/views/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,20 +36,26 @@ class _SearchPageState extends State<SearchPage>
 
   AppBar searchBar() {
     return AppBar(
+      elevation: 0,
       automaticallyImplyLeading: false,
       backgroundColor: Colors.white,
-      title: TextFormField(
-        controller: _searchTextController,
-        decoration: InputDecoration(
-          filled: true,
-          hintText: 'Search',
-          border: OutlineInputBorder(),
-          prefixIcon: Icon(CupertinoIcons.search),
-          suffixIcon: IconButton(
-              icon: Icon(CupertinoIcons.clear), onPressed: clearSearch),
+      title: Container(
+        margin: EdgeInsets.only(top: 10.0, bottom: 10),
+        child: TextFormField(
+          controller: _searchTextController,
+          decoration: InputDecoration(
+            filled: true,
+            hintText: 'Search',
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none),
+            prefixIcon: Icon(CupertinoIcons.search),
+            suffixIcon: IconButton(
+                icon: Icon(CupertinoIcons.clear), onPressed: clearSearch),
+          ),
+          style: TextStyle(fontSize: 16, color: Colors.black),
+          onFieldSubmitted: controlSearching,
         ),
-        style: TextStyle(fontSize: 16, color: Colors.black),
-        onFieldSubmitted: controlSearching,
       ),
     );
   }
@@ -56,11 +63,66 @@ class _SearchPageState extends State<SearchPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
-      appBar: searchBar(),
-      body: futureSearchResult == null
-          ? displayNoSearchResult()
-          : resultFoundScreen(),
+    return SafeArea(
+      child: LayoutBuilder(builder: (context, constraints) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: Stack(
+            children: [
+              Positioned(
+                top: 10.0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 100,
+                  padding: EdgeInsets.only(left: 10, right: 10),
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Icon(Icons.arrow_back_ios),
+                          SizedBox(
+                            width: constraints.maxWidth * 0.85,
+                            child: TextFormField(
+                              controller: _searchTextController,
+                              decoration: InputDecoration(
+                                filled: true,
+                                hintText: 'Search',
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    borderSide: BorderSide.none),
+                                prefixIcon: Icon(CupertinoIcons.search),
+                                suffixIcon: IconButton(
+                                    icon: Icon(CupertinoIcons.clear),
+                                    onPressed: clearSearch),
+                              ),
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.black),
+                              onFieldSubmitted: controlSearching,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 70,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: futureSearchResult == null
+                    ? displayNoSearchResult()
+                    : resultFoundScreen(),
+              )
+            ],
+          ),
+        );
+      }),
     );
   }
 
@@ -86,24 +148,26 @@ class _SearchPageState extends State<SearchPage>
   }
 
   resultFoundScreen() {
-    return FutureBuilder(builder: (context, snapshot) {
-      if (!snapshot.hasData) {
-        return Center(
-          child: ColorLoader2(
-            color1: Colors.red,
-            color2: Colors.yellow,
-            color3: Colors.blue,
-          ),
-        );
-      }
-      List<SearchResult> searchResult = [];
-      snapshot.data.documents.forEach((document) {
-        UserAccount user = UserAccount.fromData(document);
-        SearchResult result = SearchResult(user);
-        searchResult.add(result);
-      });
-      return ListView(children: searchResult);
-    });
+    return FutureBuilder(
+        future: futureSearchResult,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: ColorLoader2(
+                color1: Colors.red,
+                color2: Colors.yellow,
+                color3: Colors.blue,
+              ),
+            );
+          }
+          List<SearchResult> searchResult = [];
+          snapshot.data.documents.forEach((document) {
+            UserAccount user = UserAccount.fromData(document);
+            SearchResult result = SearchResult(user);
+            searchResult.add(result);
+          });
+          return ListView(children: searchResult);
+        });
   }
 
   @override
@@ -121,7 +185,12 @@ class SearchResult extends StatelessWidget {
       child: Column(
         children: [
           GestureDetector(
-            onTap: () => print('tapped'),
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => ProfilePage(
+                          user: user,
+                        ))),
             child: ListTile(
               leading: CircleAvatar(
                 backgroundColor: Colors.grey,

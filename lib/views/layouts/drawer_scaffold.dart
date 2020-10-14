@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:camp/models/user_account.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/home/homepage.dart';
 import 'package:camp/views/post/create_post.dart';
-import 'package:camp/views/profile/profile.dart';
+import 'package:camp/views/profile/profile_owner_view.dart';
 import 'package:camp/views/search/search.dart';
 import 'package:camp/views/styles.dart';
 import 'package:floating_bottom_navigation_bar/floating_bottom_navigation_bar.dart';
@@ -34,8 +36,10 @@ class DrawScaffold extends StatefulWidget {
 }
 
 class _DrawScaffoldState extends State<DrawScaffold> {
-  var logout = locator<AuthService>();
+  AuthService _authService = locator<AuthService>();
+  UserAccount user;
 
+  /// side bar items
   _getDrawerItemWidget(int pos) {
     print(pos);
     switch (pos) {
@@ -54,7 +58,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
       //         MaterialPageRoute(
       //             builder: (BuildContext context) => TripHistory()));
       case 4:
-        return logout.logout();
+        return _authService.logout();
       //   case 5:
       //     return Navigator.push(context,
       //         MaterialPageRoute(builder: (BuildContext context) => Setting()));
@@ -69,6 +73,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
     }
   }
 
+  ///Bottom menu bar
   _getPage(int pos) {
     switch (pos) {
       case 0:
@@ -84,53 +89,31 @@ class _DrawScaffoldState extends State<DrawScaffold> {
         return Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (BuildContext context) => ProfilePage()));
-
-      //   case 3:
-      //     return Navigator.push(
-      //         context,
-      //         MaterialPageRoute(
-      //             builder: (BuildContext context) => TripHistory()));
-      //   case 4:
-      //     return Navigator.push(context,
-      //         MaterialPageRoute(builder: (BuildContext context) => Payout()));
-      //   case 5:
-      //     return Navigator.push(context,
-      //         MaterialPageRoute(builder: (BuildContext context) => Setting()));
-      //   case 6:
-      //     return Navigator.push(context,
-      //         MaterialPageRoute(builder: (BuildContext context) => Support()));
-      //   case 7:
-      //     return Navigator.push(context,
-      //         MaterialPageRoute(builder: (BuildContext context) => About()));
+                builder: (BuildContext context) => ProfileOwnPage(
+                      user: user,
+                    )));
       default:
         return new Text("Error");
     }
   }
 
-  // var loginService = locator<LoginService>();
-  // var firestoreService = locator<FirestoreService>();
   _onSelectItem(int drawScaffold) {
     _getDrawerItemWidget(drawScaffold);
   }
 
-  // UserModel user;
-  // DocumentModel docs;
-  // @override
-  // void initState() {
-  //   getUser().then((value) async {
-  //     docs = await firestoreService.getDocs(value);
-  //     print(docs.profileUrl);
-  //     setState(() {});
-  //   });
-  //   super.initState();
-  // }
+  @override
+  void initState() {
+    getUser();
 
-  // Future getUser() async {
-  //   user = await loginService.user;
-  //   print(user.firstName);
-  //   return user;
-  // }
+    super.initState();
+  }
+
+  Future getUser() async {
+    UserAccount _user = await _authService.currentUser();
+    setState(() {
+      user = _user;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,9 +128,10 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                 padding: EdgeInsets.only(top: 25.0),
                 child: CircleAvatar(
                   backgroundColor: Colors.grey,
-                  // backgroundImage: docs != null
-                  //     ? NetworkImage('${docs.profileUrl}')
-                  //     : AssetImage('assets/chat.png'),
+                  backgroundImage: user != null
+                      ? CachedNetworkImageProvider('${user.profileUrl}')
+                      : AssetImage(
+                          'assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
                   minRadius: 35,
                   maxRadius: 35,
                 ),
@@ -156,7 +140,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                 width: 20,
               ),
               Text(
-                'User Name',
+                user != null ? user.name : '',
 //                    '${user != null ? user.firstName : ''} ${user != null ? user.lastName : ''}',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               )
@@ -171,7 +155,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
         title: Text(
           d.title,
           style: TextStyle(
-              color: Colors.red, fontSize: 16, fontWeight: FontWeight.w600),
+              color: kText, fontSize: 16, fontWeight: FontWeight.w600),
         ),
         onTap: () => _onSelectItem(i),
       ));
@@ -185,7 +169,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
           elevation: 0,
           leading: Builder(builder: (BuildContext context) {
             return Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(8.0),
                 child: Material(
                   elevation: 1,
                   color: Colors.white24,

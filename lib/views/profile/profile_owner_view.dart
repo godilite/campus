@@ -15,14 +15,14 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../service_locator.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfileOwnPage extends StatefulWidget {
   final UserAccount user;
-  ProfilePage({this.user});
+  ProfileOwnPage({this.user});
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _ProfileOwnPageState createState() => _ProfileOwnPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfileOwnPageState extends State<ProfileOwnPage> {
   var _tapPosition;
   BehaviorSubject<List<DocumentSnapshot>> postController;
   PostService _postService = locator<PostService>();

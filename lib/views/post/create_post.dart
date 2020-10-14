@@ -51,6 +51,7 @@ class _CreatePostState extends State<CreatePost> {
     return list;
   }
 
+  ///creates a carousel preview of selected files
   Widget buildPreview() {
     return CarouselSlider.builder(
       options: CarouselOptions(
@@ -77,6 +78,7 @@ class _CreatePostState extends State<CreatePost> {
     );
   }
 
+  ///Loads user assets from phone
   Future<void> loadAssets() async {
     List<Asset> resultList = List<Asset>();
     try {
@@ -114,6 +116,7 @@ class _CreatePostState extends State<CreatePost> {
     });
   }
 
+  ///Gets the current location
   _getLocation() async {
     LocationPermission permission = await checkPermission();
     if (permission == LocationPermission.denied) await requestPermission();
@@ -123,8 +126,8 @@ class _CreatePostState extends State<CreatePost> {
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
-    // String address =
-    //     '${place.subThoroughfare} ${place.thoroughfare}, ${place.subLocality} ${place.locality}, ${place.subAdministrativeArea} ${place.administrativeArea}, ${place.country}';
+    //  String address =
+    //      '${place.subThoroughfare} ${place.thoroughfare}, ${place.subLocality} ${place.locality}, ${place.subAdministrativeArea} ${place.administrativeArea}, ${place.country}';
     String specificAddress = '${place.locality}, ${place.country}';
     setState(() {
       locationController.text = specificAddress;
@@ -142,11 +145,13 @@ class _CreatePostState extends State<CreatePost> {
     return files;
   }
 
+  /// creates a new post
   void createPost() async {
     setState(() {
       posting = true;
     });
 
+    /// upload image files
     List files = await uploadImages();
     var post = PostModel(
       forSale: _isForSale,
@@ -163,6 +168,8 @@ class _CreatePostState extends State<CreatePost> {
           : double.parse(amountController.text),
     );
     postService.post(post).then((value) {
+      ///Add count of post to user
+      postService.addCount();
       setState(() {
         posting = false;
       });

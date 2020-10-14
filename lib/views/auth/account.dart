@@ -9,6 +9,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 class UserData {
   String username;
   String displayName;
+  String address;
   var phone;
 }
 
@@ -178,6 +179,37 @@ class _CreateAccountState extends State<CreateAccount> {
                         SizedBox(
                           height: 20,
                         ),
+                        Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey.shade200,
+                                    blurRadius: 15,
+                                    spreadRadius: 4)
+                              ]),
+                          child: TextFormField(
+                            cursorColor: kYellow,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            validator: validateLocation,
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  FlutterIcons.map_check_mco,
+                                  color: kYellow,
+                                ),
+                                hintStyle: TextStyle(color: Colors.grey),
+                                hintText: 'Location',
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                )),
+                            onSaved: (val) => data.address = val,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
                         FlatButton(
                             color: kYellow,
                             padding: EdgeInsets.symmetric(vertical: 20),
@@ -215,5 +247,12 @@ class _CreateAccountState extends State<CreateAccount> {
     } else {
       return null;
     }
+  }
+
+  String validateLocation(String value) {
+    if (value.trim().length < 3 || value.isEmpty) {
+      return 'Address is required';
+    }
+    return null;
   }
 }

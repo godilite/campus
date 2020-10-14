@@ -185,8 +185,9 @@ class _SingleViewState extends State<SingleView> {
                                     onTap: () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProfilePage())),
+                                            builder: (context) => ProfilePage(
+                                                  user: user,
+                                                ))),
                                     child: Text(
                                       widget.post['author'],
                                       style: TextStyle(

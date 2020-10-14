@@ -9,7 +9,14 @@ class UserAccount {
   final String coverPhoto;
   final String username;
   final String bio;
-
+  final String address;
+  final String long;
+  final String lat;
+  final int postCount;
+  final String rating;
+  final List ratingList;
+  final List followers;
+  final List following;
   UserAccount({
     this.id,
     this.name,
@@ -19,18 +26,35 @@ class UserAccount {
     this.username,
     this.phone,
     this.bio,
+    this.address,
+    this.long,
+    this.lat,
+    this.postCount,
+    this.rating,
+    this.ratingList,
+    this.followers,
+    this.following,
   });
 
   factory UserAccount.fromData(DocumentSnapshot data) {
     return UserAccount(
-        id: data.id,
-        name: data.get('name'),
-        email: data.get('email'),
-        profileUrl: data.get('profileUrl'),
-        coverPhoto: data.get('coverPhoto'),
-        username: data.get('username'),
-        phone: data.get('phone'),
-        bio: data.get('bio'));
+      id: data.id,
+      name: data.get('name'),
+      email: data.get('email'),
+      profileUrl: data.get('profileUrl'),
+      coverPhoto: data.get('coverPhoto'),
+      username: data.get('username'),
+      phone: data.get('phone'),
+      bio: data.get('bio'),
+      address: data.get('address'),
+      long: data.get('long'),
+      lat: data.get('lat'),
+      postCount: data.get('postCount'),
+      rating: data.get('rating'),
+      ratingList: data.get('ratingList'),
+      followers: data.get('followers'),
+      following: data.get('following'),
+    );
   }
   Map<String, dynamic> toJson() {
     return {
@@ -41,7 +65,10 @@ class UserAccount {
       coverPhoto: coverPhoto,
       username: username,
       phone: phone,
-      bio: bio
+      bio: bio,
+      address: address,
+      long: long,
+      lat: lat
     }..removeWhere((key, value) => key == null || value == null);
   }
 }
