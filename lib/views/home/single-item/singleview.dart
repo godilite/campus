@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/CommentService.dart';
@@ -85,8 +86,11 @@ class _SingleViewState extends State<SingleView> {
             onTap: () {
               _showMenu();
             },
-            child: Icon(FlutterIcons.ellipsis1_ant,
-                size: 40, color: Colors.grey.shade500),
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Icon(FlutterIcons.ellipsis1_ant,
+                  size: 40, color: Colors.grey.shade500),
+            ),
           ),
         ],
       ),
@@ -104,8 +108,8 @@ class _SingleViewState extends State<SingleView> {
                           CarouselSlider.builder(
                             options: CarouselOptions(
                                 autoPlay: false,
-                                height: viewportConstraints.maxHeight * 0.8,
-                                viewportFraction: 10,
+                                height: viewportConstraints.maxHeight * 0.6,
+                                viewportFraction: 6,
                                 enableInfiniteScroll: false,
                                 onPageChanged: (index, reason) {
                                   setState(() {
@@ -114,11 +118,10 @@ class _SingleViewState extends State<SingleView> {
                                 }),
                             itemCount: images.length,
                             itemBuilder: (context, index) {
-                              return Image.network(
-                                images[index],
-                                width: viewportConstraints.maxWidth,
-                                fit: BoxFit.fill,
-                              );
+                              return Image(
+                                  image:
+                                      CachedNetworkImageProvider(images[index]),
+                                  fit: BoxFit.fitWidth);
                             },
                           ),
                           Positioned(
@@ -165,8 +168,10 @@ class _SingleViewState extends State<SingleView> {
                         children: [
                           ListTile(
                             leading: CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                  user != null ? user.profileUrl : ''),
+                              backgroundImage: user != null
+                                  ? CachedNetworkImageProvider(user.profileUrl)
+                                  : AssetImage(
+                                      'assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
                             ),
                             title: Padding(
                               padding: EdgeInsets.only(top: 15.0),

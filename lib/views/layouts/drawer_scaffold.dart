@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:camp/main.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
@@ -12,6 +13,8 @@ import 'package:floating_bottom_navigation_bar/floating_bottom_navigation_bar.da
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+
+import '../../helpers.dart';
 
 class DrawerItem {
   String title;
@@ -72,7 +75,12 @@ class _DrawScaffoldState extends State<DrawScaffold> {
       //     return Navigator.push(context,
       //         MaterialPageRoute(builder: (BuildContext context) => Support()));
       case 7:
-        return _authService.logout();
+        _authService.logout();
+        setState(() {});
+        return Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => InitialCheck()));
       default:
         return new Text("Error");
     }
@@ -126,12 +134,13 @@ class _DrawScaffoldState extends State<DrawScaffold> {
     var drawerOptions = <Widget>[
       Container(
         height: 180,
+        padding: EdgeInsets.only(bottom: 8),
         child: DrawerHeader(
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.only(top: 20.0),
+                  padding: EdgeInsets.only(top: 10.0),
                   child: InkWell(
                     onTap: () => Navigator.push(
                         context,
@@ -169,7 +178,9 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                   ),
                 ),
                 Text(
-                  user != null ? user.email : '',
+                  user != null
+                      ? truncate(20, (user.email != null ? user.email : ''))
+                      : '',
 //                    '${user != null ? user.firstName : ''} ${user != null ? user.lastName : ''}',
                   style: TextStyle(color: kText),
                 )

@@ -20,7 +20,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   ScrollController _controller = ScrollController();
   ScrollController _gridController = ScrollController();
-
+  bool showAll = true;
   bool isBottom = false;
   List<DocumentSnapshot> documentList = [];
   PostService _postService = locator<PostService>();
@@ -70,6 +70,18 @@ class _HomeViewState extends State<HomeView> {
         await _postService.loadMorePosts(documentList[documentList.length - 1]);
     documentList.addAll(posts);
     postController.sink.add(documentList);
+  }
+
+  Future<bool> loadFollowing() async {
+    showAll = false;
+    var all = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => Following(),
+      ),
+    );
+    showAll = all;
+    return true;
   }
 
 //Filter modalsheet
@@ -157,7 +169,6 @@ class _HomeViewState extends State<HomeView> {
         });
   }
 
-  bool showAll = true;
   @override
   Widget build(BuildContext context) {
     double _width = MediaQuery.of(context).size.width;
@@ -241,16 +252,9 @@ class _HomeViewState extends State<HomeView> {
                         ),
                       ),
                       InkWell(
-                        onTap: () {
-                          setState(() async {
-                            showAll = false;
-                            showAll = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (BuildContext context) => Following(),
-                              ),
-                            );
-                          });
+                        onTap: () async {
+                          showAll = await loadFollowing();
+                          setState(() {});
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(
@@ -287,15 +291,12 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(50))),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Icon(
-                            CupertinoIcons.slider_horizontal_3,
-                            size: 18,
-                          ),
-                          SizedBox(width: 5),
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Icon(
+                          CupertinoIcons.slider_horizontal_3,
+                          size: 20,
+                        ),
                       ),
                     ),
                   )

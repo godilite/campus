@@ -202,13 +202,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.4.2"
-  flutter_facebook_login:
+  flutter_facebook_auth:
     dependency: "direct main"
     description:
-      name: flutter_facebook_login
+      name: flutter_facebook_auth
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0"
+    version: "0.3.2"
   flutter_icons:
     dependency: "direct main"
     description:

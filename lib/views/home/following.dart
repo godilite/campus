@@ -71,6 +71,8 @@ class _FollowingState extends State<Following> {
         ),
         SizedBox(height: 10),
         StaggeredGridView.countBuilder(
+          physics: NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
           crossAxisCount: 4,
           itemCount: 8,
           itemBuilder: (BuildContext context, int index) => Shimmer.fromColors(

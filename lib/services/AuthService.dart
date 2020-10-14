@@ -3,7 +3,7 @@ import 'package:camp/views/auth/account.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:camp/main.dart';
 
@@ -15,18 +15,18 @@ class AuthService {
 
   Future signInWithFacebook() async {
     try {
-      final facebookLogin = FacebookLogin();
-      final facebookLoginResult = await facebookLogin.logIn(['email']);
-      final token = facebookLoginResult.accessToken.token;
+      final LoginResult result = await FacebookAuth.instance.login();
 
-      // Create a credential from the access token
+      //   Create a credential from the access token
       final FacebookAuthCredential facebookAuthCredential =
-          FacebookAuthProvider.credential(token);
+          FacebookAuthProvider.credential(result.accessToken.token);
+
       UserCredential user =
           await auth.signInWithCredential(facebookAuthCredential);
       // Once signed in, return the UserCredential
       return await _createAccount(user);
     } on FirebaseAuthException catch (e) {
+      print(e);
       String email = e.email;
       if (e.code == 'account-exists-with-different-credential') {
         // Fetch a list of what sign-in methods exist for the conflicting user
@@ -122,9 +122,9 @@ class AuthService {
 
   //Account Linking methods
   Future<UserCredential> linkWithFacebook(pendingCredential) async {
-    final facebookLogin = FacebookLogin();
-    final facebookLoginResult = await facebookLogin.logIn(['email']);
-    String token = facebookLoginResult.accessToken.token;
+    final LoginResult result = await FacebookAuth.instance.login();
+
+    String token = result.accessToken.token;
 
     FacebookAuthCredential facebookAuthCredential =
         FacebookAuthProvider.credential(token);
@@ -199,7 +199,7 @@ class AuthService {
         'address': userData.address,
         'long': '',
         'lat': '',
-        'postCount': '0',
+        'postCount': 0,
         'rating': '0',
         'ratingList': [],
         'followers': [],

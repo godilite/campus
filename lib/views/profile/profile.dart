@@ -13,6 +13,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../helpers.dart';
 import '../../service_locator.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -119,10 +120,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   left: 15,
                   right: 15,
                   child: Center(
-                    child: Text(
-                      widget.user.name,
-                      style: TextStyle(color: kText, fontSize: 18),
-                    ),
+                    child: Text(truncate(20, widget.user.name),
+                        style: TextStyle(
+                          color: kText,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        )),
                   ),
                 ),
                 Positioned(
