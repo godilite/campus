@@ -81,10 +81,12 @@ class _HomeViewState extends State<HomeView> {
           return Container(
             height: height * 0.45,
             decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50))),
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
             child: Stack(
               children: <Widget>[
                 Positioned(
@@ -100,40 +102,54 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
                 Positioned(
-                  top: 40,
-                  left: 20,
+                  top: 30,
+                  left: 0,
                   right: 0,
-                  child: ListTile(
-                      leading: Icon(Icons.music_note),
-                      title: Text('Music'),
-                      onTap: () => {}),
+                  child: Center(
+                    child: Container(
+                      child: Text('Sort By'),
+                    ),
+                  ),
                 ),
                 Positioned(
-                  top: 100,
-                  left: 20,
+                  top: 60,
+                  left: 0,
                   right: 0,
-                  child: ListTile(
-                      leading: Icon(Icons.music_note),
-                      title: Text('Music'),
-                      onTap: () => {}),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [kYellow, kYellow.withOpacity(0.2)],
+                      ),
+                    ),
+                    child: ListTile(
+                        title: Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Text('Newest',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                        onTap: () => {}),
+                  ),
                 ),
                 Positioned(
-                  top: 150,
+                  top: 110,
                   left: 20,
                   right: 0,
-                  child: ListTile(
-                      leading: Icon(Icons.music_note),
-                      title: Text('Music'),
-                      onTap: () => {}),
+                  child: ListTile(title: Text('Trending'), onTap: () => {}),
                 ),
                 Positioned(
-                  top: 200,
+                  top: 160,
                   left: 20,
                   right: 0,
-                  child: ListTile(
-                      leading: Icon(Icons.music_note),
-                      title: Text('Music'),
-                      onTap: () => {}),
+                  child: ListTile(title: Text('Cheapest'), onTap: () => {}),
+                ),
+                Positioned(
+                  top: 210,
+                  left: 20,
+                  right: 0,
+                  child:
+                      ListTile(title: Text('Highest Price'), onTap: () => {}),
                 ),
               ],
             ),
@@ -190,7 +206,7 @@ class _HomeViewState extends State<HomeView> {
                       bottomRight: Radius.circular(30),
                       bottomLeft: Radius.circular(30))),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Padding(
               padding: EdgeInsets.only(left: 18.0, right: 18),
               child: Row(
@@ -286,6 +302,7 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
             ),
+            SizedBox(height: 10),
           ]),
         ),
         buildStreamBuilder(),
@@ -327,7 +344,6 @@ class _HomeViewState extends State<HomeView> {
                 .map<StaggeredTile>((_) => StaggeredTile.fit(2))
                 .toList(),
             mainAxisSpacing: 20,
-            crossAxisSpacing: 10,
           );
         });
   }

@@ -18,10 +18,11 @@ class ItemWidget extends StatelessWidget {
 
     return Stack(
       fit: StackFit.loose,
+      alignment: Alignment.center,
       children: [
         Positioned(
             child: Card(
-          elevation: 1.0,
+          elevation: 0,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Hero(
@@ -72,7 +73,7 @@ class ItemWidget extends StatelessWidget {
             child: Center(
                 child: Icon(
               CupertinoIcons.ellipsis,
-              size: 40,
+              size: 35,
             )),
           ),
         ),
