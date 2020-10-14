@@ -15,14 +15,14 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../service_locator.dart';
 
-class ProfilePage extends StatefulWidget {
+class EditProfile extends StatefulWidget {
   final UserAccount user;
-  ProfilePage({this.user});
+  EditProfile({this.user});
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _EditProfileState createState() => _EditProfileState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _EditProfileState extends State<EditProfile> {
   var _tapPosition;
   BehaviorSubject<List<DocumentSnapshot>> postController;
   PostService _postService = locator<PostService>();
@@ -63,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
           buildStreamBuilder(),
         ]);
       },
-    ), false);
+    ), true, 4);
   }
 
   Stack profileStack(BoxConstraints viewportConstraints) {
@@ -74,7 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
           top: 0,
           left: 0,
           right: 0,
-          bottom: 150,
+          bottom: 140,
           child: Container(
             decoration: BoxDecoration(
                 color: kYellow,
@@ -93,10 +93,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black26)]),
             child: CircleAvatar(
               backgroundColor: kYellow,
-              minRadius: 50,
+              minRadius: 40,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(100),
                 child: Image(
+                  width: 77,
                   image: CachedNetworkImageProvider(
                     widget.user.profileUrl,
                   ),
@@ -222,6 +223,25 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ),
+        Positioned(
+          top: 60,
+          left: 0,
+          right: 0,
+          child: GestureDetector(
+            onTapDown: _storePosition,
+            onLongPress: () {
+              _pictureMenu();
+            },
+            child: CircleAvatar(
+              minRadius: 30,
+              backgroundColor: Colors.black12,
+              child: Icon(
+                Icons.camera_enhance,
+                color: kYellow,
+              ),
+            ),
+          ),
+        )
       ],
     );
   }
@@ -276,33 +296,22 @@ class _ProfilePageState extends State<ProfilePage> {
         PopupMenuItem(
           child: Row(
             children: [
-              Icon(CupertinoIcons.phone),
+              Icon(CupertinoIcons.pencil_circle),
               SizedBox(
                 width: 20,
               ),
-              Text("Call")
+              Text("Edit Profile")
             ],
           ),
         ),
         PopupMenuItem(
           child: Row(
             children: [
-              Icon(CupertinoIcons.person_alt_circle),
+              Icon(CupertinoIcons.antenna_radiowaves_left_right),
               SizedBox(
                 width: 20,
               ),
-              Text("Follow")
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          child: Row(
-            children: [
-              Icon(CupertinoIcons.mail),
-              SizedBox(
-                width: 20,
-              ),
-              Text("Message")
+              Text("Boost")
             ],
           ),
         ),
@@ -318,5 +327,40 @@ class _ProfilePageState extends State<ProfilePage> {
   void dispose() {
     super.dispose();
     postController.close();
+  }
+
+  void _pictureMenu() {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
+    showMenu(
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      position: RelativeRect.fromRect(
+          _tapPosition & Size(140, 0), Offset.zero & overlay.size),
+      items: [
+        PopupMenuItem(
+          child: Row(
+            children: [
+              Icon(CupertinoIcons.photo_camera),
+              SizedBox(
+                width: 20,
+              ),
+              Text("Change Cover Photo")
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          child: Row(
+            children: [
+              Icon(CupertinoIcons.photo_camera),
+              SizedBox(
+                width: 20,
+              ),
+              Text("Change Profile Picture")
+            ],
+          ),
+        ),
+      ],
+      elevation: 2.0,
+    );
   }
 }

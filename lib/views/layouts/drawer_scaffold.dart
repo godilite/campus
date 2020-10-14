@@ -4,6 +4,7 @@ import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/home/homepage.dart';
 import 'package:camp/views/post/create_post.dart';
+import 'package:camp/views/profile/edit_profile.dart';
 import 'package:camp/views/profile/profile_owner_view.dart';
 import 'package:camp/views/search/search.dart';
 import 'package:camp/views/styles.dart';
@@ -14,7 +15,8 @@ import 'package:flutter_icons/flutter_icons.dart';
 
 class DrawerItem {
   String title;
-  DrawerItem(this.title);
+  IconData icon;
+  DrawerItem(this.title, this.icon);
 }
 
 class DrawScaffold extends StatefulWidget {
@@ -25,11 +27,14 @@ class DrawScaffold extends StatefulWidget {
   DrawScaffold(this.title, this.body, [this.bottomNav, this.currentPageIndex]);
 
   final drawerItems = [
-    DrawerItem("Wallet"),
-    DrawerItem("Messages"),
-    DrawerItem("Edit Account"),
-    DrawerItem("Settings"),
-    DrawerItem("Logout"),
+    DrawerItem("Wallet", CupertinoIcons.tickets),
+    DrawerItem("Messages", CupertinoIcons.mail),
+    DrawerItem("Wishlist", CupertinoIcons.bookmark),
+    DrawerItem("Edit Account", CupertinoIcons.pencil),
+    DrawerItem("Find contacts", CupertinoIcons.person_2_square_stack),
+    DrawerItem("Sponsor Ad", CupertinoIcons.cursor_rays),
+    DrawerItem("Settings", CupertinoIcons.gear_alt),
+    DrawerItem("Logout", CupertinoIcons.square_arrow_right),
   ];
   @override
   _DrawScaffoldState createState() => _DrawScaffoldState();
@@ -52,22 +57,22 @@ class _DrawScaffoldState extends State<DrawScaffold> {
       //   case 2:
       //     return Navigator.push(context,
       //         MaterialPageRoute(builder: (BuildContext context) => Chat()));
-      //   case 3:
-      //     return Navigator.push(
-      //         context,
-      //         MaterialPageRoute(
-      //             builder: (BuildContext context) => TripHistory()));
-      case 4:
-        return _authService.logout();
+      case 3:
+        return Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => EditProfile(
+                      user: user,
+                    )));
+
       //   case 5:
       //     return Navigator.push(context,
       //         MaterialPageRoute(builder: (BuildContext context) => Setting()));
       //   case 6:
       //     return Navigator.push(context,
       //         MaterialPageRoute(builder: (BuildContext context) => Support()));
-      //   case 7:
-      //     return Navigator.push(context,
-      //         MaterialPageRoute(builder: (BuildContext context) => About()));
+      case 7:
+        return _authService.logout();
       default:
         return new Text("Error");
     }
@@ -119,39 +124,45 @@ class _DrawScaffoldState extends State<DrawScaffold> {
   Widget build(BuildContext context) {
     int _currentPageIndex = widget.currentPageIndex ?? 0;
     var drawerOptions = <Widget>[
-      DrawerHeader(
-        decoration: BoxDecoration(color: Colors.white),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(top: 25.0),
-                child: CircleAvatar(
-                  backgroundColor: Colors.grey,
-                  backgroundImage: user != null
-                      ? CachedNetworkImageProvider('${user.profileUrl}')
-                      : AssetImage(
-                          'assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
-                  minRadius: 35,
-                  maxRadius: 35,
+      Container(
+        height: 180,
+        child: DrawerHeader(
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(top: 20.0),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey,
+                    backgroundImage: user != null
+                        ? CachedNetworkImageProvider('${user.profileUrl}')
+                        : AssetImage(
+                            'assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
+                    minRadius: 35,
+                    maxRadius: 35,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: 20,
-              ),
-              Text(
-                user != null ? user.name : '',
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  user != null ? user.name : '',
 //                    '${user != null ? user.firstName : ''} ${user != null ? user.lastName : ''}',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              )
-            ]),
+                  style: TextStyle(fontSize: 20),
+                ),
+                Text(
+                  user != null ? user.email : '',
+//                    '${user != null ? user.firstName : ''} ${user != null ? user.lastName : ''}',
+                  style: TextStyle(color: kText),
+                )
+              ]),
+        ),
       )
     ];
     for (var i = 0; i < widget.drawerItems.length; i++) {
       var d = widget.drawerItems[i];
       drawerOptions.add(ListTile(
-        dense: true,
-        leading: Icon(Icons.access_alarms),
+        leading: Icon(d.icon),
         title: Text(
           d.title,
           style: TextStyle(
@@ -175,14 +186,15 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                   color: Colors.white24,
                   borderRadius: BorderRadius.circular(50),
                   child: IconButton(
-                      icon: Icon(FlutterIcons.align_left_fea,
-                          color: Colors.white),
+                      icon: Icon(CupertinoIcons.bars, color: Colors.white),
                       onPressed: () => Scaffold.of(context).openDrawer()),
                 ));
           }),
         ),
         drawer: Drawer(
-            child: ListView(padding: EdgeInsets.zero, children: drawerOptions)),
+            child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                children: drawerOptions)),
         body: widget.body,
         extendBody: true,
         bottomNavigationBar: widget.bottomNav
