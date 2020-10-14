@@ -132,23 +132,41 @@ class _DrawScaffoldState extends State<DrawScaffold> {
               children: <Widget>[
                 Padding(
                   padding: EdgeInsets.only(top: 20.0),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.grey,
-                    backgroundImage: user != null
-                        ? CachedNetworkImageProvider('${user.profileUrl}')
-                        : AssetImage(
-                            'assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
-                    minRadius: 35,
-                    maxRadius: 35,
+                  child: InkWell(
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => ProfileOwnPage(
+                                  user: user,
+                                ))),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.grey,
+                      backgroundImage: user != null
+                          ? CachedNetworkImageProvider('${user.profileUrl}')
+                          : AssetImage(
+                              'assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
+                      minRadius: 35,
+                      maxRadius: 35,
+                    ),
                   ),
                 ),
                 SizedBox(
                   height: 10,
                 ),
-                Text(
-                  user != null ? user.name : '',
+                InkWell(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => ProfileOwnPage(
+                        user: user,
+                      ),
+                    ),
+                  ),
+                  child: Text(
+                    user != null ? user.name : '',
 //                    '${user != null ? user.firstName : ''} ${user != null ? user.lastName : ''}',
-                  style: TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ),
                 Text(
                   user != null ? user.email : '',
@@ -202,8 +220,9 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                 backgroundColor: Colors.white,
                 borderRadius: 50,
                 itemBorderRadius: 10,
-                shadowBlurRadius: 5,
-                shadowSpreadRadius: 0,
+                shadowColor: Colors.black12,
+                // shadowBlurRadius: 5,
+                // shadowSpreadRadius: 0,
                 unselectedItemColor: kGrey,
                 padding: EdgeInsets.only(left: 5, right: 5, top: 8, bottom: 8),
                 margin: EdgeInsets.symmetric(horizontal: 40, vertical: 8),
