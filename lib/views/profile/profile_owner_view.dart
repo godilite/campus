@@ -239,7 +239,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
           right: 0,
           child: GestureDetector(
             onTapDown: _storePosition,
-            onLongPress: () {
+            onTap: () {
               _pictureMenu();
             },
             child: CircleAvatar(
