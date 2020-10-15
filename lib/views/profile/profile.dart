@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/services/PostService.dart';
+import 'package:camp/services/UserService.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
 import 'package:camp/views/styles.dart';
@@ -27,12 +28,20 @@ class _ProfilePageState extends State<ProfilePage> {
   var _tapPosition;
   BehaviorSubject<List<DocumentSnapshot>> postController;
   PostService _postService = locator<PostService>();
+  UserService _userService = locator<UserService>();
   List<DocumentSnapshot> documentList = [];
   @override
   void initState() {
     postController = BehaviorSubject<List<DocumentSnapshot>>();
     _fetchFirstList();
+    _following();
     super.initState();
+  }
+
+  bool _isFollowing;
+  _following() async {
+    _isFollowing = await _userService.isFollowing(widget.user.id);
+    setState(() {});
   }
 
   Stream<List<DocumentSnapshot>> get userPostStream => postController.stream;
@@ -95,14 +104,18 @@ class _ProfilePageState extends State<ProfilePage> {
             child: CircleAvatar(
               backgroundColor: kYellow,
               minRadius: 50,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: Image(
-                  image: CachedNetworkImageProvider(
-                    widget.user.profileUrl,
-                  ),
-                ),
-              ),
+              child: widget.user != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image(
+                        image: widget.user.profileUrl != null
+                            ? CachedNetworkImageProvider(
+                                widget.user.profileUrl,
+                              )
+                            : AssetImage('assets/icons8-male-user-100.png'),
+                      ),
+                    )
+                  : null,
             ),
           ),
         ),
@@ -194,7 +207,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Column(
                                 children: [
                                   Text('Followers'),
-                                  Text('${widget.user.followers.length}')
+                                  Text('${widget.user.followers}')
                                 ],
                               ),
                             ),
@@ -211,7 +224,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: Column(
                                 children: [
                                   Text('Following'),
-                                  Text('${widget.user.following.length}')
+                                  Text('${widget.user.following}')
                                 ],
                               ),
                             ),
@@ -268,7 +281,7 @@ class _ProfilePageState extends State<ProfilePage> {
         });
   }
 
-  void _showMenu() {
+  Future<void> _showMenu() async {
     final RenderBox overlay = Overlay.of(context).context.findRenderObject();
     showMenu(
       context: context,
@@ -288,14 +301,26 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         PopupMenuItem(
-          child: Row(
-            children: [
-              Icon(CupertinoIcons.person_alt_circle),
-              SizedBox(
-                width: 20,
-              ),
-              Text("Follow")
-            ],
+          child: InkWell(
+            onTap: () {
+              _isFollowing
+                  ? _userService.unfollow(widget.user.id)
+                  : _userService.follow(widget.user.id);
+
+              setState(() {
+                _isFollowing = !_isFollowing;
+              });
+              Navigator.pop(context);
+            },
+            child: Row(
+              children: [
+                Icon(CupertinoIcons.person_alt_circle),
+                SizedBox(
+                  width: 20,
+                ),
+                _isFollowing ? Text("Unfollow") : Text('Follow')
+              ],
+            ),
           ),
         ),
         PopupMenuItem(

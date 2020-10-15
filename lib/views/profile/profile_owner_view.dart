@@ -95,15 +95,17 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
             child: CircleAvatar(
               backgroundColor: kYellow,
               minRadius: 40,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: Image(
-                  width: 77,
-                  image: CachedNetworkImageProvider(
-                    widget.user.profileUrl,
-                  ),
-                ),
-              ),
+              child: widget.user != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image(
+                        width: 77,
+                        image: widget.user.profileUrl != null
+                            ? CachedNetworkImageProvider(widget.user.profileUrl)
+                            : AssetImage('assets/icons8-male-user-100.png'),
+                      ),
+                    )
+                  : null,
             ),
           ),
         ),
@@ -152,7 +154,12 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                     children: [
                       Column(
                         children: [
-                          Text(widget.user.address),
+                          Row(
+                            children: [
+                              Icon(CupertinoIcons.location),
+                              Text(truncate(15, widget.user.address)),
+                            ],
+                          ),
                           RatingBar(
                             initialRating: 3,
                             minRating: 1,
@@ -195,7 +202,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                               child: Column(
                                 children: [
                                   Text('Followers'),
-                                  Text('${widget.user.followers.length}')
+                                  Text('${widget.user.followers}')
                                 ],
                               ),
                             ),
@@ -212,7 +219,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                               child: Column(
                                 children: [
                                   Text('Following'),
-                                  Text('${widget.user.following.length}')
+                                  Text('${widget.user.following}')
                                 ],
                               ),
                             ),

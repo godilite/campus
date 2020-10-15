@@ -1,6 +1,6 @@
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
-import 'package:camp/views/auth/register.dart';
+import 'package:camp/views/auth/login.dart';
 import 'package:camp/views/home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -19,11 +19,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Camp',
+      title: 'Campusel',
       navigatorKey: navigatorKey,
       theme: ThemeData(
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          scaffoldBackgroundColor: Colors.white),
       debugShowCheckedModeBanner: false,
       home: InitialCheck(),
     );
@@ -49,6 +49,6 @@ class _InitialCheckState extends State<InitialCheck> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoggedIn ? HomeView() : RegisterPage();
+    return isLoggedIn ? HomeView() : LoginPage();
   }
 }

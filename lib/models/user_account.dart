@@ -10,13 +10,12 @@ class UserAccount {
   final String username;
   final String bio;
   final String address;
-  final String long;
-  final String lat;
+  final GeoPoint cord;
   final int postCount;
   final String rating;
   final List ratingList;
-  final List followers;
-  final List following;
+  final int followers;
+  final int following;
   UserAccount({
     this.id,
     this.name,
@@ -27,8 +26,7 @@ class UserAccount {
     this.phone,
     this.bio,
     this.address,
-    this.long,
-    this.lat,
+    this.cord,
     this.postCount,
     this.rating,
     this.ratingList,
@@ -47,8 +45,7 @@ class UserAccount {
       phone: data.get('phone'),
       bio: data.get('bio'),
       address: data.get('address'),
-      long: data.get('long'),
-      lat: data.get('lat'),
+      cord: data.get('cord'),
       postCount: data.get('postCount'),
       rating: data.get('rating'),
       ratingList: data.get('ratingList'),
@@ -67,8 +64,6 @@ class UserAccount {
       phone: phone,
       bio: bio,
       address: address,
-      long: long,
-      lat: lat
     }..removeWhere((key, value) => key == null || value == null);
   }
 }

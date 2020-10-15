@@ -26,7 +26,6 @@ class AuthService {
       // Once signed in, return the UserCredential
       return await _createAccount(user);
     } on FirebaseAuthException catch (e) {
-      print(e);
       String email = e.email;
       if (e.code == 'account-exists-with-different-credential') {
         // Fetch a list of what sign-in methods exist for the conflicting user
@@ -43,6 +42,8 @@ class AuthService {
           return result;
         }
       }
+      var result = {'error': e, 'method': ''};
+      return result;
     } catch (e) {}
   }
 
@@ -81,20 +82,46 @@ class AuthService {
           return result;
         }
       }
+      var result = {'error': e, 'method': ''};
+      return result;
     }
   }
 
-  Future createWithEmailAndPassword() async {
+  Future signInWithEmailAndPassword(String email, var password) async {
+    try {
+      // Once signed in, return the UserCredential
+      var user =
+          await auth.signInWithEmailAndPassword(email: email, password: email);
+
+      return await _createAccount(user);
+    } on FirebaseAuthException catch (e) {
+      print(e.code);
+      String email = e.email;
+      if (e.code == 'account-exists-with-different-credential') {
+        // Fetch a list of what sign-in methods exist for the conflicting user
+        List<String> userSignInMethods =
+            await auth.fetchSignInMethodsForEmail(email);
+
+        if (userSignInMethods.first == 'facebook.com') {
+          var result = {'error': e, 'method': 'facebook.com'};
+          return result;
+        }
+        if (userSignInMethods.first == 'google.com') {
+          var result = {'error': e, 'method': 'google.com'};
+          return result;
+        }
+      }
+      var result = {'error': e, 'method': ''};
+      return result;
+    }
+  }
+
+  Future createWithEmailAndPassword(email, password) async {
     try {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-          email: "barry.allen@example.com", password: "SuperSecretPassword!");
+          email: email, password: password);
       return await _createAccount(userCredential);
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
       String email = e.email;
       if (e.code == 'account-exists-with-different-credential') {
         // Fetch a list of what sign-in methods exist for the conflicting user
@@ -111,6 +138,8 @@ class AuthService {
           return result;
         }
       }
+      var result = {'error': e, 'method': ''};
+      return result;
     } catch (e) {
       print(e.toString());
     }
@@ -197,13 +226,12 @@ class AuthService {
         'bio': '',
         'coverPhoto': '',
         'address': userData.address,
-        'long': '',
-        'lat': '',
+        'cord': userData.coord,
         'postCount': 0,
         'rating': '0',
         'ratingList': [],
-        'followers': [],
-        'following': [],
+        'followers': 0,
+        'following': 0,
         'timestamp': timestamp
       });
 

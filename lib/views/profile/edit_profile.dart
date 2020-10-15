@@ -192,7 +192,7 @@ class _EditProfileState extends State<EditProfile> {
                               child: Column(
                                 children: [
                                   Text('Followers'),
-                                  Text('${widget.user.followers.length}')
+                                  Text('${widget.user.followers}')
                                 ],
                               ),
                             ),
@@ -209,7 +209,7 @@ class _EditProfileState extends State<EditProfile> {
                               child: Column(
                                 children: [
                                   Text('Following'),
-                                  Text('${widget.user.following.length}')
+                                  Text('${widget.user.following}')
                                 ],
                               ),
                             ),

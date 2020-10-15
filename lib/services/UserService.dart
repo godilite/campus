@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class UserService {
+  FirebaseFirestore rootRef = FirebaseFirestore.instance;
   final userReference = FirebaseFirestore.instance.collection("users");
   FirebaseAuth auth = FirebaseAuth.instance;
 
@@ -16,20 +17,61 @@ class UserService {
   ///This function will take the user id parameter and add this
   /// Id to the auth user following, also adds the auth user to the followers
   ///  list of the given user
-  follow(String uid) {
+  follow(String uid) async {
+    CollectionReference followingReference = rootRef
+        .collection("following/" + auth.currentUser.uid + "/userFollowing");
+    CollectionReference followersReference =
+        rootRef.collection("followers/" + uid + "/userFollower");
+
+    var data = await followersReference
+        .where('uid', isEqualTo: auth.currentUser.uid)
+        .get();
+    if (data.size > 0) return true;
+    if (data.size == 0)
+      try {
+        followersReference.add({'uid': auth.currentUser.uid});
+      } catch (e) {
+        print(e);
+      }
     try {
-      userReference.doc(auth.currentUser.uid).update({
-        'following': FieldValue.arrayUnion([uid])
-      });
+      followingReference.add({'uid': uid});
     } catch (e) {
       print(e);
     }
+    return true;
+  }
+
+  Future<bool> isFollowing(String uid) async {
+    CollectionReference followersReference =
+        rootRef.collection("followers/" + uid + "/userFollower");
+
+    var data = await followersReference
+        .where('uid', isEqualTo: auth.currentUser.uid)
+        .get();
+    return data.size > 0 ? true : false;
+  }
+
+  unfollow(String uid) async {
+    CollectionReference followingReference = rootRef
+        .collection("following/" + auth.currentUser.uid + "/userFollowing");
+    CollectionReference followersReference =
+        rootRef.collection("followers/" + uid + "/userFollower");
+    var datafollowing =
+        await followingReference.where('uid', isEqualTo: uid).get();
+    var data = await followersReference
+        .where('uid', isEqualTo: auth.currentUser.uid)
+        .get();
+    if (data.size > 0)
+      try {
+        followersReference.doc(data.docs.first.id).delete();
+      } catch (e) {
+        print(e);
+      }
     try {
-      userReference.doc(uid).update({
-        'followers': FieldValue.arrayUnion([auth.currentUser.uid])
-      });
+      followingReference.doc(datafollowing.docs.first.id).delete();
     } catch (e) {
       print(e);
     }
+    return true;
   }
 }

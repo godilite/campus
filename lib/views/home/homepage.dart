@@ -19,7 +19,6 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   ScrollController _controller = ScrollController();
-  ScrollController _gridController = ScrollController();
   bool showAll = true;
   bool isBottom = false;
   List<DocumentSnapshot> documentList = [];
@@ -30,14 +29,8 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     // listener for scroll controller
     _controller.addListener(_scrollListener);
-
-    _gridController.addListener(() {
-      if (_gridController.position.atEdge) {
-        if (_gridController.position.pixels == 0) {
-          isBottom = false;
-          setState(() {});
-        }
-      }
+    _postService.postReference.snapshots().listen((event) {
+      postController.sink.add(event.docs);
     });
     postController = BehaviorSubject<List<DocumentSnapshot>>();
     _fetchFirstList();
@@ -52,7 +45,6 @@ class _HomeViewState extends State<HomeView> {
         setState(() {});
       } else {
         isBottom = true;
-        print('butt');
         _fetchMore();
         setState(() {});
       }

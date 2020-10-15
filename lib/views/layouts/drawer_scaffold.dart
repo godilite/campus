@@ -9,6 +9,7 @@ import 'package:camp/views/profile/edit_profile.dart';
 import 'package:camp/views/profile/profile_owner_view.dart';
 import 'package:camp/views/search/search.dart';
 import 'package:camp/views/styles.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:floating_bottom_navigation_bar/floating_bottom_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -116,12 +117,14 @@ class _DrawScaffoldState extends State<DrawScaffold> {
 
   @override
   void initState() {
-    getUser();
-
+    _authService.auth.authStateChanges().listen((User user) {
+      user == null ? print('no user') : getUser();
+      setState(() {});
+    });
     super.initState();
   }
 
-  Future getUser() async {
+  getUser() async {
     UserAccount _user = await _authService.currentUser();
     setState(() {
       user = _user;
@@ -149,13 +152,23 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                                   user: user,
                                 ))),
                     child: CircleAvatar(
-                      backgroundColor: Colors.grey,
-                      backgroundImage: user != null
-                          ? CachedNetworkImageProvider('${user.profileUrl}')
-                          : AssetImage(
-                              'assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
-                      minRadius: 35,
-                      maxRadius: 35,
+                      backgroundColor: kYellow,
+                      minRadius: 40,
+                      child: user != null
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: Image(
+                                height: 80,
+                                width: 80,
+                                image: user.profileUrl != null
+                                    ? CachedNetworkImageProvider(
+                                        user.profileUrl,
+                                      )
+                                    : AssetImage(
+                                        'assets/icons8-male-user-100.png'),
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                 ),

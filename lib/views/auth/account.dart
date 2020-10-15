@@ -3,13 +3,17 @@ import 'dart:async';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/styles.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 
 class UserData {
   String username;
   String displayName;
   String address;
+  GeoPoint coord;
   var phone;
 }
 
@@ -23,8 +27,14 @@ class _CreateAccountState extends State<CreateAccount> {
   final _formKey = GlobalKey<FormState>();
 
   UserData data = new UserData();
-
+  TextEditingController locationController;
   AuthService _authService = locator<AuthService>();
+  @override
+  void initState() {
+    locationController = TextEditingController();
+    _getLocation();
+    super.initState();
+  }
 
   void _submitForm() async {
     final form = _formKey.currentState;
@@ -40,6 +50,7 @@ class _CreateAccountState extends State<CreateAccount> {
     if (form.validate()) {
       form.save();
       SnackBar snackbar = SnackBar(
+        backgroundColor: kYellow,
         content:
             Text('Welcome to Campusel, your account is saved successfully'),
       );
@@ -48,6 +59,25 @@ class _CreateAccountState extends State<CreateAccount> {
         Navigator.pop(context, data);
       });
     }
+  }
+
+  ///Gets the current location
+  _getLocation() async {
+    LocationPermission permission = await checkPermission();
+    if (permission == LocationPermission.denied) await requestPermission();
+
+    Position position =
+        await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(position.latitude, position.longitude);
+    Placemark place = placemarks[0];
+    //  String address =
+    //      '${place.subThoroughfare} ${place.thoroughfare}, ${place.subLocality} ${place.locality}, ${place.subAdministrativeArea} ${place.administrativeArea}, ${place.country}';
+    String specificAddress = '${place.locality}, ${place.country}';
+    setState(() {
+      locationController.text = specificAddress;
+      data.coord = GeoPoint(position.latitude, position.longitude);
+    });
   }
 
   @override
@@ -65,7 +95,7 @@ class _CreateAccountState extends State<CreateAccount> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Create Your Account',
+                    'Complete Your Account',
                     style: TextStyle(
                         color: kYellow,
                         fontSize: 25,
@@ -190,6 +220,7 @@ class _CreateAccountState extends State<CreateAccount> {
                                     spreadRadius: 4)
                               ]),
                           child: TextFormField(
+                            controller: locationController,
                             cursorColor: kYellow,
                             autovalidateMode:
                                 AutovalidateMode.onUserInteraction,
@@ -204,18 +235,22 @@ class _CreateAccountState extends State<CreateAccount> {
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
                                 )),
-                            onSaved: (val) => data.address = val,
+                            onSaved: (val) =>
+                                data.address = locationController.text,
                           ),
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         FlatButton(
-                            color: kYellow,
-                            padding: EdgeInsets.symmetric(vertical: 20),
-                            onPressed: () => _submitForm(),
-                            textColor: Colors.white,
-                            child: Center(child: Text('Next')))
+                          color: kYellow,
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          onPressed: () => _submitForm(),
+                          textColor: Colors.white,
+                          child: Center(
+                            child: Text('Next'),
+                          ),
+                        )
                       ],
                     ),
                   ),

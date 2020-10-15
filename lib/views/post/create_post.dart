@@ -37,8 +37,9 @@ class _CreatePostState extends State<CreatePost> {
   bool posting = false;
   @override
   void initState() {
-    super.initState();
     loadAssets();
+
+    super.initState();
   }
 
   List searchKeyword(name) {
@@ -79,7 +80,7 @@ class _CreatePostState extends State<CreatePost> {
   }
 
   ///Loads user assets from phone
-  Future<void> loadAssets() async {
+  Future loadAssets() async {
     List<Asset> resultList = List<Asset>();
     try {
       resultList = await MultiImagePicker.pickImages(
@@ -126,8 +127,6 @@ class _CreatePostState extends State<CreatePost> {
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
-    //  String address =
-    //      '${place.subThoroughfare} ${place.thoroughfare}, ${place.subLocality} ${place.locality}, ${place.subAdministrativeArea} ${place.administrativeArea}, ${place.country}';
     String specificAddress = '${place.locality}, ${place.country}';
     setState(() {
       locationController.text = specificAddress;
@@ -287,35 +286,27 @@ class _CreatePostState extends State<CreatePost> {
                               );
                             }).toList(),
                           ),
+                          Divider(),
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.only(right: 8.0, bottom: 8.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 InkWell(
-                                  onTap: () => _getLocation(),
-                                  child: Row(
-                                    children: [
-                                      Text('Use current location',
-                                          style: TextStyle(color: kGrey)),
-                                      Icon(
-                                        FlutterIcons.add_location_mdi,
-                                        color: kYellow,
-                                        size: 25,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(right: 20.0),
-                                  child: IconButton(
-                                      icon: Icon(
-                                        FlutterIcons.add_a_photo_mdi,
-                                        color: kYellow,
-                                        size: 25,
-                                      ),
-                                      onPressed: () => loadAssets()),
-                                )
+                                    onTap: () => _getLocation(),
+                                    child: Icon(
+                                      FlutterIcons.add_location_mdi,
+                                      color: kYellow,
+                                      size: 30,
+                                    )),
+                                SizedBox(width: 10),
+                                IconButton(
+                                    icon: Icon(
+                                      FlutterIcons.add_a_photo_mdi,
+                                      color: kYellow,
+                                      size: 30,
+                                    ),
+                                    onPressed: () => loadAssets())
                               ],
                             ),
                           ),
@@ -333,7 +324,7 @@ class _CreatePostState extends State<CreatePost> {
                                     hintText: 'Write something...',
                                   ),
                                   keyboardType: TextInputType.multiline,
-                                  minLines: null,
+                                  minLines: 4,
                                   maxLines: null,
                                 )
                               ],

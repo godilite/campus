@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:camp/views/auth/register.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 
@@ -14,12 +14,12 @@ class UserData {
   String password;
 }
 
-class RegisterPage extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _LoginPageState extends State<LoginPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   var authService = locator<AuthService>();
@@ -124,7 +124,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<bool> _signInWithEmail() async {
     var result =
-        await authService.createWithEmailAndPassword(data.email, data.password);
+        await authService.signInWithEmailAndPassword(data.email, data.password);
 
     FirebaseAuthException error =
         result.runtimeType.toString() == 'UserAccount' ? null : result['error'];
@@ -139,10 +139,10 @@ class _RegisterPageState extends State<RegisterPage> {
       }
 
       switch (result['error'].code) {
-        case 'weak-password':
+        case 'wrong-password':
           SnackBar snackbar = SnackBar(
             backgroundColor: kYellow,
-            content: Text('The password provided is too weak.'),
+            content: Text('Wrong password'),
           );
           _scaffoldKey.currentState.showSnackBar(snackbar);
           return false;
@@ -157,13 +157,23 @@ class _RegisterPageState extends State<RegisterPage> {
           return false;
 
           break;
-        case 'email-already-in-use':
+        case 'user-disabled':
           SnackBar snackbar = SnackBar(
             backgroundColor: kYellow,
-            content: Text('The account already exists for that email.'),
+            content: Text('Your account is disabled'),
           );
           _scaffoldKey.currentState.showSnackBar(snackbar);
           return false;
+
+          break;
+        case 'user-not-found':
+          SnackBar snackbar = SnackBar(
+            backgroundColor: kYellow,
+            content: Text('No user corresponding to this email'),
+          );
+          _scaffoldKey.currentState.showSnackBar(snackbar);
+          return false;
+          break;
       }
     }
     return true;
@@ -176,7 +186,7 @@ class _RegisterPageState extends State<RegisterPage> {
       form.save();
       if (await _signInWithEmail()) {
         SnackBar snackbar = SnackBar(
-          content: Text('Creating account...'),
+          content: Text('Signing In...'),
         );
         _scaffoldKey.currentState.showSnackBar(snackbar);
         Timer(Duration(seconds: 4), () {
@@ -202,7 +212,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 height: 70,
               ),
               Text(
-                'Create an Account',
+                'Login',
                 style: TextStyle(
                     color: kYellow, fontSize: 25, fontWeight: FontWeight.w600),
               ),
@@ -228,7 +238,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         decoration: InputDecoration(
                             prefixIcon: Icon(
-                              CupertinoIcons.mail,
+                              FlutterIcons.account_box_outline_mco,
                               color: kYellow,
                             ),
                             hintStyle: TextStyle(color: Colors.grey),
@@ -264,11 +274,11 @@ class _RegisterPageState extends State<RegisterPage> {
                         obscureText: true,
                         decoration: InputDecoration(
                             prefixIcon: Icon(
-                              CupertinoIcons.lock_circle_fill,
+                              FlutterIcons.account_circle_mdi,
                               color: kYellow,
                             ),
                             hintStyle: TextStyle(color: Colors.grey),
-                            hintText: 'Choose a password',
+                            hintText: 'Password',
                             border: OutlineInputBorder(
                               borderSide: BorderSide.none,
                             )),
@@ -285,7 +295,19 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 90,
+                      height: 20,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          'Forgot Password?',
+                          style: TextStyle(color: kYellow),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 50,
                     ),
                     FlatButton(
                       color: kYellow,
@@ -296,7 +318,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       textColor: Colors.white,
                       child: Center(
                         child: Text(
-                          'Sign up',
+                          'Signin',
                           style: TextStyle(fontSize: 20),
                         ),
                       ),
@@ -333,16 +355,17 @@ class _RegisterPageState extends State<RegisterPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Already have an account?',
+                    'Dont have an account yet?',
                     style: TextStyle(color: kText),
                   ),
                   SizedBox(
                     width: 5,
                   ),
                   InkWell(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => RegisterPage())),
                     child: Text(
-                      'Sign In',
+                      'Sign Up',
                       style: TextStyle(color: kYellow),
                     ),
                   )
