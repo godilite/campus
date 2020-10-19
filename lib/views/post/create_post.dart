@@ -15,6 +15,8 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:geocoding/geocoding.dart';
 
+import '../../helpers.dart';
+
 class CreatePost extends StatefulWidget {
   @override
   _CreatePostState createState() => _CreatePostState();
@@ -40,16 +42,6 @@ class _CreatePostState extends State<CreatePost> {
     loadAssets();
 
     super.initState();
-  }
-
-  List searchKeyword(name) {
-    var list = [];
-    for (var i = 1; i < name.length; i++) {
-      String keyWords = name.substring(0, i);
-
-      list.add(keyWords);
-    }
-    return list;
   }
 
   ///creates a carousel preview of selected files

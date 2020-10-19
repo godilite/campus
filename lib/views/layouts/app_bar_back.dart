@@ -12,7 +12,7 @@ class PageAppbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 110,
+      height: 140,
       color: Colors.transparent,
       padding: EdgeInsets.only(top: 40, left: 5, right: 5),
       child: Column(

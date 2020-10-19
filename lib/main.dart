@@ -2,6 +2,7 @@ import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/auth/login.dart';
 import 'package:camp/views/home/homepage.dart';
+import 'package:camp/views/styles.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
       title: 'Campusel',
       navigatorKey: navigatorKey,
       theme: ThemeData(
+          primaryColor: kYellow,
           visualDensity: VisualDensity.adaptivePlatformDensity,
           scaffoldBackgroundColor: Colors.white),
       debugShowCheckedModeBanner: false,

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:camp/models/post_model.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
@@ -274,7 +275,7 @@ class _EditProfileState extends State<EditProfile> {
           return SliverStaggeredGrid.count(
             crossAxisCount: 4,
             children: snapshot.data.map((DocumentSnapshot post) {
-              return ItemWidget(post: post.data());
+              return ItemWidget(post: PostModel.fromData(post));
             }).toList(),
             staggeredTiles: snapshot.data
                 .map<StaggeredTile>((_) => StaggeredTile.fit(2))

@@ -1,3 +1,4 @@
+import 'package:camp/models/post_model.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
@@ -184,7 +185,9 @@ class _HomeViewState extends State<HomeView> {
                         children: [
                           Text(
                             'See more',
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
                           ),
                           SizedBox(
                             width: 2,
@@ -201,10 +204,10 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ],
               ),
-              height: _height * 0.30,
+              height: _height * 0.25,
               width: _width,
               decoration: BoxDecoration(
-                  color: Colors.grey,
+                  color: kYellow,
                   borderRadius: BorderRadius.only(
                       bottomRight: Radius.circular(30),
                       bottomLeft: Radius.circular(30))),
@@ -227,7 +230,7 @@ class _HomeViewState extends State<HomeView> {
                           padding:
                               EdgeInsets.symmetric(vertical: 8, horizontal: 15),
                           decoration: BoxDecoration(
-                              color: showAll ? kGrey : Colors.white,
+                              color: showAll ? kText : Colors.white,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(50))),
                           child: Row(
@@ -235,10 +238,14 @@ class _HomeViewState extends State<HomeView> {
                               Icon(
                                 CupertinoIcons.circle_grid_hex,
                                 size: 18,
-                                color: Colors.white,
+                                color: showAll ? Colors.white : kText,
                               ),
                               SizedBox(width: 10),
-                              Text('All', style: TextStyle(color: Colors.white))
+                              Text('All',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: showAll ? Colors.white : kText,
+                                  ))
                             ],
                           ),
                         ),
@@ -252,7 +259,7 @@ class _HomeViewState extends State<HomeView> {
                           padding: EdgeInsets.symmetric(
                               vertical: 10, horizontal: 20),
                           decoration: BoxDecoration(
-                              color: showAll ? Colors.white : kGrey,
+                              color: showAll ? Colors.white : kText,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(50))),
                           child: Row(
@@ -261,11 +268,15 @@ class _HomeViewState extends State<HomeView> {
                             children: [
                               Icon(
                                 CupertinoIcons.person_2,
+                                color: showAll ? kText : Colors.white,
                                 size: 18,
                               ),
                               SizedBox(width: 5),
                               Text('Following',
-                                  style: TextStyle(color: Colors.grey))
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: showAll ? kText : Colors.white,
+                                  ))
                             ],
                           ),
                         ),
@@ -319,7 +330,8 @@ class _HomeViewState extends State<HomeView> {
                 child: Container(
                   width: 200,
                   height: 400,
-                  color: Colors.red,
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
                 ),
               ),
               staggeredTileBuilder: (int index) =>
@@ -331,7 +343,7 @@ class _HomeViewState extends State<HomeView> {
           return SliverStaggeredGrid.count(
             crossAxisCount: 4,
             children: snapshot.data.map((DocumentSnapshot post) {
-              return ItemWidget(post: post.data());
+              return ItemWidget(post: PostModel.fromData(post));
             }).toList(),
             staggeredTiles: snapshot.data
                 .map<StaggeredTile>((_) => StaggeredTile.fit(2))

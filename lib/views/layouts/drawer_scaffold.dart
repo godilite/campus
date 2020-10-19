@@ -13,7 +13,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:floating_bottom_navigation_bar/floating_bottom_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 
 import '../../helpers.dart';
 
@@ -244,25 +243,24 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                 backgroundColor: Colors.white,
                 borderRadius: 50,
                 itemBorderRadius: 10,
-                shadowColor: Colors.black12,
+                // shadowColor: Colors.black12,
                 // shadowBlurRadius: 5,
                 // shadowSpreadRadius: 0,
-                unselectedItemColor: kGrey,
+                unselectedItemColor: kText,
                 padding: EdgeInsets.only(left: 5, right: 5, top: 8, bottom: 8),
                 margin: EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                selectedBackgroundColor: kGrey,
+                selectedBackgroundColor: kText,
                 selectedItemColor: Colors.white,
                 onTap: (int val) {
                   _getPage(val);
                 },
                 currentIndex: _currentPageIndex,
                 items: [
-                  FloatingNavbarItem(icon: FlutterIcons.home_ant),
+                  FloatingNavbarItem(icon: CupertinoIcons.house),
                   FloatingNavbarItem(icon: CupertinoIcons.search),
-                  FloatingNavbarItem(
-                      icon: FlutterIcons.md_add_circle_outline_ion),
-                  FloatingNavbarItem(icon: FlutterIcons.bell_outline_mco),
-                  FloatingNavbarItem(icon: FlutterIcons.user_circle_faw5),
+                  FloatingNavbarItem(icon: CupertinoIcons.add_circled),
+                  FloatingNavbarItem(icon: CupertinoIcons.bell),
+                  FloatingNavbarItem(icon: CupertinoIcons.person_circle),
                 ],
               )
             : null,

@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:camp/models/post_model.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/services/PostService.dart';
+import 'package:camp/views/followers/follower_page.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
 import 'package:camp/views/styles.dart';
@@ -78,10 +80,12 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
           bottom: 140,
           child: Container(
             decoration: BoxDecoration(
-                color: kYellow,
-                borderRadius: BorderRadius.only(
-                    bottomRight: Radius.circular(30),
-                    bottomLeft: Radius.circular(30))),
+              color: kYellow,
+              borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(30),
+                bottomLeft: Radius.circular(30),
+              ),
+            ),
           ),
         ),
         Positioned(
@@ -199,11 +203,20 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                                   left: BorderSide(color: Colors.grey.shade200),
                                 ),
                               ),
-                              child: Column(
-                                children: [
-                                  Text('Followers'),
-                                  Text('${widget.user.followers}')
-                                ],
+                              child: InkWell(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        FollowerPage(0, widget.user.id),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text('Followers'),
+                                    Text('${widget.user.followers}')
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -216,11 +229,20 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                                   left: BorderSide(color: Colors.grey.shade200),
                                 ),
                               ),
-                              child: Column(
-                                children: [
-                                  Text('Following'),
-                                  Text('${widget.user.following}')
-                                ],
+                              child: InkWell(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        FollowerPage(1, widget.user.id),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text('Following'),
+                                    Text('${widget.user.following}')
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -272,7 +294,8 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                 child: Container(
                   width: 200,
                   height: 400,
-                  color: Colors.red,
+                  decoration: BoxDecoration(
+                      color: kYellow, borderRadius: BorderRadius.circular(20)),
                 ),
               ),
               staggeredTileBuilder: (int index) =>
@@ -284,7 +307,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
           return SliverStaggeredGrid.count(
             crossAxisCount: 4,
             children: snapshot.data.map((DocumentSnapshot post) {
-              return ItemWidget(post: post.data());
+              return ItemWidget(post: PostModel.fromData(post));
             }).toList(),
             staggeredTiles: snapshot.data
                 .map<StaggeredTile>((_) => StaggeredTile.fit(2))

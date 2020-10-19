@@ -1,8 +1,11 @@
 import 'package:camp/views/layouts/app_bar_back.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:shimmer/shimmer.dart';
+
+import '../styles.dart';
 
 class Following extends StatefulWidget {
   @override
@@ -10,6 +13,8 @@ class Following extends StatefulWidget {
 }
 
 class _FollowingState extends State<Following> {
+  bool showAll = false;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -17,25 +22,78 @@ class _FollowingState extends State<Following> {
       return Scaffold(
           body: Stack(children: <Widget>[
         Positioned(
-            left: 10,
-            right: 10,
-            top: 0,
-            child: PageAppbar(
-                title: Row(
+          left: 10,
+          right: 10,
+          top: 0,
+          bottom: 0,
+          child: PageAppbar(
+            title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(
-                  FlutterIcons.users_fea,
-                  size: 18,
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      showAll = true;
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    decoration: BoxDecoration(
+                        color: showAll ? kText : Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(50))),
+                    child: Row(
+                      children: [
+                        Icon(
+                          CupertinoIcons.circle_grid_hex,
+                          size: 18,
+                          color: showAll ? Colors.white : kText,
+                        ),
+                        SizedBox(width: 10),
+                        Text('All',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: showAll ? Colors.white : kText))
+                      ],
+                    ),
+                  ),
                 ),
-                Icon(
-                  FlutterIcons.check_ant,
-                  size: 18,
+                InkWell(
+                  onTap: () async {
+                    // showAll = await loadFollowing();
+                    setState(() {
+                      showAll = false;
+                    });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    decoration: BoxDecoration(
+                        color: showAll ? Colors.white : kText,
+                        borderRadius: BorderRadius.all(Radius.circular(50))),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(
+                          CupertinoIcons.person_2,
+                          color: showAll ? kText : Colors.white,
+                          size: 18,
+                        ),
+                        SizedBox(width: 5),
+                        Text('Following',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: showAll ? kText : Colors.white,
+                            ))
+                      ],
+                    ),
+                  ),
                 ),
-                SizedBox(width: 5),
-                Text('Following', style: TextStyle(color: Colors.grey))
               ],
-            ))),
+            ),
+          ),
+        ),
         Positioned(
             top: 130,
             left: 10,

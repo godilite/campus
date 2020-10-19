@@ -209,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               SizedBox(
-                height: 70,
+                height: 40,
               ),
               Text(
                 'Login',
@@ -307,7 +307,7 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     SizedBox(
-                      height: 50,
+                      height: 30,
                     ),
                     FlatButton(
                       color: kYellow,

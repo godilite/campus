@@ -5,7 +5,6 @@ import 'package:camp/services/AuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 
 import '../styles.dart';
 
@@ -199,7 +198,7 @@ class _RegisterPageState extends State<RegisterPage> {
             child:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               SizedBox(
-                height: 70,
+                height: 50,
               ),
               Text(
                 'Create an Account',
@@ -285,7 +284,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 90,
+                      height: 40,
                     ),
                     FlatButton(
                       color: kYellow,

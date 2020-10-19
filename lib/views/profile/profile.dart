@@ -1,9 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:camp/models/post_model.dart';
 import 'package:camp/models/user_account.dart';
+import 'package:camp/services/AuthService.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/services/UserService.dart';
+import 'package:camp/views/followers/follower_page.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
+import 'package:camp/views/profile/profile_owner_view.dart';
 import 'package:camp/views/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,13 +33,30 @@ class _ProfilePageState extends State<ProfilePage> {
   BehaviorSubject<List<DocumentSnapshot>> postController;
   PostService _postService = locator<PostService>();
   UserService _userService = locator<UserService>();
+  AuthService _authService = locator<AuthService>();
   List<DocumentSnapshot> documentList = [];
   @override
   void initState() {
+    getUser();
     postController = BehaviorSubject<List<DocumentSnapshot>>();
     _fetchFirstList();
     _following();
     super.initState();
+  }
+
+  getUser() async {
+    UserAccount _user = await _authService.currentUser();
+    widget.user.id == _userService.auth.currentUser.uid
+        ? Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => ProfileOwnPage(
+                user: _user,
+              ),
+            ),
+          )
+        // ignore: unnecessary_statements
+        : null;
   }
 
   bool _isFollowing;
@@ -164,7 +185,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       Column(
                         children: [
-                          Text(widget.user.address),
+                          Row(
+                            children: [
+                              Icon(CupertinoIcons.location),
+                              Text(truncate(15, widget.user.address)),
+                            ],
+                          ),
                           RatingBar(
                             initialRating: 3,
                             minRating: 1,
@@ -204,11 +230,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                   left: BorderSide(color: Colors.grey.shade200),
                                 ),
                               ),
-                              child: Column(
-                                children: [
-                                  Text('Followers'),
-                                  Text('${widget.user.followers}')
-                                ],
+                              child: InkWell(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        FollowerPage(0, widget.user.id),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text('Followers'),
+                                    Text('${widget.user.followers}')
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -221,11 +256,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                   left: BorderSide(color: Colors.grey.shade200),
                                 ),
                               ),
-                              child: Column(
-                                children: [
-                                  Text('Following'),
-                                  Text('${widget.user.following}')
-                                ],
+                              child: InkWell(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        FollowerPage(1, widget.user.id),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text('Following'),
+                                    Text('${widget.user.following}')
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -270,7 +314,7 @@ class _ProfilePageState extends State<ProfilePage> {
           return SliverStaggeredGrid.count(
             crossAxisCount: 4,
             children: snapshot.data.map((DocumentSnapshot post) {
-              return ItemWidget(post: post.data());
+              return ItemWidget(post: PostModel.fromData(post));
             }).toList(),
             staggeredTiles: snapshot.data
                 .map<StaggeredTile>((_) => StaggeredTile.fit(2))
