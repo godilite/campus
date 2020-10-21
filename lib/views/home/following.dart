@@ -1,3 +1,4 @@
+import 'package:camp/services/PostService.dart';
 import 'package:camp/views/layouts/app_bar_back.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../service_locator.dart';
 import '../styles.dart';
 
 class Following extends StatefulWidget {
@@ -14,6 +16,13 @@ class Following extends StatefulWidget {
 
 class _FollowingState extends State<Following> {
   bool showAll = false;
+  PostService _postService = locator<PostService>();
+
+  @override
+  void initState() {
+    _postService.getUserFrendsPosts();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

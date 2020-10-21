@@ -11,45 +11,7 @@ class ReplyService {
   final replyReference = FirebaseFirestore.instance.collection("replies");
   final userReference = FirebaseFirestore.instance.collection("users");
   getReplies(var commentId) {
-    Stream<List<ReplyStream>> _combineStream;
-
-    _combineStream = replyReference
-        .where('commentId', isEqualTo: commentId)
-        .orderBy('timestamp', descending: true)
-        .limit(15)
-        .snapshots()
-        .map((convert) {
-      return convert.docs.map((f) {
-        Stream<ReplyModel> replies =
-            Stream.value(f).map<ReplyModel>((document) {
-          return ReplyModel(
-            document.get('content') ?? '',
-            document.get('id') ?? '',
-            document.get('likes') ?? null,
-            document.get('likesCount') ?? 0,
-            document.get('uid') ?? '',
-            false,
-            null,
-            document.get('postId') ?? '',
-            document.get('timestamp') ?? '',
-          );
-        });
-
-        Stream<UserAccount> user = userReference
-            .doc(f.get('uid'))
-            .snapshots()
-            .map<UserAccount>((document) => UserAccount.fromData(document));
-
-        return Rx.combineLatest2(
-            replies, user, (replies, user) => ReplyStream(replies, user));
-      });
-    }).switchMap((observables) {
-      return observables.length > 0
-          ? Rx.combineLatestList(observables)
-          : Stream.value([]);
-    });
-
-    return _combineStream;
+//    return _combineStream;
   }
 
   // getMoreComments(var postId, DocumentSnapshot startAfter) async {

@@ -541,7 +541,7 @@ class _SingleViewState extends State<SingleView> {
             return StaggeredGridView.count(
               crossAxisCount: 4,
               children: snapshot.data.map((DocumentSnapshot post) {
-                return ItemWidget(post: PostModel.fromData(post));
+                return Container(); //ItemWidget(post: PostModel.fromData(post));
               }).toList(),
               staggeredTiles: snapshot.data
                   .map<StaggeredTile>((_) => StaggeredTile.fit(2))

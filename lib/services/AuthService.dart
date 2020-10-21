@@ -6,13 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:camp/main.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   FirebaseAuth auth = FirebaseAuth.instance;
   final userReference = FirebaseFirestore.instance.collection("users");
   final usernameReference = FirebaseFirestore.instance.collection("username");
   final DateTime timestamp = DateTime.now();
-
+  String baseUrl = 'http://10.0.2.2:8000/api';
+  Dio dio = new Dio();
   Future signInWithFacebook() async {
     try {
       final LoginResult result = await FacebookAuth.instance.login();
@@ -234,11 +238,12 @@ class AuthService {
         'following': 0,
         'timestamp': timestamp
       });
-
+      storeUserToBackup(user, userData);
       documentSnapshot = await userReference.doc(user.user.uid).get();
     }
 
-    return UserAccount.fromData(documentSnapshot);
+    loginUserToBackupServer(user);
+    return UserAccount.fromJson(documentSnapshot.data());
   }
 
   Future<bool> checkifUsernameExist(String username) async {
@@ -250,9 +255,89 @@ class AuthService {
   }
 
   Future<UserAccount> currentUser() async {
-    DocumentSnapshot documentSnapshot =
-        await userReference.doc(auth.currentUser.uid).get();
-    UserAccount user = UserAccount.fromData(documentSnapshot);
+    final SharedPreferences prefs = await _prefs;
+
+    Response response;
+    var token = prefs.getString('token');
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
+
+    try {
+      response = await dio.get(
+        "http://10.0.2.2:8000/api/v1/current/user",
+      );
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    }
+
+    UserAccount user = UserAccount.fromJson(response.data["account"]);
     return user;
+  }
+
+  storeUserToBackup(UserCredential user, data) async {
+    var token = await user.user.getIdToken();
+
+    try {
+      await dio.post("http://10.0.2.2:8000/api/v1/login", data: {
+        "token": token,
+        'name': data.displayName,
+        'username': data.username,
+        'email': user.user.email,
+        'profileUrl': user.user.photoURL,
+        'phone': data.phone,
+        'bio': '',
+        'uid': user.user.uid,
+        'coverPhoto': '',
+        'address': data.address,
+        'long': data.coord.longitude,
+        'lat': data.coord.latitude
+      });
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    }
+  }
+
+  loginUserToBackupServer(UserCredential user) async {
+    Response response;
+    var token = await user.user.getIdToken();
+
+    try {
+      response = await dio
+          .post("http://10.0.2.2:8000/api/v1/login", data: {"token": token});
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    }
+    final SharedPreferences prefs = await _prefs;
+    prefs.setString('token', response.data["access_token"]);
   }
 }

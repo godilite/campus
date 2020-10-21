@@ -10,7 +10,7 @@ import '../../service_locator.dart';
 
 class FollowerPage extends StatefulWidget {
   final int index;
-  final String uid;
+  final int uid;
   FollowerPage(this.index, this.uid);
 
   @override
@@ -22,7 +22,7 @@ class _FollowerPageState extends State<FollowerPage>
   TabController _tabController;
 
   UserService _userService = locator<UserService>();
-  _following(String uid) async {
+  _following(int uid) async {
     bool following = await _userService.isFollowing(uid);
     return following;
   }

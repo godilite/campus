@@ -163,13 +163,13 @@ class _SearchPageState extends State<SearchPage>
           snapshot.data.forEach((document) {
             document[1].documents.forEach((post) {
               PostModel posts = PostModel.fromData(post);
-              ItemWidget postList = ItemWidget(post: posts);
+              Container postList = Container(); //ItemWidget(post: posts);
               setState(() {
-                postResult.add(postList);
+                //   postResult.add(postList);
               });
             });
             document[0].documents.forEach((d) {
-              UserAccount users = UserAccount.fromData(d);
+              UserAccount users = UserAccount.fromJson(d);
               SearchResult result = SearchResult(users);
               searchResult.add(result);
             });
@@ -303,7 +303,8 @@ class SearchResult extends StatelessWidget {
                     : AssetImage('assets/icons8-male-user-100.png'),
               ),
               title: Text(
-                user.name,
+                'pit',
+                //  user.name,
                 style: TextStyle(color: kText, fontWeight: FontWeight.w600),
               ),
               subtitle: Text(user.username),

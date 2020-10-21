@@ -1,69 +1,77 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/rendering.dart';
 
 class UserAccount {
-  final String id;
-  final String email;
-  final String name;
-  final String profileUrl;
-  final String phone;
-  final String coverPhoto;
-  final String username;
-  final String bio;
-  final String address;
-  final GeoPoint cord;
-  final int postCount;
-  final String rating;
-  final List ratingList;
-  final int followers;
-  final int following;
   UserAccount({
     this.id,
     this.name,
+    this.username,
     this.email,
+    this.emailVerifiedAt,
+    this.bio,
+    this.phone,
     this.profileUrl,
     this.coverPhoto,
-    this.username,
-    this.phone,
-    this.bio,
+    this.uid,
+    this.userType,
     this.address,
-    this.cord,
-    this.postCount,
-    this.rating,
-    this.ratingList,
-    this.followers,
-    this.following,
+    this.createdAt,
+    this.updatedAt,
+    this.long,
+    this.lat,
   });
 
-  factory UserAccount.fromData(DocumentSnapshot data) {
-    return UserAccount(
-      id: data.id,
-      name: data.get('name'),
-      email: data.get('email'),
-      profileUrl: data.get('profileUrl'),
-      coverPhoto: data.get('coverPhoto'),
-      username: data.get('username'),
-      phone: data.get('phone'),
-      bio: data.get('bio'),
-      address: data.get('address'),
-      cord: data.get('cord'),
-      postCount: data.get('postCount'),
-      rating: data.get('rating'),
-      ratingList: data.get('ratingList'),
-      followers: data.get('followers'),
-      following: data.get('following'),
-    );
-  }
-  Map<String, dynamic> toJson() {
-    return {
-      id: id,
-      name: name,
-      email: email,
-      profileUrl: profileUrl,
-      coverPhoto: coverPhoto,
-      username: username,
-      phone: phone,
-      bio: bio,
-      address: address,
-    }..removeWhere((key, value) => key == null || value == null);
-  }
+  int id;
+  String name;
+  String username;
+  String email;
+  dynamic emailVerifiedAt;
+  dynamic bio;
+  String phone;
+  String profileUrl;
+  dynamic coverPhoto;
+  String uid;
+  String userType;
+  String address;
+  DateTime createdAt;
+  DateTime updatedAt;
+  double long;
+  double lat;
+
+  factory UserAccount.fromJson(Map<String, dynamic> json) => UserAccount(
+        id: json["id"],
+        name: json["name"],
+        username: json["username"],
+        email: json["email"],
+        emailVerifiedAt: json["email_verified_at"],
+        bio: json["bio"],
+        phone: json["phone"],
+        profileUrl: json["profileUrl"],
+        coverPhoto: json["coverPhoto"],
+        uid: json["uid"],
+        userType: json["user_type"],
+        address: json["address"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
+        long: json["long"].toDouble(),
+        lat: json["lat"].toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "username": username,
+        "email": email,
+        "email_verified_at": emailVerifiedAt,
+        "bio": bio,
+        "phone": phone,
+        "profileUrl": profileUrl,
+        "coverPhoto": coverPhoto,
+        "uid": uid,
+        "user_type": userType,
+        "address": address,
+        "created_at": createdAt.toIso8601String(),
+        "updated_at": updatedAt.toIso8601String(),
+        "long": long,
+        "lat": lat,
+      };
 }

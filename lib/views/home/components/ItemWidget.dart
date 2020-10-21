@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/models/post_model.dart';
+import 'package:camp/models/product_model.dart';
 import 'package:camp/views/home/single-item/singleview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,11 +8,11 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ItemWidget extends StatelessWidget {
-  const ItemWidget({Key key, @required PostModel post, double width})
+  const ItemWidget({Key key, @required Product post, double width})
       : _post = post,
         super(key: key);
 
-  final _post;
+  final Product _post;
 
   @override
   Widget build(BuildContext context) {
@@ -38,19 +39,18 @@ class ItemWidget extends StatelessWidget {
                             ))),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10.0),
-                  child: _post.files[0] != null
+                  child: _post.images.length > 0
                       ? Image(
                           width: _width * 0.45,
                           fit: BoxFit.cover,
-                          image: CachedNetworkImageProvider(_post.files[0]),
+                          image: CachedNetworkImageProvider(_post.images[0]),
                         )
                       : Shimmer.fromColors(
                           baseColor: Colors.grey[200],
                           highlightColor: Colors.grey[350],
-                          child: Image(
+                          child: Container(
                             width: _width * 0.45,
-                            fit: BoxFit.cover,
-                            image: CachedNetworkImageProvider(_post.files[0]),
+                            height: 200,
                           ),
                         ),
                 ),

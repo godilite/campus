@@ -127,30 +127,21 @@ class _CreatePostState extends State<CreatePost> {
     });
   }
 
-  Future<List> uploadImages() async {
-    List files = [];
-    for (var i = 0; i < images.length; i++) {
-      var image = await uploadService.saveImage(images[i]);
-      files.add(image);
-    }
-    return files;
-  }
+  List imageFiles = [];
 
-  /// creates a new post
-  void createPost() async {
-    setState(() {
-      posting = true;
+  uploadImages() async {
+    await Future.forEach(images, (image) async {
+      var url = (await uploadService.saveImage(image)).toString();
+
+      imageFiles.add(url);
     });
-
-    /// upload image files
-    List files = await uploadImages();
     var post = PostModel(
       forSale: _isForSale,
       location: locationController.text,
       content: descriptionController.text,
       title: titleController.text,
       hashtags: extractHashTags(descriptionController.text),
-      files: files,
+      images: imageFiles,
       lat: lat,
       long: long,
       keywords: searchKeyword(titleController.text),
@@ -167,6 +158,16 @@ class _CreatePostState extends State<CreatePost> {
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => HomeView()));
     });
+  }
+
+  /// creates a new post
+  void createPost() async {
+    setState(() {
+      posting = true;
+    });
+
+    /// upload image files
+    uploadImages();
   }
 
   @override

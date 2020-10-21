@@ -6,12 +6,10 @@ class PostModel {
   final String userId;
   final String title;
   final List files;
+  final List images;
   final String content;
   final List hashtags;
   final List commentId;
-  final int likesCount;
-  final int commentCount;
-  final List likes;
   final bool forSale;
   final double amount;
   final String location;
@@ -24,12 +22,10 @@ class PostModel {
       this.author,
       this.userId,
       this.files,
+      this.images,
       this.hashtags,
       this.commentId,
       this.content,
-      this.likesCount,
-      this.commentCount,
-      this.likes,
       this.forSale,
       this.amount,
       this.location,
@@ -41,13 +37,9 @@ class PostModel {
     return PostModel(
       id: data.id,
       title: data.get('title'),
-      author: data.get('author'),
       files: data.get('files'),
-      userId: data.get('userId'),
       hashtags: data.get('hashtags'),
       content: data.get('content'),
-      likesCount: data.get('likesCount'),
-      commentCount: data.get('commentCount'),
       amount: data.get('amount'),
       forSale: data.get('forSale'),
       location: data.get('location'),

@@ -37,10 +37,10 @@ class _EditProfileState extends State<EditProfile> {
 
   Stream<List<DocumentSnapshot>> get userPostStream => postController.stream;
   _fetchFirstList() async {
-    List<DocumentSnapshot> posts =
-        await _postService.getUserPosts(widget.user.id);
-    documentList.addAll(posts);
-    postController.sink.add(documentList);
+    // List<DocumentSnapshot> posts =
+    //     await _postService.getUserPosts(widget.user.id);
+    // documentList.addAll(posts);
+    // postController.sink.add(documentList);
   }
 
   @override
@@ -121,11 +121,11 @@ class _EditProfileState extends State<EditProfile> {
                   left: 15,
                   right: 15,
                   child: Center(
-                    child: Text(
-                      widget.user.name,
-                      style: TextStyle(color: kText, fontSize: 18),
-                    ),
-                  ),
+                      // child: Text(
+                      //   widget.user.name,
+                      //   style: TextStyle(color: kText, fontSize: 18),
+                      // ),
+                      ),
                 ),
                 Positioned(
                   right: 15,
@@ -177,7 +177,7 @@ class _EditProfileState extends State<EditProfile> {
                             child: Column(
                               children: [
                                 Text('Posts'),
-                                Text('${widget.user.postCount}')
+                                // Text('${widget.user.postCount}')
                               ],
                             ),
                           ),
@@ -193,7 +193,7 @@ class _EditProfileState extends State<EditProfile> {
                               child: Column(
                                 children: [
                                   Text('Followers'),
-                                  Text('${widget.user.followers}')
+                                  // Text('${widget.user.followers}')
                                 ],
                               ),
                             ),
@@ -210,7 +210,7 @@ class _EditProfileState extends State<EditProfile> {
                               child: Column(
                                 children: [
                                   Text('Following'),
-                                  Text('${widget.user.following}')
+                                  // Text('${widget.user.following}')
                                 ],
                               ),
                             ),
@@ -275,7 +275,7 @@ class _EditProfileState extends State<EditProfile> {
           return SliverStaggeredGrid.count(
             crossAxisCount: 4,
             children: snapshot.data.map((DocumentSnapshot post) {
-              return ItemWidget(post: PostModel.fromData(post));
+              return Container(); // ItemWidget(post: PostModel.fromData(post));
             }).toList(),
             staggeredTiles: snapshot.data
                 .map<StaggeredTile>((_) => StaggeredTile.fit(2))

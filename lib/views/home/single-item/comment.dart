@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:camp/streams/combine_stream.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/CommentService.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,9 +23,9 @@ class _CommentState extends State<Comment> {
   TextEditingController _commentController = TextEditingController();
 
   String _lastComment;
-  List<CombineStream> _list = [];
-  final _listController = StreamController<List<CombineStream>>.broadcast();
-  Stream<List<CombineStream>> get listStream => _listController.stream;
+  // List<CombineStream> _list = [];
+  // final _listController = StreamController<List<CombineStream>>.broadcast();
+  // Stream<List<CombineStream>> get listStream => _listController.stream;
 
   ScrollController controller = ScrollController();
 
@@ -48,60 +47,60 @@ class _CommentState extends State<Comment> {
 
   fetch() async {
     // List<CombineStream> firstPageItems =
-    Stream<List<CombineStream>> items =
-        await commentService.getComments(postId);
-    items.listen((event) {
-      _listController.add(event);
-      _list.addAll(event);
-    });
+    // Stream<List<CombineStream>> items =
+    //     await commentService.getComments(postId);
+    // items.listen((event) {
+    //   _listController.add(event);
+    //   _list.addAll(event);
+    // });
   }
 
   _fetchMore() async {
-    _lastComment = _list.last.comment.id;
-    DocumentSnapshot lastDoc = await commentService.commentsReference
-        .doc(postId)
-        .collection('comments')
-        .doc(_lastComment)
-        .get();
-    Stream<List<CombineStream>> snapList =
-        await commentService.getMoreComments(postId, lastDoc);
-    snapList.listen((event) {
-      _list.addAll(event);
-    });
-    _listController.add(_list);
+    // _lastComment = _list.last.comment.id;
+    // DocumentSnapshot lastDoc = await commentService.commentsReference
+    //     .doc(postId)
+    //     .collection('comments')
+    //     .doc(_lastComment)
+    //     .get();
+    // Stream<List<CombineStream>> snapList =
+    //     await commentService.getMoreComments(postId, lastDoc);
+    // snapList.listen((event) {
+    //   _list.addAll(event);
+    // });
+    // _listController.add(_list);
   }
 
   displayComments() {
-    return StreamBuilder<List<CombineStream>>(
-        stream: listStream,
+    return StreamBuilder<List>(
+        // stream: listStream,
         builder: (context, dataSnapshot) {
-          if (!dataSnapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-          return ListView.separated(
-            separatorBuilder: (BuildContext context, int) => Divider(),
-            controller: controller,
-            itemCount: dataSnapshot.data.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                leading: CircleAvatar(
-                  radius: 20,
-                  backgroundImage: NetworkImage(
-                      "${dataSnapshot.data[index].users.profileUrl}"),
-                ),
-                title: Text(
-                  "${dataSnapshot.data[index].users.name}",
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                subtitle: Text('${dataSnapshot.data[index].comment.content}'),
-                trailing: Icon(
-                  FlutterIcons.favorite_border_mdi,
-                  size: 20,
-                ),
-              );
-            },
+      if (!dataSnapshot.hasData) {
+        return Center(child: CircularProgressIndicator());
+      }
+      return ListView.separated(
+        separatorBuilder: (BuildContext context, int) => Divider(),
+        controller: controller,
+        itemCount: dataSnapshot.data.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: CircleAvatar(
+              radius: 20,
+              backgroundImage:
+                  NetworkImage("${dataSnapshot.data[index].users.profileUrl}"),
+            ),
+            title: Text(
+              "${dataSnapshot.data[index].users.name}",
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            subtitle: Text('${dataSnapshot.data[index].comment.content}'),
+            trailing: Icon(
+              FlutterIcons.favorite_border_mdi,
+              size: 20,
+            ),
           );
-        });
+        },
+      );
+    });
   }
 
   _submitComment() {
@@ -148,10 +147,10 @@ class _CommentState extends State<Comment> {
             })));
   }
 
-  @override
-  void dispose() {
-    _listController.close();
-    _commentController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _listController.close();
+  //   _commentController.dispose();
+  //   super.dispose();
+  // }
 }

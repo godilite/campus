@@ -92,9 +92,7 @@ class _LoginPageState extends State<LoginPage> {
   void _signInWithGoogle() async {
     var result = await authService.signInWithGoogle();
     FirebaseAuthException error =
-        result.runtimeType.toString() == 'UserCredential'
-            ? null
-            : result['error'];
+        result.runtimeType.toString() == 'UserAccount' ? null : result['error'];
     if (error != null) {
       switch (result['method']) {
         case 'facebook.com':

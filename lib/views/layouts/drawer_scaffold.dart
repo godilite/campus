@@ -243,7 +243,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                 backgroundColor: Colors.white,
                 borderRadius: 50,
                 itemBorderRadius: 10,
-                // shadowColor: Colors.black12,
+                shadowColor: Colors.black12,
                 // shadowBlurRadius: 5,
                 // shadowSpreadRadius: 0,
                 unselectedItemColor: kText,

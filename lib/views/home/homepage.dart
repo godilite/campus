@@ -1,4 +1,6 @@
+import 'package:camp/models/activity_model.dart';
 import 'package:camp/models/post_model.dart';
+import 'package:camp/models/product_model.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
@@ -22,22 +24,23 @@ class _HomeViewState extends State<HomeView> {
   ScrollController _controller = ScrollController();
   bool showAll = true;
   bool isBottom = false;
-  List<DocumentSnapshot> documentList = [];
+  List<Datum> documentList = [];
   PostService _postService = locator<PostService>();
-  BehaviorSubject<List<DocumentSnapshot>> postController;
+  BehaviorSubject<List<Datum>> postController;
   @override
   void initState() {
     super.initState();
     // listener for scroll controller
     _controller.addListener(_scrollListener);
-    _postService.postReference.snapshots().listen((event) {
-      postController.sink.add(event.docs);
-    });
-    postController = BehaviorSubject<List<DocumentSnapshot>>();
+    // _postService.postReference.snapshots().listen((event) async {
+    //   var post = _postService.getPosts();
+    //   postController.sink.add(await post);
+    // });
+    postController = BehaviorSubject<List<Datum>>();
     _fetchFirstList();
   }
 
-  Stream<List<DocumentSnapshot>> get postStream => postController.stream;
+  Stream<List<Datum>> get postStream => postController.stream;
 
   _scrollListener() {
     if (_controller.position.atEdge) {
@@ -53,16 +56,16 @@ class _HomeViewState extends State<HomeView> {
   }
 
   _fetchFirstList() async {
-    List<DocumentSnapshot> posts = await _postService.getPosts();
-    documentList.addAll(posts);
+    Activity posts = await _postService.getPosts();
+    documentList.addAll(posts.data);
     postController.sink.add(documentList);
   }
 
   _fetchMore() async {
-    List<DocumentSnapshot> posts =
-        await _postService.loadMorePosts(documentList[documentList.length - 1]);
-    documentList.addAll(posts);
-    postController.sink.add(documentList);
+    // List<DocumentSnapshot> posts =
+    //     await _postService.loadMorePosts(documentList[documentList.length - 1]);
+    // documentList.addAll(posts);
+    // postController.sink.add(documentList);
   }
 
   Future<bool> loadFollowing() async {
@@ -314,8 +317,8 @@ class _HomeViewState extends State<HomeView> {
     }), true);
   }
 
-  StreamBuilder<List<DocumentSnapshot>> buildStreamBuilder() {
-    return StreamBuilder<List<DocumentSnapshot>>(
+  StreamBuilder<List<Datum>> buildStreamBuilder() {
+    return StreamBuilder<List<Datum>>(
         stream: postStream,
         builder: (context, snapshot) {
           if (snapshot.data == null &&
@@ -342,8 +345,8 @@ class _HomeViewState extends State<HomeView> {
           }
           return SliverStaggeredGrid.count(
             crossAxisCount: 4,
-            children: snapshot.data.map((DocumentSnapshot post) {
-              return ItemWidget(post: PostModel.fromData(post));
+            children: snapshot.data.map((Datum post) {
+              return ItemWidget(post: post.details.product);
             }).toList(),
             staggeredTiles: snapshot.data
                 .map<StaggeredTile>((_) => StaggeredTile.fit(2))
