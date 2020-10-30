@@ -4,6 +4,7 @@ import 'package:camp/models/user_account.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/home/homepage.dart';
+import 'package:camp/views/messaging/message_list.dart';
 import 'package:camp/views/post/create_post.dart';
 import 'package:camp/views/profile/edit_profile.dart';
 import 'package:camp/views/profile/profile_owner_view.dart';
@@ -30,10 +31,10 @@ class DrawScaffold extends StatefulWidget {
   DrawScaffold(this.title, this.body, [this.bottomNav, this.currentPageIndex]);
 
   final drawerItems = [
-    DrawerItem("Wallet", CupertinoIcons.tickets),
+    // DrawerItem("Wallet", CupertinoIcons.tickets),
     DrawerItem("Messages", CupertinoIcons.mail),
     DrawerItem("Wishlist", CupertinoIcons.bookmark),
-    DrawerItem("Edit Account", CupertinoIcons.pencil),
+    DrawerItem("Insight", CupertinoIcons.chart_bar),
     DrawerItem("Find contacts", CupertinoIcons.person_2_square_stack),
     DrawerItem("Sponsor Ad", CupertinoIcons.cursor_rays),
     DrawerItem("Settings", CupertinoIcons.gear_alt),
@@ -49,11 +50,17 @@ class _DrawScaffoldState extends State<DrawScaffold> {
 
   /// side bar items
   _getDrawerItemWidget(int pos) {
-    print(pos);
     switch (pos) {
-      //   case 0:
-      //     return Navigator.push(context,
-      //         MaterialPageRoute(builder: (BuildContext context) => Dashboard()));
+      case 0:
+        return Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => MessageList(
+              currentUserId: user.id,
+              uid: user.uid,
+            ),
+          ),
+        );
       //   case 1:
       //     return Navigator.push(context,
       //         MaterialPageRoute(builder: (BuildContext context) => Wallet()));
@@ -74,7 +81,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
       //   case 6:
       //     return Navigator.push(context,
       //         MaterialPageRoute(builder: (BuildContext context) => Support()));
-      case 7:
+      case 6:
         _authService.logout();
         setState(() {});
         return Navigator.push(
@@ -135,39 +142,40 @@ class _DrawScaffoldState extends State<DrawScaffold> {
     int _currentPageIndex = widget.currentPageIndex ?? 0;
     var drawerOptions = <Widget>[
       Container(
-        height: 180,
         padding: EdgeInsets.only(bottom: 8),
         child: DrawerHeader(
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(top: 10.0),
-                  child: InkWell(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) => ProfileOwnPage(
-                                  user: user,
-                                ))),
-                    child: CircleAvatar(
-                      backgroundColor: kYellow,
-                      minRadius: 40,
-                      child: user != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(100),
-                              child: Image(
-                                height: 80,
-                                width: 80,
-                                image: user.profileUrl != null
-                                    ? CachedNetworkImageProvider(
-                                        user.profileUrl,
-                                      )
-                                    : AssetImage(
-                                        'assets/icons8-male-user-100.png'),
-                              ),
-                            )
-                          : null,
+                Expanded(
+                                  child: Padding(
+                    padding: EdgeInsets.only(top: 10.0),
+                    child: InkWell(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) => ProfileOwnPage(
+                                    user: user,
+                                  ))),
+                      child: CircleAvatar(
+                        backgroundColor: kYellow,
+                        minRadius: 40,
+                        child: user != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: Image(
+                                  height: 80,
+                                  width: 80,
+                                  image: user.profileUrl != null
+                                      ? CachedNetworkImageProvider(
+                                          user.profileUrl,
+                                        )
+                                      : AssetImage(
+                                          'assets/icons8-male-user-100.png'),
+                                ),
+                              )
+                            : null,
+                      ),
                     ),
                   ),
                 ),
@@ -212,59 +220,57 @@ class _DrawScaffoldState extends State<DrawScaffold> {
         onTap: () => _onSelectItem(i),
       ));
     }
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: Builder(builder: (BuildContext context) {
-            return Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Material(
-                  elevation: 1,
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(50),
-                  child: IconButton(
-                      icon: Icon(CupertinoIcons.bars, color: Colors.white),
-                      onPressed: () => Scaffold.of(context).openDrawer()),
-                ));
-          }),
-        ),
-        drawer: Drawer(
-            child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                children: drawerOptions)),
-        body: widget.body,
-        extendBody: true,
-        bottomNavigationBar: widget.bottomNav
-            ? FloatingNavbar(
-                backgroundColor: Colors.white,
-                borderRadius: 50,
-                itemBorderRadius: 10,
-                shadowColor: Colors.black12,
-                // shadowBlurRadius: 5,
-                // shadowSpreadRadius: 0,
-                unselectedItemColor: kText,
-                padding: EdgeInsets.only(left: 5, right: 5, top: 8, bottom: 8),
-                margin: EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                selectedBackgroundColor: kText,
-                selectedItemColor: Colors.white,
-                onTap: (int val) {
-                  _getPage(val);
-                },
-                currentIndex: _currentPageIndex,
-                items: [
-                  FloatingNavbarItem(icon: CupertinoIcons.house),
-                  FloatingNavbarItem(icon: CupertinoIcons.search),
-                  FloatingNavbarItem(icon: CupertinoIcons.add_circled),
-                  FloatingNavbarItem(icon: CupertinoIcons.bell),
-                  FloatingNavbarItem(icon: CupertinoIcons.person_circle),
-                ],
-              )
-            : null,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Builder(builder: (BuildContext context) {
+          return Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Material(
+                elevation: 1,
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(50),
+                child: IconButton(
+                    icon: Icon(CupertinoIcons.bars, color: Colors.white),
+                    onPressed: () => Scaffold.of(context).openDrawer()),
+              ));
+        }),
       ),
+      drawer: Drawer(
+          child: ListView(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              children: drawerOptions)),
+      body: widget.body,
+      extendBody: true,
+      bottomNavigationBar: widget.bottomNav
+          ? FloatingNavbar(
+              backgroundColor: Colors.white,
+              borderRadius: 50,
+              itemBorderRadius: 10,
+              shadowColor: Colors.black12,
+              // shadowBlurRadius: 5,
+              // shadowSpreadRadius: 0,
+              unselectedItemColor: kText,
+              padding: EdgeInsets.only(left: 5, right: 5, top: 8, bottom: 8),
+              margin: EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+              selectedBackgroundColor: kText,
+              selectedItemColor: Colors.white,
+              onTap: (int val) {
+                _getPage(val);
+              },
+              currentIndex: _currentPageIndex,
+              items: [
+                FloatingNavbarItem(icon: CupertinoIcons.house),
+                FloatingNavbarItem(icon: CupertinoIcons.search),
+                FloatingNavbarItem(icon: CupertinoIcons.add_circled),
+                FloatingNavbarItem(icon: CupertinoIcons.bell),
+                FloatingNavbarItem(icon: CupertinoIcons.person_circle),
+              ],
+            )
+          : null,
     );
   }
 }

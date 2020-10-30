@@ -1,12 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:camp/models/post_model.dart';
+import 'package:camp/models/activity_model.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/services/PostService.dart';
+import 'package:camp/services/UserService.dart';
 import 'package:camp/views/followers/follower_page.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
+import 'package:camp/views/profile/edit_profile.dart';
 import 'package:camp/views/styles.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -27,22 +28,35 @@ class ProfileOwnPage extends StatefulWidget {
 
 class _ProfileOwnPageState extends State<ProfileOwnPage> {
   var _tapPosition;
-  BehaviorSubject<List<DocumentSnapshot>> postController;
+  BehaviorSubject<List<Datum>> postController;
   PostService _postService = locator<PostService>();
-  List<DocumentSnapshot> documentList = [];
+  UserService _userService = locator<UserService>();
+
+  int followersCount = 0;
+  int followingCount = 0;
+  List<Datum> documentList = [];
   @override
   void initState() {
-    postController = BehaviorSubject<List<DocumentSnapshot>>();
+    postController = BehaviorSubject<List<Datum>>();
     _fetchFirstList();
+    _fetchFriends();
     super.initState();
   }
 
-  Stream<List<DocumentSnapshot>> get userPostStream => postController.stream;
+  Stream<List<Datum>> get userPostStream => postController.stream;
   _fetchFirstList() async {
-    // List<DocumentSnapshot> posts =
-    //     await _postService.getUserPosts(widget.user.id);
-    // documentList.addAll(posts);
-    // postController.sink.add(documentList);
+    Activity posts = await _postService.getUserPosts(widget.user.id);
+    documentList.addAll(posts.data);
+    postController.sink.add(documentList);
+  }
+
+  _fetchFriends() async {
+    var result = await _userService.getFollowersCount(widget.user.id);
+    var follows = await _userService.getFollowingCount(widget.user.id);
+    setState(() {
+      followersCount = result;
+      followingCount = follows;
+    });
   }
 
   @override
@@ -73,213 +87,225 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
     return Stack(
       fit: StackFit.passthrough,
       children: [
-        // Positioned(
-        //   top: 0,
-        //   left: 0,
-        //   right: 0,
-        //   bottom: 140,
-        //   child: Container(
-        //     decoration: BoxDecoration(
-        //       color: kYellow,
-        //       borderRadius: BorderRadius.only(
-        //         bottomRight: Radius.circular(30),
-        //         bottomLeft: Radius.circular(30),
-        //       ),
-        //     ),
-        //   ),
-        // ),
-        // Positioned(
-        //   bottom: 105,
-        //   right: 0,
-        //   left: 0,
-        //   child: Container(
-        //     decoration: BoxDecoration(
-        //         shape: BoxShape.circle,
-        //         boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black26)]),
-        //     child: CircleAvatar(
-        //       backgroundColor: kYellow,
-        //       minRadius: 40,
-        //       child: widget.user != null
-        //           ? ClipRRect(
-        //               borderRadius: BorderRadius.circular(100),
-        //               child: Image(
-        //                 width: 77,
-        //                 image: widget.user.profileUrl != null
-        //                     ? CachedNetworkImageProvider(widget.user.profileUrl)
-        //                     : AssetImage('assets/icons8-male-user-100.png'),
-        //               ),
-        //             )
-        //           : null,
-        //     ),
-        //   ),
-        // ),
-        // Positioned(
-        //   left: 0,
-        //   right: 0,
-        //   bottom: 10,
-        //   child: Container(
-        //     height: viewportConstraints.maxHeight * 0.2,
-        //     width: viewportConstraints.maxWidth,
-        //     child: Stack(
-        //       children: [
-        //         Positioned(
-        //           bottom: 60,
-        //           left: 15,
-        //           right: 15,
-        //           child: Center(
-        //             child: Text(truncate(20, widget.user.name),
-        //                 style: TextStyle(
-        //                   color: kText,
-        //                   fontSize: 18,
-        //                   fontWeight: FontWeight.w600,
-        //                 )),
-        //           ),
-        //         ),
-        //         Positioned(
-        //           right: 15,
-        //           bottom: 50,
-        //           child: GestureDetector(
-        //             onTapDown: _storePosition,
-        //             onTap: () {
-        //               _showMenu();
-        //             },
-        //             child: Icon(
-        //               FlutterIcons.ellipsis1_ant,
-        //               size: 40,
-        //             ),
-        //           ),
-        //         ),
-        //         Positioned(
-        //           bottom: 0,
-        //           left: 10,
-        //           right: 10,
-        //           child: Row(
-        //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //             children: [
-        //               Column(
-        //                 children: [
-        //                   Row(
-        //                     children: [
-        //                       Icon(CupertinoIcons.location),
-        //                       Text(truncate(15, widget.user.address)),
-        //                     ],
-        //                   ),
-        //                   RatingBar(
-        //                     initialRating: 3,
-        //                     minRating: 1,
-        //                     direction: Axis.horizontal,
-        //                     allowHalfRating: true,
-        //                     itemCount: 5,
-        //                     itemSize: 10,
-        //                     itemPadding: EdgeInsets.symmetric(horizontal: 0.02),
-        //                     itemBuilder: (context, _) => Icon(
-        //                       Icons.star,
-        //                       color: Colors.amber,
-        //                     ),
-        //                     onRatingUpdate: (rating) {
-        //                       print(rating);
-        //                     },
-        //                   ),
-        //                 ],
-        //               ),
-        //               Row(
-        //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //                 children: [
-        //                   Padding(
-        //                     padding: EdgeInsets.all(8.0),
-        //                     child: Column(
-        //                       children: [
-        //                         Text('Posts'),
-        //                         Text('${widget.user.postCount}')
-        //                       ],
-        //                     ),
-        //                   ),
-        //                   Padding(
-        //                     padding: EdgeInsets.all(8.0),
-        //                     child: Container(
-        //                       padding: EdgeInsets.only(left: 8.0),
-        //                       decoration: BoxDecoration(
-        //                         border: Border(
-        //                           left: BorderSide(color: Colors.grey.shade200),
-        //                         ),
-        //                       ),
-        //                       child: InkWell(
-        //                         onTap: () => Navigator.push(
-        //                           context,
-        //                           MaterialPageRoute(
-        //                             builder: (context) =>
-        //                                 FollowerPage(0, widget.user.id),
-        //                           ),
-        //                         ),
-        //                         child: Column(
-        //                           children: [
-        //                             Text('Followers'),
-        //                             Text('${widget.user.followers}')
-        //                           ],
-        //                         ),
-        //                       ),
-        //                     ),
-        //                   ),
-        //                   Padding(
-        //                     padding: EdgeInsets.all(8.0),
-        //                     child: Container(
-        //                       padding: EdgeInsets.only(left: 8.0),
-        //                       decoration: BoxDecoration(
-        //                         border: Border(
-        //                           left: BorderSide(color: Colors.grey.shade200),
-        //                         ),
-        //                       ),
-        //                       child: InkWell(
-        //                         onTap: () => Navigator.push(
-        //                           context,
-        //                           MaterialPageRoute(
-        //                             builder: (context) =>
-        //                                 FollowerPage(1, widget.user.id),
-        //                           ),
-        //                         ),
-        //                         child: Column(
-        //                           children: [
-        //                             Text('Following'),
-        //                             Text('${widget.user.following}')
-        //                           ],
-        //                         ),
-        //                       ),
-        //                     ),
-        //                   ),
-        //                 ],
-        //               ),
-        //             ],
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
-        // Positioned(
-        //   top: 60,
-        //   left: 0,
-        //   right: 0,
-        //   child: GestureDetector(
-        //     onTapDown: _storePosition,
-        //     onTap: () {
-        //       _pictureMenu();
-        //     },
-        //     child: CircleAvatar(
-        //       minRadius: 30,
-        //       backgroundColor: Colors.black12,
-        //       child: Icon(
-        //         Icons.camera_enhance,
-        //         color: kYellow,
-        //       ),
-        //     ),
-        //   ),
-        // )
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 140,
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: widget.user.coverPhoto != null
+                    ? CachedNetworkImageProvider(widget.user.coverPhoto)
+                    : AssetImage('assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
+                fit: BoxFit.cover,
+              ),
+              color: kYellow,
+              borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(30),
+                bottomLeft: Radius.circular(30),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 105,
+          right: 0,
+          left: 0,
+          child: Container(
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black26)]),
+            child: CircleAvatar(
+              backgroundColor: kYellow,
+              minRadius: 53,
+              child: widget.user != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image(
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.fill,
+                        image: widget.user.profileUrl != null
+                            ? CachedNetworkImageProvider(widget.user.profileUrl)
+                            : AssetImage('assets/img_not_available.jpeg'),
+                      ),
+                    )
+                  : null,
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 10,
+          child: Container(
+            height: viewportConstraints.maxHeight * 0.2,
+            width: viewportConstraints.maxWidth,
+            child: Stack(
+              children: [
+                Positioned(
+                  bottom: 60,
+                  left: 15,
+                  right: 15,
+                  child: Center(
+                    child: Text(truncate(20, widget.user.name),
+                        style: TextStyle(
+                          color: kText,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        )),
+                  ),
+                ),
+                Positioned(
+                  right: 15,
+                  bottom: 50,
+                  child: GestureDetector(
+                    onTapDown: _storePosition,
+                    onTap: () {
+                      _showMenu();
+                    },
+                    child: Icon(
+                      FlutterIcons.ellipsis1_ant,
+                      size: 40,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 10,
+                  right: 10,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              Icon(CupertinoIcons.location),
+                              Text(truncate(15, widget.user.address)),
+                            ],
+                          ),
+                          RatingBar(
+                            initialRating: 3,
+                            minRating: 1,
+                            direction: Axis.horizontal,
+                            allowHalfRating: true,
+                            itemCount: 5,
+                            itemSize: 10,
+                            itemPadding: EdgeInsets.symmetric(horizontal: 0.02),
+                            itemBuilder: (context, _) => Icon(
+                              Icons.star,
+                              color: Colors.amber,
+                            ),
+                            onRatingUpdate: (rating) {
+                              print(rating);
+                            },
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                Text('Posts'),
+                                Text('${documentList.length}')
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Container(
+                              padding: EdgeInsets.only(left: 8.0),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  left: BorderSide(color: Colors.grey.shade200),
+                                ),
+                              ),
+                              child: InkWell(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FollowerPage(
+                                      0,
+                                      widget.user.id,
+                                    ),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text('Followers'),
+                                    Text('$followersCount')
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Container(
+                              padding: EdgeInsets.only(left: 8.0),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  left: BorderSide(color: Colors.grey.shade200),
+                                ),
+                              ),
+                              child: InkWell(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FollowerPage(
+                                      1,
+                                      widget.user.id,
+                                    ),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Text('Following'),
+                                    Text('$followingCount')
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: 60,
+          left: 0,
+          right: 0,
+          child: GestureDetector(
+            onTapDown: storePosition,
+            onTap: () {
+              pictureMenu(context);
+            },
+            child: CircleAvatar(
+              minRadius: 30,
+              backgroundColor: Colors.white30,
+              child: Icon(
+                Icons.camera_enhance,
+                color: kYellow,
+              ),
+            ),
+          ),
+        )
       ],
     );
   }
 
-  StreamBuilder<List<DocumentSnapshot>> buildStreamBuilder() {
-    return StreamBuilder<List<DocumentSnapshot>>(
+  StreamBuilder<List<Datum>> buildStreamBuilder() {
+    return StreamBuilder<List<Datum>>(
         stream: userPostStream,
         builder: (context, snapshot) {
           if (snapshot.data == null &&
@@ -294,8 +320,8 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                 child: Container(
                   width: 200,
                   height: 400,
-                  decoration: BoxDecoration(
-                      color: kYellow, borderRadius: BorderRadius.circular(20)),
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
                 ),
               ),
               staggeredTileBuilder: (int index) =>
@@ -306,14 +332,13 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
           }
           return SliverStaggeredGrid.count(
             crossAxisCount: 4,
-            children: snapshot.data.map((DocumentSnapshot post) {
-              return Container(); // ItemWidget(post: PostModel.fromData(post));
+            children: snapshot.data.map((Datum post) {
+              return ItemWidget(post: post);
             }).toList(),
             staggeredTiles: snapshot.data
                 .map<StaggeredTile>((_) => StaggeredTile.fit(2))
                 .toList(),
             mainAxisSpacing: 20,
-            crossAxisSpacing: 10,
           );
         });
   }
@@ -327,14 +352,22 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
           _tapPosition & Size(40, 40), Offset.zero & overlay.size),
       items: [
         PopupMenuItem(
-          child: Row(
-            children: [
-              Icon(CupertinoIcons.pencil_circle),
-              SizedBox(
-                width: 20,
-              ),
-              Text("Edit Profile")
-            ],
+          child: InkWell(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => EditProfile(
+                          user: widget.user,
+                        ))),
+            child: Row(
+              children: [
+                Icon(CupertinoIcons.pencil_circle),
+                SizedBox(
+                  width: 20,
+                ),
+                Text("Edit Profile")
+              ],
+            ),
           ),
         ),
         PopupMenuItem(
@@ -360,40 +393,5 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
   void dispose() {
     super.dispose();
     postController.close();
-  }
-
-  void _pictureMenu() {
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
-    showMenu(
-      context: context,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      position: RelativeRect.fromRect(
-          _tapPosition & Size(140, 0), Offset.zero & overlay.size),
-      items: [
-        PopupMenuItem(
-          child: Row(
-            children: [
-              Icon(CupertinoIcons.photo_camera),
-              SizedBox(
-                width: 20,
-              ),
-              Text("Change Cover Photo")
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          child: Row(
-            children: [
-              Icon(CupertinoIcons.photo_camera),
-              SizedBox(
-                width: 20,
-              ),
-              Text("Change Profile Picture")
-            ],
-          ),
-        ),
-      ],
-      elevation: 2.0,
-    );
   }
 }

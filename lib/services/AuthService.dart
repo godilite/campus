@@ -215,13 +215,16 @@ class AuthService {
   Future<UserAccount> _createAccount(UserCredential user) async {
     DocumentSnapshot documentSnapshot =
         await userReference.doc(user.user.uid).get();
-
+    UserAccount account;
     if (!documentSnapshot.exists) {
-      final userData = await navigatorKey.currentState
-          .push(MaterialPageRoute(builder: (context) => CreateAccount()));
-
+      final userData = await navigatorKey.currentState.push(
+        MaterialPageRoute(
+          builder: (context) => CreateAccount(),
+        ),
+      );
+      account = await storeUserToBackup(user, userData);
       userReference.doc(user.user.uid).set({
-        'id': user.user.uid,
+        'id': account.id,
         'name': userData.displayName,
         'username': userData.username,
         'email': user.user.email,
@@ -229,6 +232,7 @@ class AuthService {
         'phone': userData.phone,
         'bio': '',
         'coverPhoto': '',
+        'uid': user.user.uid,
         'address': userData.address,
         'cord': userData.coord,
         'postCount': 0,
@@ -238,12 +242,10 @@ class AuthService {
         'following': 0,
         'timestamp': timestamp
       });
-      storeUserToBackup(user, userData);
-      documentSnapshot = await userReference.doc(user.user.uid).get();
     }
 
-    loginUserToBackupServer(user);
-    return UserAccount.fromJson(documentSnapshot.data());
+    loginUserToBackupServer();
+    return account;
   }
 
   Future<bool> checkifUsernameExist(String username) async {
@@ -279,16 +281,19 @@ class AuthService {
         print(e.message);
       }
     }
-
-    UserAccount user = UserAccount.fromJson(response.data["account"]);
+    if (response.data.runtimeType == String) {
+      await loginUserToBackupServer();
+      return currentUser();
+    }
+    UserAccount user = UserAccount.fromJson(response.data['account']);
     return user;
   }
 
-  storeUserToBackup(UserCredential user, data) async {
+  Future<UserAccount> storeUserToBackup(UserCredential user, data) async {
     var token = await user.user.getIdToken();
-
+    Response response;
     try {
-      await dio.post("http://10.0.2.2:8000/api/v1/login", data: {
+      response = await dio.post("http://10.0.2.2:8000/api/v1/login", data: {
         "token": token,
         'name': data.displayName,
         'username': data.username,
@@ -315,11 +320,17 @@ class AuthService {
         print(e.message);
       }
     }
+    final SharedPreferences prefs = await _prefs;
+    prefs.setString('token', response.data["access_token"]);
+    prefs.setInt('userId', response.data["id"]);
+
+    UserAccount account = UserAccount.fromJson(response.data["account"]);
+    return account;
   }
 
-  loginUserToBackupServer(UserCredential user) async {
+  loginUserToBackupServer() async {
     Response response;
-    var token = await user.user.getIdToken();
+    var token = await auth.currentUser.getIdToken();
 
     try {
       response = await dio
@@ -339,5 +350,99 @@ class AuthService {
     }
     final SharedPreferences prefs = await _prefs;
     prefs.setString('token', response.data["access_token"]);
+    prefs.setInt('userId', response.data["id"]);
+    prefs.setString('uid', response.data["account"]['uid']);
+  }
+
+  Future<bool> updateUserToBackup(data) async {
+    final SharedPreferences prefs = await _prefs;
+
+    var token = prefs.getString('token');
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
+    try {
+      await dio.post("http://10.0.2.2:8000/api/v1/update-user", data: {
+        'name': data['displayName'],
+        'username': data['username'],
+        'email': data['email'],
+        'phone': data['phone'],
+        'bio': '',
+        'address': data['address'],
+        'long': data['coord'].longitude,
+        'lat': data['coord'].latitude
+      });
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    }
+
+    return true;
+  }
+
+  Future<bool> updateUserPix(String url) async {
+    final SharedPreferences prefs = await _prefs;
+
+    var token = prefs.getString('token');
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
+    try {
+      await dio.post("http://10.0.2.2:8000/api/v1/update-user-pix", data: {
+        'profileUrl': url,
+      });
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    }
+
+    return true;
+  }
+
+  Future<bool> updateUserCover(String url) async {
+    Response response;
+    final SharedPreferences prefs = await _prefs;
+
+    var token = prefs.getString('token');
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
+    try {
+      response = await dio
+          .post("http://10.0.2.2:8000/api/v1/update-user-cover", data: {
+        'coverPhoto': url,
+      });
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    }
+
+    print(response);
+
+    return true;
   }
 }

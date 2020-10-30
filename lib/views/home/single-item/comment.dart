@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/CommentService.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:camp/models/comment_model.dart' as c;
 
 class Comment extends StatefulWidget {
-  final String postId;
+  final int postId;
 
   Comment({this.postId});
   @override
@@ -15,17 +15,16 @@ class Comment extends StatefulWidget {
 }
 
 class _CommentState extends State<Comment> {
-  final String postId;
+  final int postId;
 
   _CommentState(this.postId);
 
   CommentService commentService = locator<CommentService>();
   TextEditingController _commentController = TextEditingController();
 
-  String _lastComment;
-  // List<CombineStream> _list = [];
-  // final _listController = StreamController<List<CombineStream>>.broadcast();
-  // Stream<List<CombineStream>> get listStream => _listController.stream;
+  List<c.Comment> _list = [];
+  final _listController = StreamController<List<c.Comment>>.broadcast();
+  Stream<List<c.Comment>> get listStream => _listController.stream;
 
   ScrollController controller = ScrollController();
 
@@ -33,7 +32,13 @@ class _CommentState extends State<Comment> {
   void initState() {
     super.initState();
     // Here you need to load your first page and then add to your stream
-    fetch();
+
+    commentService.commentsReference
+        .doc(widget.postId.toString())
+        .snapshots()
+        .listen((event) {
+      fetch();
+    });
     controller.addListener(_scrollListener);
   }
 
@@ -46,13 +51,14 @@ class _CommentState extends State<Comment> {
   }
 
   fetch() async {
-    // List<CombineStream> firstPageItems =
-    // Stream<List<CombineStream>> items =
-    //     await commentService.getComments(postId);
-    // items.listen((event) {
-    //   _listController.add(event);
-    //   _list.addAll(event);
-    // });
+    Stream<List<c.Comment>> items =
+        Stream.fromFuture(commentService.getComments(postId));
+    if (!_isDisposed) {
+      items.listen((event) {
+        _listController.add(event);
+        _list.addAll(event);
+      });
+    }
   }
 
   _fetchMore() async {
@@ -72,35 +78,35 @@ class _CommentState extends State<Comment> {
 
   displayComments() {
     return StreamBuilder<List>(
-        // stream: listStream,
+        stream: listStream,
         builder: (context, dataSnapshot) {
-      if (!dataSnapshot.hasData) {
-        return Center(child: CircularProgressIndicator());
-      }
-      return ListView.separated(
-        separatorBuilder: (BuildContext context, int) => Divider(),
-        controller: controller,
-        itemCount: dataSnapshot.data.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: CircleAvatar(
-              radius: 20,
-              backgroundImage:
-                  NetworkImage("${dataSnapshot.data[index].users.profileUrl}"),
-            ),
-            title: Text(
-              "${dataSnapshot.data[index].users.name}",
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            subtitle: Text('${dataSnapshot.data[index].comment.content}'),
-            trailing: Icon(
-              FlutterIcons.favorite_border_mdi,
-              size: 20,
-            ),
+          if (!dataSnapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+          return ListView.separated(
+            separatorBuilder: (BuildContext context, int) => Divider(),
+            controller: controller,
+            itemCount: dataSnapshot.data.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                leading: CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(
+                      "${dataSnapshot.data[index].user.profileUrl}"),
+                ),
+                title: Text(
+                  "${dataSnapshot.data[index].user.name}",
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                subtitle: Text('${dataSnapshot.data[index].comment}'),
+                trailing: Icon(
+                  FlutterIcons.favorite_border_mdi,
+                  size: 20,
+                ),
+              );
+            },
           );
-        },
-      );
-    });
+        });
   }
 
   _submitComment() {
@@ -112,45 +118,51 @@ class _CommentState extends State<Comment> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                title: Text('Comments'),
-                centerTitle: true,
-                leading: IconButton(
-                  icon: Icon(Icons.arrow_back_ios,
-                      size: 25, color: Colors.grey.shade600),
-                  onPressed: () => Navigator.pop(context),
-                )),
-            body: LayoutBuilder(builder:
-                (BuildContext context, BoxConstraints viewportConstraints) {
-              return Column(children: [
-                Expanded(child: displayComments()),
-                Divider(),
-                ListTile(
-                  contentPadding: EdgeInsets.only(left: 15),
-                  title: TextFormField(
-                    controller: _commentController,
-                    decoration: InputDecoration(
-                      hintText: 'Write a comment here',
-                    ),
-                    minLines: null,
-                    maxLines: null,
-                  ),
-                  trailing: IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: () => _submitComment()),
-                )
-              ]);
-            })));
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Text('Comments'),
+            centerTitle: true,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios,
+                  size: 25, color: Colors.grey.shade600),
+              onPressed: () => Navigator.pop(context),
+            )),
+        body: LayoutBuilder(builder:
+            (BuildContext context, BoxConstraints viewportConstraints) {
+          return Column(children: [
+            Expanded(child: displayComments()),
+            Divider(),
+            ListTile(
+              contentPadding: EdgeInsets.only(left: 15),
+              title: TextFormField(
+                controller: _commentController,
+                decoration: InputDecoration(
+                  hintText: 'Write a comment here',
+                ),
+                minLines: null,
+                maxLines: null,
+              ),
+              trailing: IconButton(
+                  icon: Icon(Icons.send), onPressed: () => _submitComment()),
+            )
+          ]);
+        }),
+      ),
+    );
   }
 
-  // @override
-  // void dispose() {
-  //   _listController.close();
-  //   _commentController.dispose();
-  //   super.dispose();
-  // }
+  bool _isDisposed = false;
+
+  @override
+  void dispose() {
+    _listController.close();
+
+    _isDisposed = true;
+
+    _commentController.dispose();
+    super.dispose();
+  }
 }

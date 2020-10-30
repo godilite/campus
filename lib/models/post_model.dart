@@ -5,7 +5,6 @@ class PostModel {
   final String author;
   final String userId;
   final String title;
-  final List files;
   final List images;
   final String content;
   final List hashtags;
@@ -21,7 +20,6 @@ class PostModel {
       this.title,
       this.author,
       this.userId,
-      this.files,
       this.images,
       this.hashtags,
       this.commentId,
@@ -37,7 +35,7 @@ class PostModel {
     return PostModel(
       id: data.id,
       title: data.get('title'),
-      files: data.get('files'),
+      images: data.get('images'),
       hashtags: data.get('hashtags'),
       content: data.get('content'),
       amount: data.get('amount'),

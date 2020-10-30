@@ -1,9 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:camp/models/activity_model.dart';
+import 'package:camp/models/user_account.dart';
+import 'package:camp/services/AuthService.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/views/layouts/app_bar_back.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../service_locator.dart';
@@ -15,13 +21,29 @@ class Following extends StatefulWidget {
 }
 
 class _FollowingState extends State<Following> {
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   bool showAll = false;
   PostService _postService = locator<PostService>();
-
+  AuthService _authService = locator<AuthService>();
+  List<Datum> documentList = [];
+  BehaviorSubject<List<Datum>> postController;
   @override
   void initState() {
-    _postService.getUserFrendsPosts();
+    postController = BehaviorSubject<List<Datum>>();
+    _fetchFirstList();
     super.initState();
+  }
+
+  userId() async {
+    final SharedPreferences prefs = await _prefs;
+    return prefs.getInt("userId");
+  }
+
+  Stream<List<Datum>> get postStream => postController.stream;
+  _fetchFirstList() async {
+    Activity posts = await _postService.getUserFrendsPosts();
+    documentList.addAll(posts.data);
+    postController.sink.add(documentList);
   }
 
   @override
@@ -115,9 +137,7 @@ class _FollowingState extends State<Following> {
                     physics: BouncingScrollPhysics(
                         parent: AlwaysScrollableScrollPhysics()),
                     children: [
-                      buildPost(viewportConstraints),
-                      buildPost(viewportConstraints),
-                      buildPost(viewportConstraints),
+                      buildStreamBuilder(viewportConstraints),
                     ]),
               ),
             ))
@@ -125,85 +145,96 @@ class _FollowingState extends State<Following> {
     });
   }
 
-  Column buildPost(BoxConstraints viewportConstraints) {
+  StreamBuilder<List<Datum>> buildStreamBuilder(
+      BoxConstraints viewportConstraints) {
+    return StreamBuilder<List<Datum>>(
+        stream: postStream,
+        builder: (context, snapshot) {
+          if (snapshot.data == null &&
+              snapshot.connectionState != ConnectionState.done) {
+            return StaggeredGridView.countBuilder(
+              shrinkWrap: true,
+              crossAxisCount: 4,
+              itemCount: 8,
+              itemBuilder: (BuildContext context, int index) =>
+                  Shimmer.fromColors(
+                baseColor: Colors.grey.shade100,
+                highlightColor: Colors.white,
+                child: Container(
+                  width: 200,
+                  height: 400,
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                ),
+              ),
+              staggeredTileBuilder: (int index) =>
+                  StaggeredTile.count(2, index.isEven ? 2 : 1),
+              mainAxisSpacing: 4.0,
+              crossAxisSpacing: 4.0,
+            );
+          }
+          return Column(
+            children: snapshot.data.map((Datum post) {
+              return buildPost(viewportConstraints, post);
+            }).toList(),
+          );
+        });
+  }
+
+  Column buildPost(BoxConstraints viewportConstraints, Datum post) {
     return Column(
       children: [
         ListTile(
           contentPadding: EdgeInsets.all(0),
           leading: CircleAvatar(
             backgroundColor: Colors.red,
+            backgroundImage: CachedNetworkImageProvider(post.user.profileUrl),
             radius: 30,
           ),
-          title: Text('My friend name'),
+          title: Text(post.user.name),
         ),
         SizedBox(height: 10),
         StaggeredGridView.countBuilder(
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           crossAxisCount: 4,
-          itemCount: 8,
-          itemBuilder: (BuildContext context, int index) => Shimmer.fromColors(
-            baseColor: Colors.grey.shade100,
-            highlightColor: Colors.white,
-            child: Container(
-              width: 200,
-              height: 400,
-              color: Colors.red,
-            ),
-          ),
-          staggeredTileBuilder: (int index) =>
-              StaggeredTile.count(2, index.isEven ? 2 : 1),
+          itemCount: post.details.product.images.length,
+          itemBuilder: (BuildContext context, int index) => ClipRRect(
+              borderRadius: BorderRadius.circular(10.0),
+              child: Image(
+                  image: CachedNetworkImageProvider(
+                      post.details.product.images[index]))),
+          staggeredTileBuilder: (int index) => StaggeredTile.fit(2),
           mainAxisSpacing: 4.0,
-          crossAxisSpacing: 4.0,
+          crossAxisSpacing: 8.0,
         ),
-
-        // StaggeredGridView.count(
-        //   shrinkWrap: true,
-        //   padding: EdgeInsets.all(0),
-        //   crossAxisCount: 4,
-        //   physics: NeverScrollableScrollPhysics(),
-        //   children: [],
-        //   staggeredTiles: const <StaggeredTile>[
-        //     const StaggeredTile.fit(2),
-        //     const StaggeredTile.fit(2),
-        //     const StaggeredTile.fit(2),
-        //     const StaggeredTile.fit(2),
-        //     const StaggeredTile.fit(2),
-        //     const StaggeredTile.fit(2),
-        //     const StaggeredTile.fit(2),
-        //     const StaggeredTile.fit(2),
-        //   ],
-        //   mainAxisSpacing: 10,
-        //   crossAxisSpacing: 10,
-        // ),
-        // ItemWidget(width: viewportConstraints.maxWidth * 0.45),
-        // ItemWidget(width: viewportConstraints.maxWidth * 0.45),
-        // ItemWidget(width: viewportConstraints.maxWidth * 0.45),
-        // ItemWidget(width: viewportConstraints.maxWidth * 0.45),
-        //   ],
-        //   staggeredTiles: const <StaggeredTile>[
-        //     const StaggeredTile.fit(2),
-        //     const StaggeredTile.fit(2),
-        //     const StaggeredTile.fit(2),
-        //     const StaggeredTile.fit(2),
-        //   ],
-        //   mainAxisSpacing: 10,
-        //   crossAxisSpacing: 10,
-        // ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Text('(281)'),
+            Text('(${post.details.productLikes.length})'),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                FlutterIcons.favorite_border_mdi,
-                color: Colors.red,
-              ),
+              child: post.details.productLikes.firstWhere(
+                          (element) => element.userId == userId(),
+                          orElse: () => null) !=
+                      null
+                  ? Icon(
+                      FlutterIcons.favorite_mdi,
+                      color: Colors.red,
+                    )
+                  : Icon(
+                      FlutterIcons.favorite_border_mdi,
+                      color: Colors.red,
+                    ),
             )
           ],
         )
       ],
     );
+  }
+
+  void dispose() {
+    super.dispose();
+    postController.close();
   }
 }

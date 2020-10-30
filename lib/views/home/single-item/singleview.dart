@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:camp/models/post_model.dart';
+import 'package:camp/models/activity_model.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/CommentService.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/services/UserService.dart';
-import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/home/single-item/comment.dart';
+import 'package:camp/views/messaging/widgets/full_photo.dart';
 import 'package:camp/views/profile/profile.dart';
 import 'package:camp/views/styles.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -15,17 +15,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:like_button/like_button.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class SingleView extends StatefulWidget {
-  final post;
-  const SingleView({Key key, @required this.post}) : super(key: key);
+  final Datum post;
+  final bool liked;
+  const SingleView({Key key, @required this.post, @required this.liked})
+      : super(key: key);
   @override
-  _SingleViewState createState() => _SingleViewState();
+  _SingleViewState createState() => _SingleViewState(liked: liked);
 }
 
 class _SingleViewState extends State<SingleView> {
+  _SingleViewState({@required this.liked});
+  PostService _postService = locator<PostService>();
+  bool liked = false;
   int _current = 0;
   final List<String> images = [];
   var _tapPosition;
@@ -33,45 +39,60 @@ class _SingleViewState extends State<SingleView> {
   UserService userService = locator<UserService>();
   CommentService commentService = locator<CommentService>();
   UserAccount user;
-
-  PostService _postService = locator<PostService>();
+  int commentCount = 0;
   BehaviorSubject<List<DocumentSnapshot>> postController;
+  Future<bool> _likePost(liked) async {
+    setState(() {
+      liked = !liked;
+    });
+
+    await _postService.likePost(widget.post.details.product.id);
+    return liked;
+  }
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.post.files.forEach((file) {
+      widget.post.details.product.images.forEach((file) {
         images.add(file);
       });
       images.forEach((imageUrl) {
-        precacheImage(NetworkImage(imageUrl), context);
+        precacheImage(CachedNetworkImageProvider(imageUrl), context);
       });
       postUser();
       setState(() {});
     });
+    fetch();
     postController = BehaviorSubject<List<DocumentSnapshot>>();
     super.initState();
   }
 
   Stream<List<DocumentSnapshot>> get postStream => postController.stream;
   postUser() async {
-    user = await userService.user(widget.post.userId);
+    user = await userService.user(widget.post.user.id);
     setState(() {});
   }
 
-  relatedPosts() async {
-    List<DocumentSnapshot> related =
-        await _postService.searchPosts(widget.post.keywords);
+  fetch() async {
+    int items =
+        await commentService.getCommentsCount(widget.post.details.product.id);
     setState(() {
-      postController.sink.add(related);
+      commentCount = items;
     });
+  }
+
+  relatedPosts() async {
+    // List<DocumentSnapshot> related =
+    //     await _postService.searchPosts(widget.post.keywords);
+    // setState(() {
+    //   postController.sink.add(related);
+//    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
-      backgroundColor: Colors.black,
+    return Scaffold(
+      backgroundColor: Colors.grey,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -98,6 +119,7 @@ class _SingleViewState extends State<SingleView> {
       body: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints viewportConstraints) {
           return Container(
+            padding: EdgeInsets.only(top: 20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -123,8 +145,8 @@ class _SingleViewState extends State<SingleView> {
                             CarouselSlider.builder(
                               options: CarouselOptions(
                                   autoPlay: false,
-                                  height: viewportConstraints.maxHeight * 0.6,
-                                  viewportFraction: 6,
+                                  height: viewportConstraints.maxWidth,
+                                  viewportFraction: 1,
                                   enableInfiniteScroll: false,
                                   onPageChanged: (index, reason) {
                                     setState(() {
@@ -133,10 +155,19 @@ class _SingleViewState extends State<SingleView> {
                                   }),
                               itemCount: images.length,
                               itemBuilder: (context, index) {
-                                return Image(
-                                    image: CachedNetworkImageProvider(
-                                        images[index]),
-                                    fit: BoxFit.fitWidth);
+                                return InkWell(
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          FullPhoto(url: images[index]),
+                                    ),
+                                  ),
+                                  child: Image(
+                                      image: CachedNetworkImageProvider(
+                                          images[index]),
+                                      fit: BoxFit.fitWidth),
+                                );
                               },
                             ),
                             Positioned(
@@ -155,8 +186,8 @@ class _SingleViewState extends State<SingleView> {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: _current == index
-                                          ? Color.fromRGBO(0, 0, 0, 0.9)
-                                          : Color.fromRGBO(0, 0, 0, 0.4),
+                                          ? Color.fromRGBO(255, 200, 0, 0.9)
+                                          : Color.fromRGBO(255, 200, 0, 0.4),
                                     ),
                                   );
                                 }).toList(),
@@ -211,7 +242,7 @@ class _SingleViewState extends State<SingleView> {
                                                     user: user,
                                                   ))),
                                       child: Text(
-                                        widget.post.author,
+                                        widget.post.user.name,
                                         style: TextStyle(
                                             color: kText,
                                             fontWeight: FontWeight.w900),
@@ -227,21 +258,75 @@ class _SingleViewState extends State<SingleView> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
                                     children: [
-                                      Icon(
-                                        CupertinoIcons.heart,
-                                        color: Colors.grey,
-                                        size: 20,
+                                      LikeButton(
+                                        onTap: _likePost,
+                                        isLiked: liked,
+                                        size: 30,
+                                        circleColor: CircleColor(
+                                            start: Color(0xffFAB7fc),
+                                            end: Color(0xffFAB70A)),
+                                        bubblesColor: BubblesColor(
+                                          dotPrimaryColor: Color(0xffccff0A),
+                                          dotSecondaryColor: Color(0xffFAB70A),
+                                        ),
+                                        likeBuilder: (bool liked) {
+                                          return liked
+                                              ? Icon(
+                                                  Icons.favorite,
+                                                  color: Colors.red,
+                                                  size: 30,
+                                                )
+                                              : Icon(
+                                                  Icons.favorite_outline,
+                                                  color: Colors.grey,
+                                                  size: 30,
+                                                );
+                                        },
                                       ),
-                                      Icon(
-                                        FlutterIcons.share_sli,
-                                        color: Colors.grey,
-                                        size: 16,
+                                      LikeButton(
+                                        onTap: _likePost,
+                                        size: 30,
+                                        circleColor: CircleColor(
+                                            start: Color(0xffFAB7fc),
+                                            end: Color(0xffFAB70A)),
+                                        bubblesColor: BubblesColor(
+                                          dotPrimaryColor: Color(0xffccff0A),
+                                          dotSecondaryColor: Color(0xffFAB70A),
+                                        ),
+                                        likeBuilder: (bool liked) {
+                                          return Icon(
+                                            FlutterIcons.share_sli,
+                                            color: liked
+                                                ? Colors.grey
+                                                : Colors.grey,
+                                            size: 20,
+                                          );
+                                        },
                                       ),
-                                      Icon(
-                                        CupertinoIcons.bookmark,
-                                        color: Colors.grey,
-                                        size: 20,
-                                      )
+                                      LikeButton(
+                                        onTap: _likePost,
+                                        size: 30,
+                                        circleColor: CircleColor(
+                                            start: Color(0xffFAB7fc),
+                                            end: Color(0xffFAB70A)),
+                                        bubblesColor: BubblesColor(
+                                          dotPrimaryColor: Color(0xffccff0A),
+                                          dotSecondaryColor: Color(0xffFAB70A),
+                                        ),
+                                        likeBuilder: (bool saved) {
+                                          return saved
+                                              ? Icon(
+                                                  CupertinoIcons.bookmark_fill,
+                                                  color: kYellow,
+                                                  size: 25,
+                                                )
+                                              : Icon(
+                                                  CupertinoIcons.bookmark,
+                                                  color: Colors.grey,
+                                                  size: 25,
+                                                );
+                                        },
+                                      ),
                                     ],
                                   ),
                                   width: viewportConstraints.maxWidth * 0.3),
@@ -275,18 +360,22 @@ class _SingleViewState extends State<SingleView> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Visibility(
-                                          visible: widget.post.forSale == true
+                                          visible: widget.post.details.product
+                                                      .isForsale ==
+                                                  1
                                               ? true
                                               : false,
                                           child: Text(
-                                            widget.post.title,
+                                            widget.post.details.product.title,
                                             style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w600),
                                           ),
                                         ),
                                         Visibility(
-                                          visible: widget.post.forSale == true
+                                          visible: widget.post.details.product
+                                                      .isForsale ==
+                                                  1
                                               ? true
                                               : false,
                                           child: SizedBox(
@@ -297,7 +386,7 @@ class _SingleViewState extends State<SingleView> {
                                           padding: EdgeInsets.only(
                                               left: 30.0, top: 10, bottom: 10),
                                           child: Text(
-                                            widget.post.content,
+                                            widget.post.details.product.content,
                                             style: TextStyle(fontSize: 13),
                                           ),
                                         ),
@@ -305,9 +394,11 @@ class _SingleViewState extends State<SingleView> {
                                     ),
                                   ),
                                   Visibility(
-                                    visible: widget.post.forSale == true
-                                        ? true
-                                        : false,
+                                    visible:
+                                        widget.post.details.product.isForsale ==
+                                                1
+                                            ? true
+                                            : false,
                                     child: Container(
                                       height: 100,
                                       color: Colors.grey,
@@ -324,11 +415,13 @@ class _SingleViewState extends State<SingleView> {
                                         height: 10,
                                       ),
                                       Visibility(
-                                        visible: widget.post.forSale == true
+                                        visible: widget.post.details.product
+                                                    .isForsale ==
+                                                1
                                             ? true
                                             : false,
                                         child: Text(
-                                          '₦ ${widget.post.amount}',
+                                          '₦ ${widget.post.details.product.amount}',
                                           style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.w600),
@@ -349,29 +442,31 @@ class _SingleViewState extends State<SingleView> {
                       SizedBox(height: 20),
                       Container(
                         child: Padding(
-                          padding: EdgeInsets.only(
-                              left: 20.0, right: 20, bottom: 10),
+                          padding:
+                              EdgeInsets.only(left: 20.0, right: 20, bottom: 0),
                           child: InkWell(
                             onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => Comment(
-                                          postId: widget.post.id,
+                                          postId:
+                                              widget.post.details.product.id,
                                         ))),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                widget.post.commentCount == 0
+                                widget.post.details.comments.length == 0
                                     ? Text(
                                         'Be the first to comment',
                                         style: TextStyle(color: Colors.grey),
                                       )
                                     : Text(
-                                        'View all ${widget.post.commentCount} comments',
+                                        'View all $commentCount comments',
                                         style: TextStyle(color: Colors.grey),
                                       ),
                                 Icon(
-                                  Icons.add_comment,
+                                  CupertinoIcons.chat_bubble,
+                                  color: kText,
                                   size: 30,
                                 )
                               ],
@@ -379,23 +474,34 @@ class _SingleViewState extends State<SingleView> {
                           ),
                         ),
                       ),
-                      // Column(
-                      //   children: [
-                      //     ListTile(
-                      //       contentPadding: EdgeInsets.only(left: 10, right: 10),
-                      //       leading: CircleAvatar(
-                      //         backgroundColor: Colors.red,
-                      //         radius: 20,
-                      //       ),
-                      //       title: Text(
-                      //         'SAmson Aka',
-                      //         style: TextStyle(fontWeight: FontWeight.bold),
-                      //       ),
-                      //       subtitle: Text(
-                      //         'this is a really long comment i want to leave on a post in the app I nlpsd',
-                      //         style: TextStyle(color: Colors.black),
-                      //       ),
-                      //     ),
+                      widget.post.details.comments.length > 0
+                          ? Column(
+                              children: widget.post.details.comments
+                                  .map(
+                                    (e) => ListTile(
+                                      contentPadding:
+                                          EdgeInsets.only(left: 10, right: 10),
+                                      leading: CircleAvatar(
+                                        backgroundColor: kYellow,
+                                        backgroundImage:
+                                            CachedNetworkImageProvider(
+                                                e.user.profileUrl),
+                                        radius: 20,
+                                      ),
+                                      title: Text(
+                                        e.user.name,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      subtitle: Text(
+                                        e.comment,
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                    ),
+                                  )
+                                  .toList())
+                          : Container(),
                       //     ListTile(
                       //         contentPadding:
                       //             EdgeInsets.only(left: 10, right: 10, bottom: 0),
@@ -504,7 +610,7 @@ class _SingleViewState extends State<SingleView> {
           );
         },
       ),
-    ));
+    );
   }
 
   void _showMenu() {

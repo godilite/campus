@@ -1,38 +1,38 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers.dart';
 
 class SearchService {
-  final userReference = FirebaseFirestore.instance.collection("users");
-  final postReference = FirebaseFirestore.instance.collection("posts");
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  Dio dio = new Dio();
+  Future search(String text) async {
+    final SharedPreferences prefs = await _prefs;
+    Response response;
+    var token = prefs.getString('token');
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
 
-  Future<Stream<List<QuerySnapshot>>> search(String text) async {
-    Stream<QuerySnapshot> _userStream;
-    Stream<QuerySnapshot> _postStream;
+    try {
+      response = await dio.post("http://10.0.2.2:8000/api/v1/search", data: {
+        'search': text ?? '',
+      });
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    }
 
-    _userStream =
-        userReference.where('name', isGreaterThanOrEqualTo: text).snapshots();
-    List keywords = searchKeyword(text);
-    _postStream = postReference
-        .orderBy('timestamp', descending: true)
-        .limit(10)
-        .where('keywords', arrayContainsAny: keywords.take(10).toList())
-        .snapshots();
-
-    return CombineLatestStream.list([_userStream, _postStream])
-        .asBroadcastStream();
+    return response;
   }
 
-  Future<List<DocumentSnapshot>> searchPosts(words) async {
-    List<DocumentSnapshot> documentList;
-    documentList = (await postReference
-            .orderBy('timestamp', descending: true)
-            .limit(10)
-            .where('keywords', arrayContainsAny: words.take(10))
-            .get())
-        .docs;
-
-    return documentList;
-  }
+  Future<List> searchPosts(words) async {}
 }

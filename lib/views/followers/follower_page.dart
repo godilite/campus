@@ -5,12 +5,12 @@ import 'package:camp/views/post/widgets/color_loader_2.dart';
 import 'package:camp/views/profile/profile.dart';
 import 'package:camp/views/styles.dart';
 import 'package:flutter/material.dart';
-
 import '../../service_locator.dart';
 
 class FollowerPage extends StatefulWidget {
   final int index;
   final int uid;
+
   FollowerPage(this.index, this.uid);
 
   @override
@@ -20,19 +20,44 @@ class FollowerPage extends StatefulWidget {
 class _FollowerPageState extends State<FollowerPage>
     with TickerProviderStateMixin {
   TabController _tabController;
-
+  //Future _getFollows;
+  int id;
   UserService _userService = locator<UserService>();
-  _following(int uid) async {
-    bool following = await _userService.isFollowing(uid);
-    return following;
+  // _following(int uid) async {
+  //   bool following = await _userService.youAreFollowing(uid);
+  //   return following;
+  // }
+
+  List followers = [];
+  int followersCount = 0;
+  int followingCount = 0;
+  List following = [];
+
+  // Future _fetchFollowers() async {
+  //   var result = await _userService.getFollowers(widget.uid);
+  //   followers.addAll(result['followers']);
+  //   followersCount = result['total'];
+  //   return result;
+  // }
+
+  // Future _fetchFollowing() async {
+  //   var follows = await _userService.getFollowing(widget.uid);
+  //   setState(() {
+  //     following.addAll(follows['following']);
+  //     followingCount = follows['total'];
+  //   });
+  // }
+
+  _fetchCurrentId() async {
+    id = await _userService.currentId();
   }
 
   _tabBarView() {
     return TabBarView(
       children: [
         Container(
-          child: StreamBuilder(
-              stream: _userService.getFollowers(widget.uid),
+          child: FutureBuilder(
+              future: _userService.getFollowers(widget.uid),
               builder: (context, dataSnapshot) {
                 if (!dataSnapshot.hasData) {
                   return Center(
@@ -50,9 +75,9 @@ class _FollowerPageState extends State<FollowerPage>
                 return ListView.separated(
                     separatorBuilder: (BuildContext context, int index) =>
                         Divider(),
-                    itemCount: dataSnapshot.data.length,
+                    itemCount: dataSnapshot.data['followers'].length,
                     itemBuilder: (context, index) {
-                      UserAccount user = dataSnapshot.data[index].users;
+                      UserAccount user = dataSnapshot.data['followers'][index];
                       return InkWell(
                         onTap: () => Navigator.push(
                           context,
@@ -79,7 +104,7 @@ class _FollowerPageState extends State<FollowerPage>
                           ),
                           title: Text('${user.name}'),
                           subtitle: Text('@${user.username}'),
-                          trailing: user.id == _userService.auth.currentUser.uid
+                          trailing: user.id == id
                               ? Padding(
                                   padding:
                                       EdgeInsets.symmetric(horizontal: 20.0),
@@ -91,7 +116,7 @@ class _FollowerPageState extends State<FollowerPage>
                                   ),
                                 )
                               : FutureBuilder(
-                                  future: _following(user.id),
+                                  future: _userService.youAreFollowing(user.id),
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData)
                                       return FlatButton(
@@ -133,8 +158,8 @@ class _FollowerPageState extends State<FollowerPage>
               }),
         ),
         Container(
-          child: StreamBuilder(
-              stream: _userService.getFollowing(widget.uid),
+          child: FutureBuilder(
+              future: _userService.getFollowing(widget.uid),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Center(
@@ -151,9 +176,9 @@ class _FollowerPageState extends State<FollowerPage>
                 }
                 return ListView.separated(
                     separatorBuilder: (BuildContext context, int) => Divider(),
-                    itemCount: snapshot.data.length,
+                    itemCount: snapshot.data['following'].length,
                     itemBuilder: (context, index) {
-                      UserAccount user = snapshot.data[index].users;
+                      UserAccount user = snapshot.data['following'][index];
 
                       return InkWell(
                         onTap: () => Navigator.push(
@@ -181,7 +206,7 @@ class _FollowerPageState extends State<FollowerPage>
                           ),
                           title: Text('${user.name}'),
                           subtitle: Text('@${user.username}'),
-                          trailing: user.id == _userService.auth.currentUser.uid
+                          trailing: user.id == id
                               ? Padding(
                                   padding:
                                       EdgeInsets.symmetric(horizontal: 20.0),
@@ -193,7 +218,7 @@ class _FollowerPageState extends State<FollowerPage>
                                   ),
                                 )
                               : FutureBuilder(
-                                  future: _following(user.id),
+                                  future: _userService.youAreFollowing(user.id),
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData)
                                       return FlatButton(
@@ -282,6 +307,7 @@ class _FollowerPageState extends State<FollowerPage>
 
   @override
   void initState() {
+    _fetchCurrentId();
     _tabController =
         TabController(length: 2, vsync: this, initialIndex: widget.index);
     super.initState();

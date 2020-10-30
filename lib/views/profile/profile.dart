@@ -1,15 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:camp/models/post_model.dart';
+import 'package:camp/models/activity_model.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/services/UserService.dart';
 import 'package:camp/views/followers/follower_page.dart';
-import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
 import 'package:camp/views/profile/profile_owner_view.dart';
 import 'package:camp/views/styles.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -30,23 +28,27 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   var _tapPosition;
-  BehaviorSubject<List<DocumentSnapshot>> postController;
+  BehaviorSubject<List<Datum>> postController;
   PostService _postService = locator<PostService>();
   UserService _userService = locator<UserService>();
   AuthService _authService = locator<AuthService>();
-  List<DocumentSnapshot> documentList = [];
+  List<Datum> documentList = [];
+  int followersCount = 0;
+  int followingCount = 0;
+
   @override
   void initState() {
     getUser();
-    postController = BehaviorSubject<List<DocumentSnapshot>>();
+    postController = BehaviorSubject<List<Datum>>();
     _fetchFirstList();
     _following();
+    _fetchFriends();
     super.initState();
   }
 
   getUser() async {
     UserAccount _user = await _authService.currentUser();
-    widget.user.id == _userService.auth.currentUser.uid
+    widget.user.id == _user.id
         ? Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -61,16 +63,25 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool _isFollowing;
   _following() async {
-    _isFollowing = await _userService.isFollowing(widget.user.id);
+    _isFollowing = await _userService.followingYou(widget.user.id);
     setState(() {});
   }
 
-  Stream<List<DocumentSnapshot>> get userPostStream => postController.stream;
+  _fetchFriends() async {
+    var result = await _userService.getFollowersCount(widget.user.id);
+
+    var following = await _userService.getFollowingCount(widget.user.id);
+    setState(() {
+      followersCount = result;
+      followingCount = following;
+    });
+  }
+
+  Stream<List<Datum>> get userPostStream => postController.stream;
   _fetchFirstList() async {
-    // List<DocumentSnapshot> posts =
-    //     await _postService.getUserPosts(widget.user.id);
-    // documentList.addAll(posts);
-    // postController.sink.add(documentList);
+    Activity posts = await _postService.getUserPosts(widget.user.id);
+    documentList.addAll(posts.data);
+    postController.sink.add(documentList);
   }
 
   @override
@@ -108,6 +119,13 @@ class _ProfilePageState extends State<ProfilePage> {
           bottom: 150,
           child: Container(
             decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: widget.user.coverPhoto != null
+                      ? CachedNetworkImageProvider(widget.user.coverPhoto)
+                      : AssetImage(
+                          'assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
+                  fit: BoxFit.cover,
+                ),
                 color: kYellow,
                 borderRadius: BorderRadius.only(
                     bottomRight: Radius.circular(30),
@@ -154,13 +172,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   left: 15,
                   right: 15,
                   child: Center(
-                      // child: Text(truncate(20, widget.user.name),
-                      //     style: TextStyle(
-                      //       color: kText,
-                      //       fontSize: 18,
-                      //       fontWeight: FontWeight.w600,
-                      //     )),
-                      ),
+                    child: Text(truncate(20, widget.user.name),
+                        style: TextStyle(
+                          color: kText,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        )),
+                  ),
                 ),
                 Positioned(
                   right: 15,
@@ -217,7 +235,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: Column(
                               children: [
                                 Text('Posts'),
-                                // Text('${widget.user.postCount}')
+                                Text('${documentList.length}')
                               ],
                             ),
                           ),
@@ -234,14 +252,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                 onTap: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        FollowerPage(0, widget.user.id),
-                                  ),
+                                      builder: (context) => FollowerPage(
+                                            0,
+                                            widget.user.id,
+                                          )),
                                 ),
                                 child: Column(
                                   children: [
                                     Text('Followers'),
-                                    // Text('${widget.user.followers}')
+                                    Text('$followersCount')
                                   ],
                                 ),
                               ),
@@ -260,14 +279,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                 onTap: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        FollowerPage(1, widget.user.id),
+                                    builder: (context) => FollowerPage(
+                                      1,
+                                      widget.user.id,
+                                    ),
                                   ),
                                 ),
                                 child: Column(
                                   children: [
                                     Text('Following'),
-                                    // Text('${widget.user.following}')
+                                    Text('$followingCount')
                                   ],
                                 ),
                               ),
@@ -286,8 +307,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  StreamBuilder<List<DocumentSnapshot>> buildStreamBuilder() {
-    return StreamBuilder<List<DocumentSnapshot>>(
+  StreamBuilder<List<Datum>> buildStreamBuilder() {
+    return StreamBuilder<List<Datum>>(
         stream: userPostStream,
         builder: (context, snapshot) {
           if (snapshot.data == null &&
@@ -313,7 +334,7 @@ class _ProfilePageState extends State<ProfilePage> {
           }
           return SliverStaggeredGrid.count(
             crossAxisCount: 4,
-            children: snapshot.data.map((DocumentSnapshot post) {
+            children: snapshot.data.map((Datum post) {
               return Container(); //ItemWidget(post: PostModel.fromData(post));
             }).toList(),
             staggeredTiles: snapshot.data

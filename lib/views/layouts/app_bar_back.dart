@@ -24,7 +24,7 @@ class PageAppbar extends StatelessWidget {
             onTap: () => Navigator.pop(context, true),
             child: Icon(
               CupertinoIcons.chevron_back,
-              size: 30,
+              size: 25,
               color: Colors.grey,
             ),
           ),

@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 
 class UploadService {
@@ -16,5 +18,17 @@ class UploadService {
     StorageUploadTask uploadTask = ref.putData(imageData);
 
     return await (await uploadTask.onComplete).ref.getDownloadURL();
+  }
+
+  final picker = ImagePicker();
+
+  Future uplaodImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    StorageReference firebaseStorageRef =
+        FirebaseStorage.instance.ref().child('uploads/$time');
+    StorageUploadTask uploadTask =
+        firebaseStorageRef.putFile(File(pickedFile.path));
+    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    return await taskSnapshot.ref.getDownloadURL();
   }
 }

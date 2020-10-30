@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:camp/models/post_model.dart';
+import 'package:camp/models/activity_model.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/SearchService.dart';
@@ -8,7 +8,6 @@ import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/post/widgets/color_loader_2.dart';
 import 'package:camp/views/profile/profile.dart';
 import 'package:camp/views/styles.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -25,7 +24,7 @@ class _SearchPageState extends State<SearchPage>
   TabController _tabController;
   SearchService _searchService = locator<SearchService>();
 
-  Future<Stream<List<QuerySnapshot>>> futureSearchResult;
+  Future futureSearchResult;
   List<SearchResult> searchResult = [];
 
   List<ItemWidget> postResult = [];
@@ -34,14 +33,15 @@ class _SearchPageState extends State<SearchPage>
     _searchTextController.clear();
   }
 
-  controlSearching() async {
+  controlSearching(String string) {
+    postResult.clear();
+    searchResult.clear();
+
     if (_searchTextController.text.isNotEmpty) {
-      var allUsers = _searchService.search(_searchTextController.text);
+      var allResults = _searchService.search(_searchTextController.text);
 
       setState(() {
-        postResult.clear();
-        searchResult.clear();
-        futureSearchResult = allUsers;
+        futureSearchResult = allResults;
       });
     }
   }
@@ -55,34 +55,33 @@ class _SearchPageState extends State<SearchPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return SafeArea(
-      child: LayoutBuilder(builder: (context, constraints) {
-        return Scaffold(
+    return LayoutBuilder(builder: (context, constraints) {
+      return Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
-          body: Stack(
-            children: [
-              Positioned(
-                top: 15.0,
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: buildSearchBar(context, constraints),
-              ),
-              Positioned(
-                top: 70,
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: futureSearchResult == null
-                    ? displayNoSearchResult()
-                    : resultFoundScreen(),
-              )
-            ],
-          ),
-        );
-      }),
-    );
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Positioned(
+                  top: 15.0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: buildSearchBar(context, constraints),
+                ),
+                Positioned(
+                  top: 70,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: futureSearchResult == null
+                      ? displayNoSearchResult()
+                      : resultFoundScreen(),
+                )
+              ],
+            ),
+          ));
+    });
   }
 
   Container buildSearchBar(BuildContext context, BoxConstraints constraints) {
@@ -111,12 +110,16 @@ class _SearchPageState extends State<SearchPage>
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none),
                     prefixIcon: Icon(CupertinoIcons.search),
-                    suffixIcon: IconButton(
-                        icon: Icon(CupertinoIcons.clear),
-                        onPressed: clearSearch),
+                    suffixIcon: _searchTextController.text.isEmpty
+                        ? IconButton(
+                            icon: Icon(CupertinoIcons.location),
+                            onPressed: () => null)
+                        : IconButton(
+                            icon: Icon(CupertinoIcons.clear),
+                            onPressed: clearSearch),
                   ),
                   style: TextStyle(fontSize: 16, color: Colors.black),
-                  onEditingComplete: controlSearching,
+                  onChanged: controlSearching,
                 ),
               ),
             ],
@@ -160,21 +163,21 @@ class _SearchPageState extends State<SearchPage>
               ),
             );
           }
-          snapshot.data.forEach((document) {
-            document[1].documents.forEach((post) {
-              PostModel posts = PostModel.fromData(post);
-              Container postList = Container(); //ItemWidget(post: posts);
-              setState(() {
-                //   postResult.add(postList);
-              });
-            });
-            document[0].documents.forEach((d) {
-              UserAccount users = UserAccount.fromJson(d);
-              SearchResult result = SearchResult(users);
-              searchResult.add(result);
-            });
-            _tabController.animateTo(0);
+          postResult.clear();
+          searchResult.clear();
+
+          snapshot.data.data['posts']['original']['data'].forEach((post) {
+            Datum posts = Datum.fromJson(post);
+            ItemWidget postList = ItemWidget(post: posts);
+            postResult.add(postList);
           });
+          snapshot.data.data['users'].forEach((d) {
+            UserAccount users = UserAccount.fromJson(d);
+            SearchResult result = SearchResult(users);
+            searchResult.add(result);
+          });
+          _tabController.animateTo(0);
+
           return Column(
             children: [_tabBarSection()],
           );
@@ -240,9 +243,7 @@ class _SearchPageState extends State<SearchPage>
   }
 
   _tabBarView() {
-    _tabController.addListener(() {
-      setState(() {});
-    });
+    _tabController.addListener(() {});
     return Container(
       height: MediaQuery.of(context).size.height * 0.774,
       child: TabBarView(children: [
@@ -303,7 +304,7 @@ class SearchResult extends StatelessWidget {
                     : AssetImage('assets/icons8-male-user-100.png'),
               ),
               title: Text(
-                'pit',
+                user.name,
                 //  user.name,
                 style: TextStyle(color: kText, fontWeight: FontWeight.w600),
               ),

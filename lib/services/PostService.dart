@@ -19,14 +19,14 @@ class PostService {
 
   Future post(PostModel post) async {
     var postId = uuid.v1();
-    DocumentSnapshot documentSnapshot;
+    //DocumentSnapshot documentSnapshot;
 
     storePostOnBackup(post);
 
     postReference.doc(postId).set({
       'id': postId,
       'title': post.title ?? '',
-      'files': post.files ?? '',
+      'images': post.images ?? '',
       'hashtags': post.hashtags ?? '',
       'content': post.content ?? '',
       'amount': post.amount ?? 0.0,
@@ -36,15 +36,37 @@ class PostService {
       'long': post.long ?? '',
       'timestamp': timestamp
     });
-    documentSnapshot = await postReference.doc(postId).get();
+    //documentSnapshot = await postReference.doc(postId).get();
 
-    return PostModel.fromData(documentSnapshot);
+    return true;
   }
 
-  likePost(postId) {
-    postReference.doc(postId).update({
-      'likes': FieldValue.arrayUnion(['${auth.currentUser.uid}'])
-    });
+  likePost(postId) async {
+    final SharedPreferences prefs = await _prefs;
+    Response response;
+    var token = prefs.getString('token');
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
+
+    try {
+      response =
+          await dio.post("http://10.0.2.2:8000/api/v1/like-product", data: {
+        'product_id': postId,
+      });
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    }
+    print(response);
   }
 
   Future<Activity> getPosts() async {
@@ -101,43 +123,62 @@ class PostService {
     return documentList;
   }
 
-  Future<List<DocumentSnapshot>> getUserPosts(String uid) async {
-    List<DocumentSnapshot> documentList;
-    documentList = (await postReference
-            .where('userId', isEqualTo: uid)
-            .orderBy('timestamp', descending: true)
-            .limit(10)
-            .get())
-        .docs;
+  Future<Activity> getUserPosts(int id) async {
+    Activity documentList;
+    final SharedPreferences prefs = await _prefs;
+    Response response;
+    var token = prefs.getString('token');
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
+
+    try {
+      response = await dio.get("http://10.0.2.2:8000/api/v1/user/activities",
+          queryParameters: {"page": 1, "id": id});
+      documentList = Activity.fromJson(response.data);
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    }
     return documentList;
   }
 
-  Future<List<DocumentSnapshot>> getUserFrendsPosts() async {
-    List friendsId = [];
-    List<DocumentSnapshot> postByFriends;
-    CollectionReference followingReference = rootRef
-        .collection("following/" + auth.currentUser.uid + "/userFollowing");
-    //GET user friends
-    List<DocumentSnapshot> documentList;
+  Future<Activity> getUserFrendsPosts() async {
+    final SharedPreferences prefs = await _prefs;
+    Activity activity;
+    Response response;
+    var token = prefs.getString('token');
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
 
-    documentList = (await followingReference.get()).docs;
+    try {
+      response = await dio.get(
+          "http://10.0.2.2:8000/api/v1/following/activities",
+          queryParameters: {"page": 1});
+      activity = Activity.fromJson(response.data);
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request);
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.request);
+        print(e.message);
+      }
+    }
 
-    documentList.forEach((element) {
-      friendsId.add(element.get('uid'));
-    });
-
-    List<DocumentSnapshot> postList;
-    postList = (await postReference
-            .orderBy('timestamp', descending: true)
-            .limit(10)
-            .get())
-        .docs;
-    postList.forEach((element) {
-      if (friendsId.contains(element.get('userId'))) postByFriends.add(element);
-    });
-
-    return postByFriends;
-    //Find their post
+    return activity;
   }
 
   addCount() {

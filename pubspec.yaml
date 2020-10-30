@@ -53,6 +53,14 @@ dependencies:
   flutter_rating_bar: ^3.0.1+1
   cached_network_image:
   dio: ^3.0.10
+  async: ^2.4.2
+  fluttertoast: ^7.0.2
+  photo_view: ^0.10.2
+  intl: ^0.16.1
+  firebase_messaging: ^7.0.3
+  timeago: ^2.0.28
+  bubble: ^1.1.9+1
+  like_button: ^1.0.4
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -130,6 +130,12 @@ class _CreatePostState extends State<CreatePost> {
   List imageFiles = [];
 
   uploadImages() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomeView(),
+      ),
+    );
     await Future.forEach(images, (image) async {
       var url = (await uploadService.saveImage(image)).toString();
 
@@ -156,7 +162,11 @@ class _CreatePostState extends State<CreatePost> {
         posting = false;
       });
       Navigator.push(
-          context, MaterialPageRoute(builder: (context) => HomeView()));
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeView(),
+        ),
+      );
     });
   }
 
