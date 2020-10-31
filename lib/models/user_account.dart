@@ -50,8 +50,8 @@ class UserAccount {
         address: json["address"],
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
-        long: json["long"].toDouble(),
-        lat: json["lat"].toDouble(),
+        long: double.parse(json["long"]),
+        lat: double.parse(json["lat"]),
       );
 
   Map<String, dynamic> toJson() => {

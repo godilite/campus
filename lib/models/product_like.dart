@@ -19,8 +19,8 @@ class ProductLike {
 
   factory ProductLike.fromJson(Map<String, dynamic> json) => ProductLike(
         id: json["id"],
-        userId: json["user_id"],
-        productId: json["product_id"],
+        userId: int.parse(json["user_id"]),
+        productId: int.parse(json["product_id"]),
         createdAt: json["created_at"],
         updatedAt: json["updated_at"],
         user: UserAccount.fromJson(json["user"]),

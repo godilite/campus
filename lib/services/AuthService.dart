@@ -15,7 +15,7 @@ class AuthService {
   final userReference = FirebaseFirestore.instance.collection("users");
   final usernameReference = FirebaseFirestore.instance.collection("username");
   final DateTime timestamp = DateTime.now();
-  String baseUrl = 'http://10.0.2.2:8000/api';
+  String baseUrl = 'http://campusel.ogarnkang.com/api';
   Dio dio = new Dio();
   Future signInWithFacebook() async {
     try {
@@ -266,7 +266,7 @@ class AuthService {
 
     try {
       response = await dio.get(
-        "http://10.0.2.2:8000/api/v1/current/user",
+        "http://campusel.ogarnkang.com/api/v1/current/user",
       );
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
@@ -293,7 +293,8 @@ class AuthService {
     var token = await user.user.getIdToken();
     Response response;
     try {
-      response = await dio.post("http://10.0.2.2:8000/api/v1/login", data: {
+      response =
+          await dio.post("http://campusel.ogarnkang.com/api/v1/login", data: {
         "token": token,
         'name': data.displayName,
         'username': data.username,
@@ -333,8 +334,8 @@ class AuthService {
     var token = await auth.currentUser.getIdToken();
 
     try {
-      response = await dio
-          .post("http://10.0.2.2:8000/api/v1/login", data: {"token": token});
+      response = await dio.post("http://campusel.ogarnkang.com/api/v1/login",
+          data: {"token": token});
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
@@ -361,7 +362,7 @@ class AuthService {
     dio.options.headers['content-Type'] = 'application/json';
     dio.options.headers["authorization"] = "Bearer $token";
     try {
-      await dio.post("http://10.0.2.2:8000/api/v1/update-user", data: {
+      await dio.post("http://campusel.ogarnkang.com/api/v1/update-user", data: {
         'name': data['displayName'],
         'username': data['username'],
         'email': data['email'],
@@ -395,7 +396,8 @@ class AuthService {
     dio.options.headers['content-Type'] = 'application/json';
     dio.options.headers["authorization"] = "Bearer $token";
     try {
-      await dio.post("http://10.0.2.2:8000/api/v1/update-user-pix", data: {
+      await dio
+          .post("http://campusel.ogarnkang.com/api/v1/update-user-pix", data: {
         'profileUrl': url,
       });
     } on DioError catch (e) {
@@ -423,10 +425,11 @@ class AuthService {
     dio.options.headers['content-Type'] = 'application/json';
     dio.options.headers["authorization"] = "Bearer $token";
     try {
-      response = await dio
-          .post("http://10.0.2.2:8000/api/v1/update-user-cover", data: {
-        'coverPhoto': url,
-      });
+      response = await dio.post(
+          "http://campusel.ogarnkang.com/api/v1/update-user-cover",
+          data: {
+            'coverPhoto': url,
+          });
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.

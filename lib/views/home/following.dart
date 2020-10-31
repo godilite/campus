@@ -1,7 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/models/activity_model.dart';
-import 'package:camp/models/user_account.dart';
-import 'package:camp/services/AuthService.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/views/layouts/app_bar_back.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +22,6 @@ class _FollowingState extends State<Following> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   bool showAll = false;
   PostService _postService = locator<PostService>();
-  AuthService _authService = locator<AuthService>();
   List<Datum> documentList = [];
   BehaviorSubject<List<Datum>> postController;
   @override

@@ -61,6 +61,7 @@ dependencies:
   timeago: ^2.0.28
   bubble: ^1.1.9+1
   like_button: ^1.0.4
+  share: ^0.6.5+4
 dev_dependencies:
   flutter_test:
     sdk: flutter

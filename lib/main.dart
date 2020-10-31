@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
           primaryColor: kYellow,
           visualDensity: VisualDensity.adaptivePlatformDensity,
-          scaffoldBackgroundColor: Colors.white),
+          scaffoldBackgroundColor: Colors.black),
       debugShowCheckedModeBanner: false,
       home: InitialCheck(),
     );

@@ -21,7 +21,8 @@ class CommentService {
     dio.options.headers["authorization"] = "Bearer $token";
 
     try {
-      response = await dio.get("http://10.0.2.2:8000/api/v1/fetch-comment",
+      response = await dio.get(
+          "http://campusel.ogarnkang.com/api/v1/fetch-comment",
           queryParameters: {'productId': postId});
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
@@ -56,7 +57,8 @@ class CommentService {
     commentsReference.doc(postId.toString()).set({"content": content});
 
     try {
-      response = await dio.post("http://10.0.2.2:8000/api/v1/add-comment",
+      response = await dio.post(
+          "http://campusel.ogarnkang.com/api/v1/add-comment",
           data: {'productId': postId, "comment": content});
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
@@ -85,7 +87,7 @@ class CommentService {
 
     try {
       response = await dio.get(
-          "http://10.0.2.2:8000/api/v1/fetch-comment-count",
+          "http://campusel.ogarnkang.com/api/v1/fetch-comment-count",
           queryParameters: {'productId': postId});
     } on DioError catch (e) {
       // The request was made and the server responded with a status code

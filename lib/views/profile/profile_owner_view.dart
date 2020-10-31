@@ -118,13 +118,13 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                 boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black26)]),
             child: CircleAvatar(
               backgroundColor: kYellow,
-              minRadius: 53,
+              minRadius: 37,
               child: widget.user != null
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(100),
                       child: Image(
-                        width: 100,
-                        height: 100,
+                        width: 70,
+                        height: 70,
                         fit: BoxFit.fill,
                         image: widget.user.profileUrl != null
                             ? CachedNetworkImageProvider(widget.user.profileUrl)
@@ -150,6 +150,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                   right: 15,
                   child: Center(
                     child: Text(truncate(20, widget.user.name),
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: kText,
                           fontSize: 18,
@@ -206,9 +207,10 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Padding(
-                            padding: EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(5.0),
                             child: Column(
                               children: [
                                 Text('Posts'),
@@ -216,58 +218,66 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                               ],
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Container(
-                              padding: EdgeInsets.only(left: 8.0),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  left: BorderSide(color: Colors.grey.shade200),
-                                ),
-                              ),
-                              child: InkWell(
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FollowerPage(
-                                      0,
-                                      widget.user.id,
-                                    ),
+                          Flexible(
+                            fit: FlexFit.loose,
+                            child: Padding(
+                              padding: EdgeInsets.all(5.0),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 4.0),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    left:
+                                        BorderSide(color: Colors.grey.shade200),
                                   ),
                                 ),
-                                child: Column(
-                                  children: [
-                                    Text('Followers'),
-                                    Text('$followersCount')
-                                  ],
+                                child: InkWell(
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FollowerPage(
+                                        0,
+                                        widget.user.id,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text('Followers'),
+                                      Text('$followersCount')
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Container(
-                              padding: EdgeInsets.only(left: 8.0),
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  left: BorderSide(color: Colors.grey.shade200),
-                                ),
-                              ),
-                              child: InkWell(
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FollowerPage(
-                                      1,
-                                      widget.user.id,
-                                    ),
+                          Flexible(
+                            fit: FlexFit.loose,
+                            child: Padding(
+                              padding: EdgeInsets.all(6.0),
+                              child: Container(
+                                padding: EdgeInsets.only(left: 4.0),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    left:
+                                        BorderSide(color: Colors.grey.shade200),
                                   ),
                                 ),
-                                child: Column(
-                                  children: [
-                                    Text('Following'),
-                                    Text('$followingCount')
-                                  ],
+                                child: InkWell(
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FollowerPage(
+                                        1,
+                                        widget.user.id,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text('Following'),
+                                      Text('$followingCount')
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),

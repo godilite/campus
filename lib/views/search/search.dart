@@ -99,13 +99,14 @@ class _SearchPageState extends State<SearchPage>
                   child: Icon(Icons.arrow_back_ios)),
               SizedBox(
                 width: constraints.maxWidth * 0.85,
-                height: constraints.maxHeight * 0.08,
+                height: constraints.maxHeight * 0.06,
                 child: TextFormField(
                   cursorColor: kYellow,
                   controller: _searchTextController,
                   decoration: InputDecoration(
                     filled: true,
                     hintText: 'Search',
+                    contentPadding: EdgeInsets.zero,
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none),
@@ -178,9 +179,7 @@ class _SearchPageState extends State<SearchPage>
           });
           _tabController.animateTo(0);
 
-          return Column(
-            children: [_tabBarSection()],
-          );
+          return _tabBarSection();
         });
   }
 
@@ -270,9 +269,7 @@ class _SearchPageState extends State<SearchPage>
   Widget _tabBarSection() {
     return DefaultTabController(
       length: 2,
-      child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[_tabBar(), _tabBarView()]),
+      child: ListView(children: <Widget>[_tabBar(), _tabBarView()]),
     );
   }
 }

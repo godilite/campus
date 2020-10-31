@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:camp/models/activity_model.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/PostService.dart';
@@ -20,6 +21,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   ScrollController _controller = ScrollController();
+  final AsyncMemoizer _memoizer = AsyncMemoizer();
   bool showAll = true;
   bool isBottom = false;
   List<Datum> documentList = [];
@@ -31,12 +33,18 @@ class _HomeViewState extends State<HomeView> {
     // listener for scroll controller    postController = BehaviorSubject<List<Datum>>();
 
     _controller.addListener(_scrollListener);
-    _postService.postReference.snapshots().listen((event) async {
-      Stream<Activity> items = Stream.fromFuture(_postService.getPosts());
+    _fetchPosts();
+  }
 
-      items.listen((event) {
-        documentList.addAll(event.data);
-        postController.sink.add(event.data);
+  _fetchPosts() {
+    return this._memoizer.runOnce(() async {
+      _postService.postReference.snapshots().listen((event) async {
+        Stream<Activity> items = Stream.fromFuture(_postService.getPosts());
+
+        items.listen((event) {
+          documentList.addAll(event.data);
+          postController.sink.add(event.data);
+        });
       });
     });
   }
@@ -166,154 +174,150 @@ class _HomeViewState extends State<HomeView> {
     double _height = MediaQuery.of(context).size.height;
     return DrawScaffold('', LayoutBuilder(
         builder: (BuildContext context, BoxConstraints viewportConstraints) {
-      return CustomScrollView(
-          controller: _controller,
-          physics: AlwaysScrollableScrollPhysics(),
-          slivers: [
-            SliverList(
-              delegate: SliverChildListDelegate([
-                Container(
-                  child: Stack(
-                    fit: StackFit.passthrough,
-                    children: [
-                      Positioned(
-                        bottom: 10,
-                        right: 20,
-                        child: Container(
-                          height: 30,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                'See more',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white),
-                              ),
-                              SizedBox(
-                                width: 2,
-                              ),
-                              Icon(
-                                FlutterIcons.arrowright_ant,
-                                color: Colors.white,
-                                size: 20,
-                              )
-                            ],
-                          ),
-                          width: _width * 0.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                  height: _height * 0.25,
-                  width: _width,
-                  decoration: BoxDecoration(
-                      color: kYellow,
-                      borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(30),
-                          bottomLeft: Radius.circular(30))),
-                ),
-                SizedBox(height: 10),
-                Padding(
-                  padding: EdgeInsets.only(left: 18.0, right: 18),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
+      return CustomScrollView(controller: _controller, slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate([
+            Container(
+              margin: EdgeInsets.only(top: 23),
+              child: Stack(
+                fit: StackFit.passthrough,
+                children: [
+                  Positioned(
+                    bottom: 10,
+                    right: 20,
+                    child: Container(
+                      height: 30,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                showAll = true;
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 15),
-                              decoration: BoxDecoration(
-                                  color: showAll ? kText : Colors.white,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(50))),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.circle_grid_hex,
-                                    size: 18,
-                                    color: showAll ? Colors.white : kText,
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text('All',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: showAll ? Colors.white : kText,
-                                      ))
-                                ],
-                              ),
-                            ),
+                          Text(
+                            'See more',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
                           ),
-                          InkWell(
-                            onTap: () async {
-                              showAll = await loadFollowing();
-                              setState(() {});
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 20),
-                              decoration: BoxDecoration(
-                                  color: showAll ? Colors.white : kText,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(50))),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Icon(
-                                    CupertinoIcons.person_2,
-                                    color: showAll ? kText : Colors.white,
-                                    size: 18,
-                                  ),
-                                  SizedBox(width: 5),
-                                  Text('Following',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: showAll ? kText : Colors.white,
-                                      ))
-                                ],
-                              ),
-                            ),
+                          SizedBox(
+                            width: 2,
                           ),
+                          Icon(
+                            FlutterIcons.arrowright_ant,
+                            color: Colors.white,
+                            size: 20,
+                          )
                         ],
                       ),
-                      SizedBox(
-                        width: 100,
-                      ),
+                      width: _width * 0.3,
+                    ),
+                  ),
+                ],
+              ),
+              height: _height * 0.25,
+              width: _width,
+              decoration: BoxDecoration(
+                  color: kYellow,
+                  borderRadius: BorderRadius.only(
+                      bottomRight: Radius.circular(30),
+                      bottomLeft: Radius.circular(30))),
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: EdgeInsets.only(left: 18.0, right: 18),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Row(
+                    children: [
                       InkWell(
-                        onTap: () => _showModalSheet(context, _height),
+                        onTap: () {
+                          setState(() {
+                            showAll = true;
+                          });
+                        },
                         child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 10,
-                          ),
+                          padding:
+                              EdgeInsets.symmetric(vertical: 8, horizontal: 15),
                           decoration: BoxDecoration(
+                              color: showAll ? kText : Colors.white,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(50))),
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Icon(
-                              CupertinoIcons.slider_horizontal_3,
-                              size: 20,
-                            ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.circle_grid_hex,
+                                size: 18,
+                                color: showAll ? Colors.white : kText,
+                              ),
+                              SizedBox(width: 10),
+                              Text('All',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: showAll ? Colors.white : kText,
+                                  ))
+                            ],
                           ),
                         ),
-                      )
+                      ),
+                      InkWell(
+                        onTap: () async {
+                          showAll = await loadFollowing();
+                          setState(() {});
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          decoration: BoxDecoration(
+                              color: showAll ? Colors.white : kText,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(50))),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(
+                                CupertinoIcons.person_2,
+                                color: showAll ? kText : Colors.white,
+                                size: 18,
+                              ),
+                              SizedBox(width: 5),
+                              Text('Following',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: showAll ? kText : Colors.white,
+                                  ))
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                SizedBox(height: 10),
-              ]),
+                  SizedBox(
+                    width: 100,
+                  ),
+                  InkWell(
+                    onTap: () => _showModalSheet(context, _height),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(50))),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2.0),
+                        child: Icon(
+                          CupertinoIcons.slider_horizontal_3,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
-            buildStreamBuilder(),
-          ]);
+            SizedBox(height: 10),
+          ]),
+        ),
+        buildStreamBuilder(),
+      ]);
     }), !isBottom);
   }
 

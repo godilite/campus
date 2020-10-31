@@ -36,11 +36,11 @@ class Product {
         amount: json["amount"],
         longitude: json["longitude"],
         latitude: json["latitude"],
-        isForsale: json["is_forsale"],
+        isForsale: int.parse(json["is_forsale"]),
         images: List<dynamic>.from(json["images"].map((x) => x)),
         content: json["content"] == null ? null : json["content"],
         hashtags: List<String>.from(json["hashtags"].map((x) => x)),
-        userId: json["user_id"],
+        userId: int.parse(json["user_id"]),
         createdAt: DateTime.parse(json["created_at"]),
         updatedAt: DateTime.parse(json["updated_at"]),
       );

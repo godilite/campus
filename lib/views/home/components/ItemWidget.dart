@@ -58,6 +58,7 @@ class _ItemWidgetState extends State<ItemWidget> {
     double _height = MediaQuery.of(context).size.height;
     var like = widget._post.details.productLikes
         .where((ProductLike element) => element.userId == _userId);
+    // ignore: unnecessary_statements
     like.isNotEmpty ? liked = true : null;
     return Material(
       child: GestureDetector(
@@ -111,7 +112,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                     height: 13,
                     child: Icon(
                       CupertinoIcons.ellipsis,
-                      size: 35,
+                      size: 30,
                     ),
                   ),
                 ),
@@ -131,9 +132,9 @@ class _ItemWidgetState extends State<ItemWidget> {
                   ),
                   likeBuilder: (bool liked) {
                     return Icon(
-                      Icons.favorite_outline,
+                      Icons.favorite,
                       color: liked ? Colors.red : Colors.grey,
-                      size: 30,
+                      size: 25,
                     );
                   },
                 ),

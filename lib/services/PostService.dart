@@ -49,8 +49,8 @@ class PostService {
     dio.options.headers["authorization"] = "Bearer $token";
 
     try {
-      response =
-          await dio.post("http://10.0.2.2:8000/api/v1/like-product", data: {
+      response = await dio
+          .post("http://campusel.ogarnkang.com/api/v1/like-product", data: {
         'product_id': postId,
       });
     } on DioError catch (e) {
@@ -78,7 +78,8 @@ class PostService {
     dio.options.headers["authorization"] = "Bearer $token";
 
     try {
-      response = await dio.get("http://10.0.2.2:8000/api/v1/general/activities",
+      response = await dio.get(
+          "http://campusel.ogarnkang.com/api/v1/general/activities",
           queryParameters: {"page": 1});
       activity = Activity.fromJson(response.data);
     } on DioError catch (e) {
@@ -132,7 +133,8 @@ class PostService {
     dio.options.headers["authorization"] = "Bearer $token";
 
     try {
-      response = await dio.get("http://10.0.2.2:8000/api/v1/user/activities",
+      response = await dio.get(
+          "http://campusel.ogarnkang.com/api/v1/user/activities",
           queryParameters: {"page": 1, "id": id});
       documentList = Activity.fromJson(response.data);
     } on DioError catch (e) {
@@ -161,7 +163,7 @@ class PostService {
 
     try {
       response = await dio.get(
-          "http://10.0.2.2:8000/api/v1/following/activities",
+          "http://campusel.ogarnkang.com/api/v1/following/activities",
           queryParameters: {"page": 1});
       activity = Activity.fromJson(response.data);
     } on DioError catch (e) {
@@ -195,7 +197,8 @@ class PostService {
     dio.options.headers["authorization"] = "Bearer $token";
 
     try {
-      response = await dio.post("http://10.0.2.2:8000/api/v1/upload", data: {
+      response =
+          await dio.post("http://campusel.ogarnkang.com/api/v1/upload", data: {
         'title': post.title ?? '',
         'images': post.images ?? '',
         'hashtags': post.hashtags ?? '',

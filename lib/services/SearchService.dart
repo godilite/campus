@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../helpers.dart';
-
 class SearchService {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   Dio dio = new Dio();
@@ -14,7 +12,8 @@ class SearchService {
     dio.options.headers["authorization"] = "Bearer $token";
 
     try {
-      response = await dio.post("http://10.0.2.2:8000/api/v1/search", data: {
+      response =
+          await dio.post("http://campusel.ogarnkang.com/api/v1/search", data: {
         'search': text ?? '',
       });
     } on DioError catch (e) {
@@ -33,6 +32,4 @@ class SearchService {
 
     return response;
   }
-
-  Future<List> searchPosts(words) async {}
 }
