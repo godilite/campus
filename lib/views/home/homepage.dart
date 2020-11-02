@@ -7,12 +7,12 @@ import 'package:camp/services/PostService.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/home/following.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
+import 'package:camp/views/post/widgets/color_loader_2.dart';
 import 'package:camp/views/styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter/material.dart';
-import 'package:shimmer/shimmer.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -178,43 +178,143 @@ class _HomeViewState extends State<HomeView> {
         SliverList(
           delegate: SliverChildListDelegate([
             Container(
-              margin: EdgeInsets.only(top: 23),
-              child: Stack(
-                fit: StackFit.passthrough,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
                 children: [
-                  Positioned(
-                    bottom: 10,
-                    right: 20,
-                    child: Container(
-                      height: 30,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'See more',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white),
+                  Container(
+                    margin: EdgeInsets.only(top: 24),
+                    height: _height * 0.30,
+                    width: _width,
+                    decoration: BoxDecoration(
+                      color: kYellow,
+                      borderRadius: BorderRadius.only(
+                          bottomRight: Radius.circular(30),
+                          bottomLeft: Radius.circular(30)),
+                    ),
+                    child: Stack(
+                      fit: StackFit.passthrough,
+                      children: [
+                        Positioned(
+                          bottom: 10,
+                          right: 20,
+                          child: Container(
+                            height: 30,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'swipe',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white),
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                Icon(
+                                  FlutterIcons.arrowright_ant,
+                                  color: Colors.white,
+                                  size: 20,
+                                )
+                              ],
+                            ),
+                            width: _width * 0.3,
                           ),
-                          SizedBox(
-                            width: 2,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 24),
+                    height: _height * 0.30,
+                    width: _width,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.only(
+                          bottomRight: Radius.circular(30),
+                          bottomLeft: Radius.circular(30)),
+                    ),
+                    child: Stack(
+                      fit: StackFit.passthrough,
+                      children: [
+                        Positioned(
+                          bottom: 10,
+                          right: 20,
+                          child: Container(
+                            height: 30,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'swipe',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white),
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                Icon(
+                                  FlutterIcons.arrowright_ant,
+                                  color: Colors.white,
+                                  size: 20,
+                                )
+                              ],
+                            ),
+                            width: _width * 0.3,
                           ),
-                          Icon(
-                            FlutterIcons.arrowright_ant,
-                            color: Colors.white,
-                            size: 20,
-                          )
-                        ],
-                      ),
-                      width: _width * 0.3,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 24),
+                    height: _height * 0.30,
+                    width: _width,
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.only(
+                          bottomRight: Radius.circular(30),
+                          bottomLeft: Radius.circular(30)),
+                    ),
+                    child: Stack(
+                      fit: StackFit.passthrough,
+                      children: [
+                        Positioned(
+                          bottom: 10,
+                          right: 20,
+                          child: Container(
+                            height: 30,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'swipe',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white),
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                Icon(
+                                  FlutterIcons.arrowright_ant,
+                                  color: Colors.white,
+                                  size: 20,
+                                )
+                              ],
+                            ),
+                            width: _width * 0.3,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              height: _height * 0.25,
+              height: _height * 0.30,
               width: _width,
               decoration: BoxDecoration(
-                  color: kYellow,
                   borderRadius: BorderRadius.only(
                       bottomRight: Radius.circular(30),
                       bottomLeft: Radius.circular(30))),
@@ -329,20 +429,10 @@ class _HomeViewState extends State<HomeView> {
               snapshot.connectionState != ConnectionState.done) {
             return SliverStaggeredGrid.countBuilder(
               crossAxisCount: 4,
-              itemCount: 8,
+              itemCount: 1,
               itemBuilder: (BuildContext context, int index) =>
-                  Shimmer.fromColors(
-                baseColor: Colors.grey.shade100,
-                highlightColor: Colors.white,
-                child: Container(
-                  width: 200,
-                  height: 400,
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                ),
-              ),
-              staggeredTileBuilder: (int index) =>
-                  StaggeredTile.count(2, index.isEven ? 2 : 1),
+                  Center(child: ColorLoader2()),
+              staggeredTileBuilder: (int index) => StaggeredTile.fit(4),
               mainAxisSpacing: 4.0,
               crossAxisSpacing: 4.0,
             );

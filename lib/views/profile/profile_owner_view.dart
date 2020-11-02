@@ -14,6 +14,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../helpers.dart';
@@ -31,15 +32,18 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
   BehaviorSubject<List<Datum>> postController;
   PostService _postService = locator<PostService>();
   UserService _userService = locator<UserService>();
-
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   int followersCount = 0;
   int followingCount = 0;
+  String profileUrl;
+  String coverPhoto;
   List<Datum> documentList = [];
   @override
   void initState() {
     postController = BehaviorSubject<List<Datum>>();
     _fetchFirstList();
     _fetchFriends();
+    _setProfile();
     super.initState();
   }
 
@@ -48,6 +52,12 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
     Activity posts = await _postService.getUserPosts(widget.user.id);
     documentList.addAll(posts.data);
     postController.sink.add(documentList);
+  }
+
+  _setProfile() async {
+    final SharedPreferences prefs = await _prefs;
+    coverPhoto = prefs.getString('coverPhoto');
+    profileUrl = prefs.getString('profileUrl');
   }
 
   _fetchFriends() async {
@@ -95,9 +105,9 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
           child: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: widget.user.coverPhoto != null
-                    ? CachedNetworkImageProvider(widget.user.coverPhoto)
-                    : AssetImage('assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
+                image: coverPhoto != null
+                    ? CachedNetworkImageProvider(coverPhoto)
+                    : AssetImage('assets/img_not_available.jpeg'),
                 fit: BoxFit.cover,
               ),
               color: kYellow,
@@ -109,32 +119,30 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
           ),
         ),
         Positioned(
-          bottom: 105,
-          right: 0,
-          left: 0,
-          child: Container(
-            decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black26)]),
-            child: CircleAvatar(
-              backgroundColor: kYellow,
-              minRadius: 37,
-              child: widget.user != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: Image(
-                        width: 70,
-                        height: 70,
-                        fit: BoxFit.fill,
-                        image: widget.user.profileUrl != null
-                            ? CachedNetworkImageProvider(widget.user.profileUrl)
-                            : AssetImage('assets/img_not_available.jpeg'),
-                      ),
-                    )
-                  : null,
-            ),
-          ),
-        ),
+            bottom: 105,
+            right: 0,
+            left: 0,
+            child: Container(
+              decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: [
+                BoxShadow(blurRadius: 20, color: Colors.black26)
+              ]),
+              child: CircleAvatar(
+                backgroundColor: kYellow,
+                minRadius: 37,
+                child: widget.user != null && profileUrl != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: Image(
+                            width: 70,
+                            height: 70,
+                            fit: BoxFit.fill,
+                            image: CachedNetworkImageProvider(
+                              profileUrl,
+                            )),
+                      )
+                    : Icon(Icons.account_circle, size: 60.0, color: kLightGrey),
+              ),
+            )),
         Positioned(
           left: 0,
           right: 0,
@@ -298,7 +306,9 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
           child: GestureDetector(
             onTapDown: storePosition,
             onTap: () {
-              pictureMenu(context);
+              pictureMenu(context).then((value) => setState(() {
+                    _setProfile();
+                  }));
             },
             child: CircleAvatar(
               minRadius: 30,

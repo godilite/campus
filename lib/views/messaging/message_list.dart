@@ -139,8 +139,8 @@ class _MessageListState extends State<MessageList> {
       return Bubble(
         radius: Radius.circular(20),
         style: BubbleStyle(
-          nipHeight: 20,
-          nipWidth: 40,
+          nipHeight: 10,
+          nipWidth: 20,
           nipOffset: 40,
           nip: BubbleNip.leftTop,
           color: Colors.white,
@@ -157,9 +157,10 @@ class _MessageListState extends State<MessageList> {
                 child: document['reciever']['profileUrl'] != null
                     ? CachedNetworkImage(
                         placeholder: (context, url) => Container(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 1.0,
-                            valueColor: AlwaysStoppedAnimation<Color>(kYellow),
+                          child: Icon(
+                            Icons.account_circle,
+                            size: 50.0,
+                            color: kGrey,
                           ),
                           width: 50.0,
                           height: 50.0,
@@ -189,7 +190,7 @@ class _MessageListState extends State<MessageList> {
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w800,
-                              fontSize: 18),
+                              fontSize: 15),
                         ),
                         alignment: Alignment.centerLeft,
                         margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 5.0),
@@ -202,7 +203,10 @@ class _MessageListState extends State<MessageList> {
                             child: Container(
                               child: content.contains(
                                       'https://firebasestorage.googleapis.com/v0/b/cmps')
-                                  ? Icon(Icons.image_outlined)
+                                  ? Text(
+                                      'Sent Photo',
+                                      style: TextStyle(color: Colors.grey),
+                                    )
                                   : Text(
                                       '${document['message']}',
                                       overflow: TextOverflow.ellipsis,
@@ -248,11 +252,17 @@ class _MessageListState extends State<MessageList> {
       );
     } else {
       return Bubble(
+        radius: Radius.circular(20),
         style: BubbleStyle(
+          nipHeight: 10,
+          nipWidth: 20,
+          nipOffset: 40,
           nip: BubbleNip.leftTop,
           color: Colors.white,
           elevation: 1,
-          margin: BubbleEdges.only(top: 8.0, right: 50.0),
+          margin: BubbleEdges.only(
+            top: 8.0,
+          ),
           alignment: Alignment.topLeft,
         ),
         child: FlatButton(
@@ -299,11 +309,17 @@ class _MessageListState extends State<MessageList> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Container(
-                            child: Text(
-                              '${document['message'] ?? 'Not available'}',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(color: Colors.black),
-                            ),
+                            child: content.contains(
+                                    'https://firebasestorage.googleapis.com/v0/b/cmps')
+                                ? Text(
+                                    'Received Photo',
+                                    style: TextStyle(color: Colors.grey),
+                                  )
+                                : Text(
+                                    '${document['message'] ?? 'Not available'}',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                             alignment: Alignment.centerLeft,
                             margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
                           ),

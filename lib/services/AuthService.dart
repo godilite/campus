@@ -71,6 +71,7 @@ class AuthService {
 
       return await _createAccount(user);
     } on FirebaseAuthException catch (e) {
+      print(e);
       String email = e.email;
       if (e.code == 'account-exists-with-different-credential') {
         // Fetch a list of what sign-in methods exist for the conflicting user
@@ -324,6 +325,9 @@ class AuthService {
     final SharedPreferences prefs = await _prefs;
     prefs.setString('token', response.data["access_token"]);
     prefs.setInt('userId', response.data["id"]);
+    prefs.setString('uid', response.data["account"]['uid']);
+    prefs.setString('profileUrl', response.data["account"]['profileUrl']);
+    prefs.setString('coverPhoto', response.data["account"]['coverPhoto']);
 
     UserAccount account = UserAccount.fromJson(response.data["account"]);
     return account;
@@ -353,6 +357,8 @@ class AuthService {
     prefs.setString('token', response.data["access_token"]);
     prefs.setInt('userId', response.data["id"]);
     prefs.setString('uid', response.data["account"]['uid']);
+    prefs.setString('profileUrl', response.data["account"]['profileUrl']);
+    prefs.setString('coverPhoto', response.data["account"]['coverPhoto']);
   }
 
   Future<bool> updateUserToBackup(data) async {

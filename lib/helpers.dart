@@ -3,10 +3,13 @@ import 'package:camp/services/AuthService.dart';
 import 'package:camp/services/UploadService.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 var _tapPosition;
 UploadService _uploadService = locator<UploadService>();
 AuthService _authService = locator<AuthService>();
+Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
 String truncate(int cutoff, String myString) {
   return (myString.length <= cutoff)
       ? myString
@@ -27,9 +30,9 @@ void storePosition(TapDownDetails details) {
   _tapPosition = details.globalPosition;
 }
 
-void pictureMenu(BuildContext context) {
+Future pictureMenu(BuildContext context) async {
   final RenderBox overlay = Overlay.of(context).context.findRenderObject();
-  showMenu(
+  await showMenu(
     context: context,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     position: RelativeRect.fromRect(
@@ -37,7 +40,8 @@ void pictureMenu(BuildContext context) {
     items: [
       PopupMenuItem(
         child: InkWell(
-          onTap: () => _uploadCoverImage(),
+          onTap: () =>
+              _uploadCoverImage().then((value) => Navigator.pop(context)),
           child: Row(
             children: [
               Icon(CupertinoIcons.photo_camera),
@@ -51,7 +55,8 @@ void pictureMenu(BuildContext context) {
       ),
       PopupMenuItem(
         child: InkWell(
-          onTap: () => _uploadProfileImage(),
+          onTap: () =>
+              _uploadProfileImage().then((value) => Navigator.pop(context)),
           child: Row(
             children: [
               Icon(CupertinoIcons.profile_circled),
@@ -66,14 +71,19 @@ void pictureMenu(BuildContext context) {
     ],
     elevation: 2.0,
   );
+  return true;
 }
 
-_uploadCoverImage() async {
+Future _uploadCoverImage() async {
   var url = await _uploadService.uplaodImage();
   _authService.updateUserCover(url);
+  final SharedPreferences prefs = await _prefs;
+  prefs.setString('coverPhoto', url);
 }
 
-_uploadProfileImage() async {
+Future _uploadProfileImage() async {
   var url = await _uploadService.uplaodImage();
   _authService.updateUserPix(url);
+  final SharedPreferences prefs = await _prefs;
+  prefs.setString('profileUrl', url);
 }

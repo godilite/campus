@@ -19,7 +19,6 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:like_button/like_button.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:share/share.dart';
 
 class SingleView extends StatefulWidget {
   final Datum post;
@@ -52,19 +51,13 @@ class _SingleViewState extends State<SingleView> {
   }
 
   Future<bool> _sharePost(share) async {
-    var result = await Navigator.push(
+    Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Watermark(
-            url: images[_current], username: widget.post.user.username),
+        builder: (context) =>
+            Watermark(url: images[_current], post: widget.post),
       ),
     );
-    Share.shareFiles([result[0].path],
-        subject: widget.post.details.product.title ?? widget.post.user.name,
-        text: widget.post.details.product.content,
-        sharePositionOrigin:
-            result[1].localToGlobal(Offset.zero) & result[1].size);
-    print(result);
     return true;
   }
 
@@ -219,8 +212,8 @@ class _SingleViewState extends State<SingleView> {
                             color: Colors.white,
                             boxShadow: [
                               BoxShadow(
-                                  offset: Offset(0, 5),
-                                  color: Colors.grey.shade300,
+                                  offset: Offset(0, 3),
+                                  color: Colors.grey.shade200,
                                   blurRadius: 5)
                             ],
                             borderRadius: BorderRadius.only(
@@ -229,16 +222,35 @@ class _SingleViewState extends State<SingleView> {
                             ),
                           ),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: user != null &&
-                                          user.profileUrl != null
-                                      ? CachedNetworkImageProvider(
-                                          user.profileUrl)
-                                      : AssetImage(
-                                          'assets/icons8-male-user-100.png'),
-                                ),
+                                leading: user != null && user.profileUrl != null
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(50),
+                                        child: CachedNetworkImage(
+                                          placeholder: (context, url) =>
+                                              Container(
+                                            child: Icon(
+                                              Icons.account_circle,
+                                              size: 50.0,
+                                              color: kGrey,
+                                            ),
+                                            width: 50.0,
+                                            height: 50.0,
+                                            padding: EdgeInsets.all(0.0),
+                                          ),
+                                          imageUrl: user.profileUrl,
+                                          width: 50.0,
+                                          height: 50.0,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons.account_circle,
+                                        size: 50.0,
+                                        color: kGrey,
+                                      ),
                                 title: Padding(
                                   padding: EdgeInsets.only(top: 15.0),
                                   child: Row(
@@ -257,12 +269,13 @@ class _SingleViewState extends State<SingleView> {
                                         flex: 2,
                                         child: InkWell(
                                           onTap: () => Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      ProfilePage(
-                                                        user: user,
-                                                      ))),
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ProfilePage(
+                                                user: widget.post.user,
+                                              ),
+                                            ),
+                                          ),
                                           child: Text(
                                             widget.post.user.name,
                                             overflow: TextOverflow.ellipsis,
@@ -277,83 +290,127 @@ class _SingleViewState extends State<SingleView> {
                                 ),
                                 trailing: Container(
                                     child: Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                          CrossAxisAlignment.end,
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceAround,
                                       children: [
-                                        LikeButton(
-                                          onTap: _likePost,
-                                          isLiked: liked,
-                                          size: 30,
-                                          circleColor: CircleColor(
-                                              start: Color(0xffFAB7fc),
-                                              end: Color(0xffFAB70A)),
-                                          bubblesColor: BubblesColor(
-                                            dotPrimaryColor: Color(0xffccff0A),
-                                            dotSecondaryColor:
-                                                Color(0xffFAB70A),
+                                        Flexible(
+                                          flex: 4,
+                                          child: LikeButton(
+                                            countPostion: CountPostion.bottom,
+                                            onTap: _likePost,
+                                            isLiked: liked,
+                                            size: 30,
+                                            circleColor: CircleColor(
+                                                start: Color(0xffFAB7fc),
+                                                end: Color(0xffFAB70A)),
+                                            bubblesColor: BubblesColor(
+                                              dotPrimaryColor:
+                                                  Color(0xffccff0A),
+                                              dotSecondaryColor:
+                                                  Color(0xffFAB70A),
+                                            ),
+                                            likeBuilder: (bool liked) {
+                                              return liked
+                                                  ? Icon(
+                                                      Icons.favorite,
+                                                      color: Colors.red,
+                                                      size: 20,
+                                                    )
+                                                  : Icon(
+                                                      Icons.favorite_outline,
+                                                      color: Colors.grey,
+                                                      size: 20,
+                                                    );
+                                            },
+                                            likeCount: widget.post.details
+                                                .productLikes.length,
+                                            countBuilder: (int count,
+                                                bool liked, String text) {
+                                              var color = liked
+                                                  ? Colors.red
+                                                  : Colors.grey;
+                                              Widget result;
+                                              if (count == 0) {
+                                                result = Text(
+                                                  "",
+                                                  style:
+                                                      TextStyle(color: color),
+                                                );
+                                              } else
+                                                result = Text(
+                                                  text,
+                                                  style:
+                                                      TextStyle(color: color),
+                                                );
+                                              return result;
+                                            },
                                           ),
-                                          likeBuilder: (bool liked) {
-                                            return liked
-                                                ? Icon(
-                                                    Icons.favorite,
-                                                    color: Colors.red,
-                                                    size: 20,
-                                                  )
-                                                : Icon(
-                                                    Icons.favorite_outline,
-                                                    color: Colors.grey,
-                                                    size: 20,
-                                                  );
-                                          },
                                         ),
-                                        LikeButton(
-                                          onTap: _sharePost,
-                                          size: 30,
-                                          circleColor: CircleColor(
-                                              start: Color(0xffFAB7fc),
-                                              end: Color(0xffFAB70A)),
-                                          bubblesColor: BubblesColor(
-                                            dotPrimaryColor: Color(0xffccff0A),
-                                            dotSecondaryColor:
-                                                Color(0xffFAB70A),
+                                        Flexible(
+                                          flex: 4,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 10.0),
+                                            child: LikeButton(
+                                              onTap: _sharePost,
+                                              size: 20,
+                                              circleColor: CircleColor(
+                                                  start: Color(0xffFAB7fc),
+                                                  end: Color(0xffFAB70A)),
+                                              bubblesColor: BubblesColor(
+                                                dotPrimaryColor:
+                                                    Color(0xffccff0A),
+                                                dotSecondaryColor:
+                                                    Color(0xffFAB70A),
+                                              ),
+                                              likeBuilder: (bool liked) {
+                                                return Icon(
+                                                  FlutterIcons.share_sli,
+                                                  color: liked
+                                                      ? Colors.grey
+                                                      : Colors.grey,
+                                                  size: 16,
+                                                );
+                                              },
+                                            ),
                                           ),
-                                          likeBuilder: (bool liked) {
-                                            return Icon(
-                                              FlutterIcons.share_sli,
-                                              color: liked
-                                                  ? Colors.grey
-                                                  : Colors.grey,
-                                              size: 16,
-                                            );
-                                          },
                                         ),
-                                        LikeButton(
-                                          onTap: _likePost,
-                                          size: 30,
-                                          circleColor: CircleColor(
-                                              start: Color(0xffFAB7fc),
-                                              end: Color(0xffFAB70A)),
-                                          bubblesColor: BubblesColor(
-                                            dotPrimaryColor: Color(0xffccff0A),
-                                            dotSecondaryColor:
-                                                Color(0xffFAB70A),
+                                        Flexible(
+                                          flex: 4,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 10.0),
+                                            child: LikeButton(
+                                              onTap: _likePost,
+                                              size: 25,
+                                              circleColor: CircleColor(
+                                                  start: Color(0xffFAB7fc),
+                                                  end: Color(0xffFAB70A)),
+                                              bubblesColor: BubblesColor(
+                                                dotPrimaryColor:
+                                                    Color(0xffccff0A),
+                                                dotSecondaryColor:
+                                                    Color(0xffFAB70A),
+                                              ),
+                                              likeBuilder: (bool saved) {
+                                                return saved
+                                                    ? Icon(
+                                                        CupertinoIcons
+                                                            .bookmark_fill,
+                                                        color: kYellow,
+                                                        size: 20,
+                                                      )
+                                                    : Icon(
+                                                        CupertinoIcons.bookmark,
+                                                        color: Colors.grey,
+                                                        size: 20,
+                                                      );
+                                              },
+                                            ),
                                           ),
-                                          likeBuilder: (bool saved) {
-                                            return saved
-                                                ? Icon(
-                                                    CupertinoIcons
-                                                        .bookmark_fill,
-                                                    color: kYellow,
-                                                    size: 20,
-                                                  )
-                                                : Icon(
-                                                    CupertinoIcons.bookmark,
-                                                    color: Colors.grey,
-                                                    size: 20,
-                                                  );
-                                          },
                                         ),
                                       ],
                                     ),

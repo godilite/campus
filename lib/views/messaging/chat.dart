@@ -39,8 +39,14 @@ class Chat extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(peerAvatar)),
+            child: peerAvatar != null
+                ? CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(peerAvatar))
+                : Icon(
+                    Icons.account_circle,
+                    size: 40.0,
+                    color: kGrey,
+                  ),
           )
         ],
         title: Text(
@@ -364,22 +370,25 @@ class ChatScreenState extends State<ChatScreen> {
               children: <Widget>[
                 isLastMessageLeft(index)
                     ? Material(
-                        child: CachedNetworkImage(
-                          placeholder: (context, url) => Container(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.0,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(kYellow),
-                            ),
-                            width: 35.0,
-                            height: 35.0,
-                            padding: EdgeInsets.all(10.0),
-                          ),
-                          imageUrl: peerAvatar,
-                          width: 35.0,
-                          height: 35.0,
-                          fit: BoxFit.cover,
-                        ),
+                        child: peerAvatar != null
+                            ? CachedNetworkImage(
+                                placeholder: (context, url) => Container(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.0,
+                                    valueColor:
+                                        AlwaysStoppedAnimation<Color>(kYellow),
+                                  ),
+                                  width: 50.0,
+                                  height: 50.0,
+                                  padding: EdgeInsets.all(15.0),
+                                ),
+                                imageUrl: peerAvatar,
+                                width: 50.0,
+                                height: 50.0,
+                                fit: BoxFit.cover,
+                              )
+                            : Icon(Icons.account_circle,
+                                size: 50.0, color: kLightGrey),
                         borderRadius: BorderRadius.all(
                           Radius.circular(18.0),
                         ),
@@ -458,7 +467,7 @@ class ChatScreenState extends State<ChatScreen> {
                           )
                         : Container(
                             child: Image.asset(
-                              'images/${document.data()['content']}.gif',
+                              'assets/${document.data()['content']}.gif',
                               width: 100.0,
                               height: 100.0,
                               fit: BoxFit.cover,
@@ -534,24 +543,26 @@ class ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      child: Stack(
-        children: <Widget>[
-          Column(
-            children: <Widget>[
-              // List of messages
-              buildListMessage(),
+      child: Material(
+        child: Stack(
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                // List of messages
+                buildListMessage(),
 
-              // Sticker
-              (isShowSticker ? buildSticker() : Container()),
+                // Sticker
+                (isShowSticker ? buildSticker() : Container()),
 
-              // Input content
-              buildInput(),
-            ],
-          ),
+                // Input content
+                buildInput(),
+              ],
+            ),
 
-          // Loading
-          buildLoading()
-        ],
+            // Loading
+            buildLoading()
+          ],
+        ),
       ),
       onWillPop: onBackPress,
     );

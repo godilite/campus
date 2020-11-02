@@ -26,9 +26,10 @@ class UploadService {
   final picker = ImagePicker();
 
   Future uplaodImage() async {
-    final pickedFile = await picker.getImage(source: ImageSource.camera);
+    var imageId = uuid.v1();
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
     StorageReference firebaseStorageRef =
-        FirebaseStorage.instance.ref().child('uploads/$time');
+        FirebaseStorage.instance.ref().child('uploads/$time$imageId');
     StorageUploadTask uploadTask =
         firebaseStorageRef.putFile(File(pickedFile.path));
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;

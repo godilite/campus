@@ -1,17 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/models/activity_model.dart';
+import 'package:camp/models/product_like.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/views/layouts/app_bar_back.dart';
+import 'package:camp/views/post/widgets/color_loader_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:like_button/like_button.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../../service_locator.dart';
 import '../styles.dart';
+import 'single-item/singleview.dart';
 
 class Following extends StatefulWidget {
   @override
@@ -45,101 +47,113 @@ class _FollowingState extends State<Following> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints viewportConstraints) {
-      return Scaffold(
+    return SafeArea(
+      child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints viewportConstraints) {
+        return Scaffold(
+          backgroundColor: Colors.white,
           body: Stack(children: <Widget>[
-        Positioned(
-          left: 10,
-          right: 10,
-          top: 0,
-          bottom: 0,
-          child: PageAppbar(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      showAll = true;
-                      Navigator.pop(context);
-                    });
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                    decoration: BoxDecoration(
-                        color: showAll ? kText : Colors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(50))),
-                    child: Row(
-                      children: [
-                        Icon(
-                          CupertinoIcons.circle_grid_hex,
-                          size: 18,
-                          color: showAll ? Colors.white : kText,
-                        ),
-                        SizedBox(width: 10),
-                        Text('All',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: showAll ? Colors.white : kText))
-                      ],
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () async {
-                    // showAll = await loadFollowing();
-                    setState(() {
-                      showAll = false;
-                    });
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                    decoration: BoxDecoration(
-                        color: showAll ? Colors.white : kText,
-                        borderRadius: BorderRadius.all(Radius.circular(50))),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Icon(
-                          CupertinoIcons.person_2,
-                          color: showAll ? kText : Colors.white,
-                          size: 18,
-                        ),
-                        SizedBox(width: 5),
-                        Text('Following',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: showAll ? kText : Colors.white,
-                            ))
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-            top: 130,
-            left: 10,
-            right: 10,
-            bottom: 0,
-            child: SingleChildScrollView(
+            Positioned(
+              left: 10,
+              right: 10,
+              top: 0,
+              bottom: 0,
               child: Container(
-                height: viewportConstraints.maxHeight,
-                child: ListView(
-                    physics: BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics()),
-                    children: [
-                      buildStreamBuilder(viewportConstraints),
-                    ]),
+                height: 50,
+                color: Colors.white,
+                padding: EdgeInsets.only(top: 20, left: 5, right: 5),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          showAll = true;
+                          Navigator.pop(context);
+                        });
+                      },
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        decoration: BoxDecoration(
+                            color: showAll ? kText : Colors.white,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(50))),
+                        child: Row(
+                          children: [
+                            Icon(
+                              CupertinoIcons.circle_grid_hex,
+                              size: 18,
+                              color: showAll ? Colors.white : kText,
+                            ),
+                            SizedBox(width: 10),
+                            Text('All',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: showAll ? Colors.white : kText))
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        // showAll = await loadFollowing();
+                        setState(() {
+                          showAll = false;
+                        });
+                      },
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        decoration: BoxDecoration(
+                            color: showAll ? Colors.white : kText,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(50))),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(
+                              CupertinoIcons.person_2,
+                              color: showAll ? kText : Colors.white,
+                              size: 18,
+                            ),
+                            SizedBox(width: 5),
+                            Text('Following',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: showAll ? kText : Colors.white,
+                                ))
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ))
-      ]));
-    });
+            ),
+            Positioned(
+              top: 65,
+              left: 10,
+              right: 10,
+              bottom: 0,
+              child: SingleChildScrollView(
+                child: Container(
+                  height: viewportConstraints.maxHeight,
+                  child: ListView(
+                      physics: BouncingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics()),
+                      children: [
+                        buildStreamBuilder(viewportConstraints),
+                        SizedBox(height: 200),
+                      ]),
+                ),
+              ),
+            ),
+          ]),
+        );
+      }),
+    );
   }
 
   StreamBuilder<List<Datum>> buildStreamBuilder(
@@ -149,89 +163,170 @@ class _FollowingState extends State<Following> {
         builder: (context, snapshot) {
           if (snapshot.data == null &&
               snapshot.connectionState != ConnectionState.done) {
-            return StaggeredGridView.countBuilder(
-              shrinkWrap: true,
-              crossAxisCount: 4,
-              itemCount: 8,
-              itemBuilder: (BuildContext context, int index) =>
-                  Shimmer.fromColors(
-                baseColor: Colors.grey.shade100,
-                highlightColor: Colors.white,
-                child: Container(
-                  width: 200,
-                  height: 400,
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                ),
-              ),
-              staggeredTileBuilder: (int index) =>
-                  StaggeredTile.count(2, index.isEven ? 2 : 1),
-              mainAxisSpacing: 4.0,
-              crossAxisSpacing: 4.0,
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(child: ColorLoader2()),
+              ],
+            );
+          }
+
+          if (snapshot.hasError &&
+              snapshot.connectionState == ConnectionState.done) {
+            return Center(
+              child: Text('Network Error'),
             );
           }
           return Column(
             children: snapshot.data.map((Datum post) {
-              return buildPost(viewportConstraints, post);
+              return FollowerPostWidget(post: post);
             }).toList(),
           );
         });
   }
 
-  Column buildPost(BoxConstraints viewportConstraints, Datum post) {
+  void dispose() {
+    super.dispose();
+    postController.close();
+  }
+}
+
+class FollowerPostWidget extends StatefulWidget {
+  const FollowerPostWidget({Key key, @required Datum post})
+      : _post = post,
+        super(key: key);
+
+  final Datum _post;
+
+  @override
+  _FollowerPostWidgetState createState() => _FollowerPostWidgetState();
+}
+
+class _FollowerPostWidgetState extends State<FollowerPostWidget> {
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  int _userId;
+  PostService _postService = locator<PostService>();
+  @override
+  void initState() {
+    _currentUser();
+    super.initState();
+  }
+
+  bool liked = false;
+  _currentUser() async {
+    final SharedPreferences prefs = await _prefs;
+    setState(() {
+      _userId = prefs.getInt('userId');
+    });
+  }
+
+  Future<bool> _likePost(liked) async {
+    setState(() {
+      liked = !liked;
+    });
+
+    await _postService.likePost(widget._post.details.product.id);
+    return liked;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var like = widget._post.details.productLikes
+        .where((ProductLike element) => element.userId == _userId);
+    // ignore: unnecessary_statements
+    like.isNotEmpty ? liked = true : null;
     return Column(
       children: [
         ListTile(
           contentPadding: EdgeInsets.all(0),
           leading: CircleAvatar(
-            backgroundColor: Colors.red,
-            backgroundImage: CachedNetworkImageProvider(post.user.profileUrl),
-            radius: 30,
+            backgroundColor: Colors.grey,
+            backgroundImage:
+                CachedNetworkImageProvider(widget._post.user.profileUrl),
+            radius: 20,
           ),
-          title: Text(post.user.name),
+          title: Text(
+            widget._post.user.name,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          subtitle: widget._post.details.product.title.isNotEmpty
+              ? Text(
+                  "${widget._post.details.product.title}",
+                  style: TextStyle(color: kGrey),
+                )
+              : Text(
+                  "${widget._post.details.product.content}",
+                  style: TextStyle(color: kGrey),
+                ),
+          trailing: Text(widget._post.lapse),
         ),
         SizedBox(height: 10),
         StaggeredGridView.countBuilder(
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           crossAxisCount: 4,
-          itemCount: post.details.product.images.length,
+          itemCount: widget._post.details.product.images.length,
           itemBuilder: (BuildContext context, int index) => ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
-              child: Image(
-                  image: CachedNetworkImageProvider(
-                      post.details.product.images[index]))),
-          staggeredTileBuilder: (int index) => StaggeredTile.fit(2),
+              child: InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        SingleView(post: widget._post, liked: liked),
+                  ),
+                ),
+                child: Image(
+                    image: CachedNetworkImageProvider(
+                        widget._post.details.product.images[index])),
+              )),
+          staggeredTileBuilder: (int index) => StaggeredTile.fit(
+              widget._post.details.product.images.length > 1 ? 2 : 3),
           mainAxisSpacing: 4.0,
           crossAxisSpacing: 8.0,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Text('(${post.details.productLikes.length})'),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: post.details.productLikes.firstWhere(
-                          (element) => element.userId == userId(),
-                          orElse: () => null) !=
-                      null
-                  ? Icon(
-                      FlutterIcons.favorite_mdi,
-                      color: Colors.red,
-                    )
-                  : Icon(
-                      FlutterIcons.favorite_border_mdi,
-                      color: Colors.red,
-                    ),
-            )
+            LikeButton(
+              onTap: _likePost,
+              isLiked: liked,
+              size: 30,
+              circleColor:
+                  CircleColor(start: Color(0xffFAB7fc), end: Color(0xffFAB70A)),
+              bubblesColor: BubblesColor(
+                dotPrimaryColor: Color(0xffccff0A),
+                dotSecondaryColor: Color(0xffFAB70A),
+              ),
+              likeBuilder: (bool liked) {
+                return Icon(
+                  Icons.favorite,
+                  color: liked ? Colors.red : Colors.grey,
+                  size: 20,
+                );
+              },
+              likeCount: widget._post.details.productLikes.length,
+              countBuilder: (int count, bool liked, String text) {
+                var color = liked ? Colors.red : Colors.grey;
+                Widget result;
+                if (count == 0) {
+                  result = Text(
+                    "love",
+                    style: TextStyle(color: color),
+                  );
+                } else
+                  result = Text(
+                    text,
+                    style: TextStyle(color: color),
+                  );
+                return result;
+              },
+            ),
           ],
-        )
+        ),
       ],
     );
-  }
-
-  void dispose() {
-    super.dispose();
-    postController.close();
   }
 }

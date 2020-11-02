@@ -5,7 +5,9 @@ import 'package:camp/services/AuthService.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/services/UserService.dart';
 import 'package:camp/views/followers/follower_page.dart';
+import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
+import 'package:camp/views/messaging/chat.dart';
 import 'package:camp/views/profile/profile_owner_view.dart';
 import 'package:camp/views/styles.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,7 +23,7 @@ import '../../service_locator.dart';
 
 class ProfilePage extends StatefulWidget {
   final UserAccount user;
-  ProfilePage({this.user});
+  ProfilePage({@required this.user});
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -63,16 +65,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool _isFollowing;
   _following() async {
-    _isFollowing = await _userService.followingYou(widget.user.id);
+    _isFollowing = await _userService.youAreFollowing(widget.user.id);
     setState(() {});
   }
 
   _fetchFriends() async {
     var result = await _userService.getFollowersCount(widget.user.id);
-
-    var following = await _userService.getFollowingCount(widget.user.id);
     setState(() {
       followersCount = result;
+    });
+    var following = await _userService.getFollowingCount(widget.user.id);
+    setState(() {
       followingCount = following;
     });
   }
@@ -80,8 +83,10 @@ class _ProfilePageState extends State<ProfilePage> {
   Stream<List<Datum>> get userPostStream => postController.stream;
   _fetchFirstList() async {
     Activity posts = await _postService.getUserPosts(widget.user.id);
-    documentList.addAll(posts.data);
-    postController.sink.add(documentList);
+    setState(() {
+      documentList.addAll(posts.data);
+      postController.sink.add(documentList);
+    });
   }
 
   @override
@@ -105,7 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
           buildStreamBuilder(),
         ]);
       },
-    ), false);
+    ), true, 5);
   }
 
   Stack profileStack(BoxConstraints viewportConstraints) {
@@ -122,8 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 image: DecorationImage(
                   image: widget.user != null && widget.user.coverPhoto != null
                       ? CachedNetworkImageProvider(widget.user.coverPhoto)
-                      : AssetImage(
-                          'assets/6181e48ceed63c198f7c787dbfc4fc48.jpg'),
+                      : AssetImage('assets/img_not_available.jpeg'),
                   fit: BoxFit.cover,
                 ),
                 color: kYellow,
@@ -143,19 +147,17 @@ class _ProfilePageState extends State<ProfilePage> {
             child: CircleAvatar(
               backgroundColor: kYellow,
               minRadius: 37,
-              child: widget.user != null
+              child: widget.user != null && widget.user.profileUrl != null
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(100),
                       child: Image(
-                        width: 70,
-                        height: 70,
-                        fit: BoxFit.fill,
-                        image: widget.user.profileUrl != null
-                            ? CachedNetworkImageProvider(widget.user.profileUrl)
-                            : AssetImage('assets/img_not_available.jpeg'),
-                      ),
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.fill,
+                          image: CachedNetworkImageProvider(
+                              widget.user.profileUrl)),
                     )
-                  : null,
+                  : Icon(Icons.account_circle, size: 60.0, color: kLightGrey),
             ),
           ),
         ),
@@ -191,7 +193,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     },
                     child: Icon(
                       FlutterIcons.ellipsis1_ant,
-                      size: 40,
+                      size: 30,
                     ),
                   ),
                 ),
@@ -347,7 +349,7 @@ class _ProfilePageState extends State<ProfilePage> {
           return SliverStaggeredGrid.count(
             crossAxisCount: 4,
             children: snapshot.data.map((Datum post) {
-              return Container(); //ItemWidget(post: PostModel.fromData(post));
+              return ItemWidget(post: post);
             }).toList(),
             staggeredTiles: snapshot.data
                 .map<StaggeredTile>((_) => StaggeredTile.fit(2))
@@ -364,14 +366,14 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       position: RelativeRect.fromRect(
-          _tapPosition & Size(40, 40), Offset.zero & overlay.size),
+          _tapPosition & Size(30, 0), Offset.zero & overlay.size),
       items: [
         PopupMenuItem(
           child: Row(
             children: [
               Icon(CupertinoIcons.phone),
               SizedBox(
-                width: 20,
+                width: 10,
               ),
               Text("Call")
             ],
@@ -388,12 +390,13 @@ class _ProfilePageState extends State<ProfilePage> {
                 _isFollowing = !_isFollowing;
               });
               Navigator.pop(context);
+              _fetchFriends();
             },
             child: Row(
               children: [
                 Icon(CupertinoIcons.person_alt_circle),
                 SizedBox(
-                  width: 20,
+                  width: 10,
                 ),
                 _isFollowing ? Text("Unfollow") : Text('Follow')
               ],
@@ -401,14 +404,24 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         PopupMenuItem(
-          child: Row(
-            children: [
-              Icon(CupertinoIcons.mail),
-              SizedBox(
-                width: 20,
-              ),
-              Text("Message")
-            ],
+          child: InkWell(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Chat(
+                        peerId: widget.user.uid,
+                        peerCode: widget.user.id,
+                        peerAvatar: widget.user.profileUrl,
+                        peerName: widget.user.name))),
+            child: Row(
+              children: [
+                Icon(CupertinoIcons.mail),
+                SizedBox(
+                  width: 10,
+                ),
+                Text("Message")
+              ],
+            ),
           ),
         ),
       ],

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:camp/helpers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfile extends StatefulWidget {
   final UserAccount user;
@@ -22,13 +23,21 @@ class _EditProfileState extends State<EditProfile> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController locationController;
   AuthService _authService = locator<AuthService>();
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  String profileUrl;
+  String coverPhoto;
 
   @override
   void initState() {
     locationController = TextEditingController();
     locationController.text = widget.user.address;
-
+    _setProfile();
     super.initState();
+  }
+
+  _setProfile() async {
+    final SharedPreferences prefs = await _prefs;
+    coverPhoto = prefs.getString('coverPhoto');
   }
 
   var data = {};
@@ -246,9 +255,9 @@ class _EditProfileState extends State<EditProfile> {
           child: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: widget.user.coverPhoto != null
-                    ? CachedNetworkImageProvider(widget.user.coverPhoto)
-                    : null,
+                image: coverPhoto != null
+                    ? CachedNetworkImageProvider(coverPhoto)
+                    : AssetImage('assets/img_not_available.jpeg'),
                 fit: BoxFit.cover,
               ),
               color: kYellow,
@@ -266,7 +275,11 @@ class _EditProfileState extends State<EditProfile> {
           child: GestureDetector(
             onTapDown: storePosition,
             onTap: () {
-              pictureMenu(context);
+              pictureMenu(context).then(
+                (value) => setState(() {
+                  _setProfile();
+                }),
+              );
             },
             child: CircleAvatar(
               minRadius: 30,

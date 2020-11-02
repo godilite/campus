@@ -79,18 +79,28 @@ class _ItemWidgetState extends State<ItemWidget> {
                     borderRadius: BorderRadius.circular(10)),
                 child: InkWell(
                   onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              SingleView(post: widget._post, liked: liked))),
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          SingleView(post: widget._post, liked: liked),
+                    ),
+                  ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10.0),
                     child: widget._post.details.product.images.length > 0
-                        ? Image(
-                            width: _width * 0.45,
+                        ? CachedNetworkImage(
+                            placeholder: (context, url) => Container(
+                              child: Shimmer.fromColors(
+                                baseColor: Colors.grey[200],
+                                highlightColor: Colors.grey[350],
+                                child: Container(
+                                  width: _width * 0.45,
+                                  height: 200,
+                                ),
+                              ),
+                            ),
+                            imageUrl: widget._post.details.product.images[0],
                             fit: BoxFit.cover,
-                            image: CachedNetworkImageProvider(
-                                widget._post.details.product.images[0]),
                           )
                         : Shimmer.fromColors(
                             baseColor: Colors.grey[200],
@@ -119,7 +129,7 @@ class _ItemWidgetState extends State<ItemWidget> {
               ),
               Positioned(
                 top: 10,
-                right: 20,
+                right: 10,
                 child: LikeButton(
                   onTap: _likePost,
                   isLiked: liked,
@@ -134,7 +144,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                     return Icon(
                       Icons.favorite,
                       color: liked ? Colors.red : Colors.grey,
-                      size: 25,
+                      size: 20,
                     );
                   },
                 ),

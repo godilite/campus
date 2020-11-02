@@ -148,7 +148,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Expanded(
-                                  child: Padding(
+                  child: Padding(
                     padding: EdgeInsets.only(top: 10.0),
                     child: InkWell(
                       onTap: () => Navigator.push(
