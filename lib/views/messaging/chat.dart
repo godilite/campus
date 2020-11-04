@@ -278,7 +278,7 @@ class ChatScreenState extends State<ChatScreen> {
                     style: BubbleStyle(
                       nip: BubbleNip.rightTop,
                       radius: Radius.circular(10.0),
-                      color: kYellow.withAlpha(255),
+                      color: kYellow,
                       elevation: 1,
                       margin: BubbleEdges.only(
                           top: 8.0,
@@ -534,6 +534,7 @@ class ChatScreenState extends State<ChatScreen> {
           .collection('users')
           .doc(id)
           .update({'chattingWith': null});
+
       Navigator.pop(context);
     }
 
@@ -696,7 +697,7 @@ class ChatScreenState extends State<ChatScreen> {
               child: IconButton(
                 icon: Icon(Icons.image),
                 onPressed: getImage,
-                color: kYellow,
+                color: kText,
               ),
             ),
             color: Colors.white,
@@ -707,7 +708,7 @@ class ChatScreenState extends State<ChatScreen> {
               child: IconButton(
                 icon: Icon(Icons.face),
                 onPressed: getSticker,
-                color: kYellow,
+                color: kText,
               ),
             ),
             color: Colors.white,
@@ -720,7 +721,7 @@ class ChatScreenState extends State<ChatScreen> {
                 onSubmitted: (value) {
                   onSendMessage(textEditingController.text, 0);
                 },
-                style: TextStyle(color: kYellow, fontSize: 15.0),
+                style: TextStyle(color: kText, fontSize: 15.0),
                 controller: textEditingController,
                 decoration: InputDecoration.collapsed(
                   hintText: 'Type your message...',

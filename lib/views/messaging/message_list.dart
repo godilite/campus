@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bubble/bubble.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:camp/models/user_account.dart';
 import 'package:camp/services/UserService.dart';
 import 'package:camp/views/messaging/chat.dart';
 import 'package:camp/views/styles.dart';
@@ -100,9 +101,7 @@ class _MessageListState extends State<MessageList> {
           ),
           Text(
             'Messages',
-            style: TextStyle(
-              fontSize: 18,
-            ),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
           )
         ],
       ),
@@ -157,10 +156,12 @@ class _MessageListState extends State<MessageList> {
                 child: document['reciever']['profileUrl'] != null
                     ? CachedNetworkImage(
                         placeholder: (context, url) => Container(
-                          child: Icon(
-                            Icons.account_circle,
-                            size: 50.0,
-                            color: kGrey,
+                          child: Center(
+                            child: Icon(
+                              Icons.account_circle,
+                              size: 50.0,
+                              color: kGrey,
+                            ),
                           ),
                           width: 50.0,
                           height: 50.0,
@@ -171,10 +172,12 @@ class _MessageListState extends State<MessageList> {
                         height: 50.0,
                         fit: BoxFit.cover,
                       )
-                    : Icon(
-                        Icons.account_circle,
-                        size: 50.0,
-                        color: kGrey,
+                    : Center(
+                        child: Icon(
+                          Icons.account_circle,
+                          size: 50.0,
+                          color: kGrey,
+                        ),
                       ),
                 borderRadius: BorderRadius.all(Radius.circular(25.0)),
                 clipBehavior: Clip.hardEdge,
@@ -272,9 +275,12 @@ class _MessageListState extends State<MessageList> {
                 child: document['sender']['profileUrl'] != null
                     ? CachedNetworkImage(
                         placeholder: (context, url) => Container(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 1.0,
-                            valueColor: AlwaysStoppedAnimation<Color>(kYellow),
+                          child: Center(
+                            child: Icon(
+                              Icons.account_circle,
+                              size: 50.0,
+                              color: kGrey,
+                            ),
                           ),
                           width: 50.0,
                           height: 50.0,
@@ -285,10 +291,12 @@ class _MessageListState extends State<MessageList> {
                         height: 50.0,
                         fit: BoxFit.cover,
                       )
-                    : Icon(
-                        Icons.account_circle,
-                        size: 50.0,
-                        color: kGrey,
+                    : Center(
+                        child: Icon(
+                          Icons.account_circle,
+                          size: 50.0,
+                          color: kGrey,
+                        ),
                       ),
                 borderRadius: BorderRadius.all(Radius.circular(25.0)),
                 clipBehavior: Clip.hardEdge,
@@ -308,24 +316,28 @@ class _MessageListState extends State<MessageList> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Container(
-                            child: content.contains(
-                                    'https://firebasestorage.googleapis.com/v0/b/cmps')
-                                ? Text(
-                                    'Received Photo',
-                                    style: TextStyle(color: Colors.grey),
-                                  )
-                                : Text(
-                                    '${document['message'] ?? 'Not available'}',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                            alignment: Alignment.centerLeft,
-                            margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                          Expanded(
+                            child: Container(
+                              child: content.contains(
+                                      'https://firebasestorage.googleapis.com/v0/b/cmps')
+                                  ? Text(
+                                      'Received Photo',
+                                      style: TextStyle(color: Colors.grey),
+                                    )
+                                  : Text(
+                                      '${document['message'] ?? 'Not available'}',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                              alignment: Alignment.centerLeft,
+                              margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                            ),
                           ),
                           Container(
                             child: Text(
-                                '${DateFormat("yyyy-MM-dd hh:mm:ss").parse(document['updated_at'])}'),
+                              '${timeago.format(DateFormat("yyyy-MM-dd hh:mm:ss").parse(document['updated_at']))}',
+                              style: TextStyle(color: kGrey),
+                            ),
                           )
                         ],
                       )

@@ -10,7 +10,7 @@ import 'package:flutter/rendering.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
-import 'package:share/share.dart';
+import 'package:share_files_and_screenshot_widgets/share_files_and_screenshot_widgets.dart';
 
 class Watermark extends StatefulWidget {
   final String url;
@@ -44,15 +44,7 @@ class _WatermarkState extends State<Watermark> {
     return imgFile;
   }
 
-  void screenShotAndShare() async {
-    final RenderBox box = previewContainer.currentContext.findRenderObject();
-    File imgFile = await _capturePng();
-    Share.shareFiles([imgFile.path],
-        subject: widget.post.details.product.title ??
-            widget.post.details.product.content,
-        text: widget.post.details.product.content,
-        sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
-  }
+  int originalSize = 800;
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +106,14 @@ class _WatermarkState extends State<Watermark> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20)),
                 color: kYellow,
-                onPressed: () => screenShotAndShare(),
+                onPressed: () => ShareFilesAndScreenshotWidgets()
+                    .shareScreenshot(
+                        previewContainer,
+                        originalSize,
+                        "${widget.post.details.product.title}",
+                        "image.png",
+                        "image/png",
+                        text: "${widget.post.details.product.content}"),
                 icon: Icon(Icons.share),
                 label: Text('Share')),
           ),

@@ -28,9 +28,6 @@ class UserService {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
       if (e.error != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request);
       } else {
         // Something happened in setting up or sending the request that triggered an Error
         print(e.request);
@@ -60,9 +57,6 @@ class UserService {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
       if (e.error != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request);
       } else {
         // Something happened in setting up or sending the request that triggered an Error
         print(e.request);
@@ -268,9 +262,6 @@ class UserService {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
       if (e.error != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request);
       } else {
         // Something happened in setting up or sending the request that triggered an Error
         print(e.request);
@@ -295,6 +286,28 @@ class UserService {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
       if (e.error != null) {
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+      }
+    }
+    return response.data;
+  }
+
+  Future notifications() async {
+    final SharedPreferences prefs = await _prefs;
+
+    Response response;
+    var token = prefs.getString('token');
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
+    try {
+      response = await dio.get(
+        "http://campusel.ogarnkang.com/api/v1/user/notifications",
+      );
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      if (e.error != null) {
         print(e.response.data);
         print(e.response.headers);
         print(e.response.request);
@@ -306,5 +319,20 @@ class UserService {
     }
     print(response.data);
     return response.data;
+  }
+
+  void markAsRead() async {
+    final SharedPreferences prefs = await _prefs;
+
+    var token = prefs.getString('token');
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
+    try {
+      await dio.get(
+        "http://campusel.ogarnkang.com/api/v1/user/mark-as-read",
+      );
+    } on DioError catch (e) {
+      print(e);
+    }
   }
 }

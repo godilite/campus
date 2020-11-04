@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/CommentService.dart';
 import 'package:flutter/material.dart';
@@ -89,11 +90,13 @@ class _CommentState extends State<Comment> {
             itemCount: dataSnapshot.data.length,
             itemBuilder: (context, index) {
               return ListTile(
-                leading: CircleAvatar(
-                  radius: 20,
-                  backgroundImage: NetworkImage(
-                      "${dataSnapshot.data[index].user.profileUrl}"),
-                ),
+                leading: dataSnapshot.data[index].user.profileUrl == null
+                    ? Icon(Icons.account_circle, size: 50)
+                    : CircleAvatar(
+                        radius: 20,
+                        backgroundImage: CachedNetworkImageProvider(
+                            "${dataSnapshot.data[index].user.profileUrl}"),
+                      ),
                 title: Text(
                   "${dataSnapshot.data[index].user.name}",
                   style: TextStyle(fontWeight: FontWeight.w700),

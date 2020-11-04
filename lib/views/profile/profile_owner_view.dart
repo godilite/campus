@@ -1,11 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/models/activity_model.dart';
 import 'package:camp/models/user_account.dart';
+import 'package:camp/services/AuthService.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/services/UserService.dart';
 import 'package:camp/views/followers/follower_page.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
+import 'package:camp/views/post/widgets/color_loader_2.dart';
 import 'package:camp/views/profile/edit_profile.dart';
 import 'package:camp/views/styles.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,8 +23,6 @@ import '../../helpers.dart';
 import '../../service_locator.dart';
 
 class ProfileOwnPage extends StatefulWidget {
-  final UserAccount user;
-  ProfileOwnPage({this.user});
   @override
   _ProfileOwnPageState createState() => _ProfileOwnPageState();
 }
@@ -32,24 +32,30 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
   BehaviorSubject<List<Datum>> postController;
   PostService _postService = locator<PostService>();
   UserService _userService = locator<UserService>();
+  AuthService _authService = locator<AuthService>();
+
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   int followersCount = 0;
   int followingCount = 0;
   String profileUrl;
   String coverPhoto;
   List<Datum> documentList = [];
+  UserAccount user;
+
   @override
   void initState() {
-    postController = BehaviorSubject<List<Datum>>();
-    _fetchFirstList();
-    _fetchFriends();
     _setProfile();
+    postController = BehaviorSubject<List<Datum>>();
+    _getUser().then((value) {
+      _fetchFirstList();
+      _fetchFriends();
+    });
     super.initState();
   }
 
   Stream<List<Datum>> get userPostStream => postController.stream;
   _fetchFirstList() async {
-    Activity posts = await _postService.getUserPosts(widget.user.id);
+    Activity posts = await _postService.getUserPosts(user.id);
     documentList.addAll(posts.data);
     postController.sink.add(documentList);
   }
@@ -61,36 +67,53 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
   }
 
   _fetchFriends() async {
-    var result = await _userService.getFollowersCount(widget.user.id);
-    var follows = await _userService.getFollowingCount(widget.user.id);
+    var result = await _userService.getFollowersCount(user.id);
+    var follows = await _userService.getFollowingCount(user.id);
     setState(() {
       followersCount = result;
       followingCount = follows;
     });
   }
 
+  Future _getUser() async {
+    _authService.userReference
+        .doc(_authService.auth.currentUser.uid)
+        .snapshots()
+        .listen((event) async {
+      UserAccount _user = await _authService.currentUser();
+      setState(() {
+        user = _user;
+      });
+    });
+    return await Future.delayed(const Duration(seconds: 20));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DrawScaffold('', LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints viewportConstraints) {
-        return CustomScrollView(slivers: [
-          SliverList(
-            delegate: SliverChildListDelegate([
-              Container(
-                child: profileStack(viewportConstraints),
-                height: viewportConstraints.maxHeight * 0.5,
-                width: viewportConstraints.maxWidth,
-                decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade200))),
-              ),
-            ]),
-          ),
-          buildStreamBuilder(),
-        ]);
-      },
-    ), true, 4);
+    if (user == null) {
+      return Material(child: Center(child: ColorLoader2()));
+    } else {
+      return DrawScaffold('', LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints viewportConstraints) {
+          return CustomScrollView(slivers: [
+            SliverList(
+              delegate: SliverChildListDelegate([
+                Container(
+                  child: profileStack(viewportConstraints),
+                  height: viewportConstraints.maxHeight * 0.5,
+                  width: viewportConstraints.maxWidth,
+                  decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade200))),
+                ),
+              ]),
+            ),
+            buildStreamBuilder(),
+          ]);
+        },
+      ), true, 4);
+    }
   }
 
   Stack profileStack(BoxConstraints viewportConstraints) {
@@ -129,7 +152,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
               child: CircleAvatar(
                 backgroundColor: kYellow,
                 minRadius: 37,
-                child: widget.user != null && profileUrl != null
+                child: user != null && profileUrl != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(100),
                         child: Image(
@@ -157,7 +180,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                   left: 15,
                   right: 15,
                   child: Center(
-                    child: Text(truncate(20, widget.user.name),
+                    child: Text(truncate(20, user.name),
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: kText,
@@ -175,8 +198,8 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                       _showMenu();
                     },
                     child: Icon(
-                      FlutterIcons.ellipsis1_ant,
-                      size: 40,
+                      CupertinoIcons.ellipsis,
+                      size: 25,
                     ),
                   ),
                 ),
@@ -192,7 +215,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                           Row(
                             children: [
                               Icon(CupertinoIcons.location),
-                              Text(truncate(15, widget.user.address)),
+                              Text(truncate(15, user.address)),
                             ],
                           ),
                           RatingBar(
@@ -244,7 +267,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                                     MaterialPageRoute(
                                       builder: (context) => FollowerPage(
                                         0,
-                                        widget.user.id,
+                                        user.id,
                                       ),
                                     ),
                                   ),
@@ -276,7 +299,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                                     MaterialPageRoute(
                                       builder: (context) => FollowerPage(
                                         1,
-                                        widget.user.id,
+                                        user.id,
                                       ),
                                     ),
                                   ),
@@ -330,24 +353,27 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
         builder: (context, snapshot) {
           if (snapshot.data == null &&
               snapshot.connectionState != ConnectionState.done) {
-            return SliverStaggeredGrid.countBuilder(
-              crossAxisCount: 4,
-              itemCount: 8,
-              itemBuilder: (BuildContext context, int index) =>
-                  Shimmer.fromColors(
-                baseColor: Colors.grey.shade100,
-                highlightColor: Colors.white,
-                child: Container(
-                  width: 200,
-                  height: 400,
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
+            return SliverToBoxAdapter(
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(child: ColorLoader2()),
                 ),
               ),
-              staggeredTileBuilder: (int index) =>
-                  StaggeredTile.count(2, index.isEven ? 2 : 1),
-              mainAxisSpacing: 4.0,
-              crossAxisSpacing: 4.0,
+            );
+          }
+          if (snapshot.data.isEmpty) {
+            return SliverToBoxAdapter(
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                      child: Text(
+                    'No Posts',
+                    style: TextStyle(color: kText),
+                  )),
+                ),
+              ),
             );
           }
           return SliverStaggeredGrid.count(
@@ -377,7 +403,7 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => EditProfile(
-                          user: widget.user,
+                          user: user,
                         ))),
             child: Row(
               children: [

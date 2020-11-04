@@ -408,13 +408,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0-nullsafety.3"
-  mime:
-    dependency: transitive
-    description:
-      name: mime
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.9.7"
   multi_image_picker:
     dependency: "direct main"
     description:
@@ -555,13 +548,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.24.1"
-  share:
+  share_files_and_screenshot_widgets:
     dependency: "direct main"
     description:
-      name: share
+      name: share_files_and_screenshot_widgets
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.5+4"
+    version: "1.0.3"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -617,7 +610,7 @@ packages:
     source: hosted
     version: "1.8.0-nullsafety.2"
   sqflite:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: sqflite
       url: "https://pub.dartlang.org"

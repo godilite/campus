@@ -8,15 +8,14 @@ import 'package:camp/views/followers/follower_page.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
 import 'package:camp/views/messaging/chat.dart';
+import 'package:camp/views/post/widgets/color_loader_2.dart';
 import 'package:camp/views/profile/profile_owner_view.dart';
 import 'package:camp/views/styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../../helpers.dart';
 import '../../service_locator.dart';
@@ -54,9 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ? Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (BuildContext context) => ProfileOwnPage(
-                user: _user,
-              ),
+              builder: (BuildContext context) => ProfileOwnPage(),
             ),
           )
         // ignore: unnecessary_statements
@@ -192,8 +189,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       _showMenu();
                     },
                     child: Icon(
-                      FlutterIcons.ellipsis1_ant,
-                      size: 30,
+                      CupertinoIcons.ellipsis,
+                      size: 25,
                     ),
                   ),
                 ),
@@ -327,23 +324,27 @@ class _ProfilePageState extends State<ProfilePage> {
         builder: (context, snapshot) {
           if (snapshot.data == null &&
               snapshot.connectionState != ConnectionState.done) {
-            return SliverStaggeredGrid.countBuilder(
-              crossAxisCount: 4,
-              itemCount: 8,
-              itemBuilder: (BuildContext context, int index) =>
-                  Shimmer.fromColors(
-                baseColor: Colors.grey.shade100,
-                highlightColor: Colors.white,
-                child: Container(
-                  width: 200,
-                  height: 400,
-                  color: Colors.red,
+            return SliverToBoxAdapter(
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(child: ColorLoader2()),
                 ),
               ),
-              staggeredTileBuilder: (int index) =>
-                  StaggeredTile.count(2, index.isEven ? 2 : 1),
-              mainAxisSpacing: 4.0,
-              crossAxisSpacing: 4.0,
+            );
+          }
+          if (snapshot.data.isEmpty) {
+            return SliverToBoxAdapter(
+              child: Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                      child: Text(
+                    'No Posts',
+                    style: TextStyle(color: kText),
+                  )),
+                ),
+              ),
             );
           }
           return SliverStaggeredGrid.count(

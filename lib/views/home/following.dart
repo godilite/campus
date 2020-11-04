@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/models/activity_model.dart';
 import 'package:camp/models/product_like.dart';
 import 'package:camp/services/PostService.dart';
-import 'package:camp/views/layouts/app_bar_back.dart';
 import 'package:camp/views/post/widgets/color_loader_2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -166,7 +165,10 @@ class _FollowingState extends State<Following> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Center(child: ColorLoader2()),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(child: ColorLoader2()),
+                ),
               ],
             );
           }
@@ -175,6 +177,14 @@ class _FollowingState extends State<Following> {
               snapshot.connectionState == ConnectionState.done) {
             return Center(
               child: Text('Network Error'),
+            );
+          }
+          if (snapshot.data.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(
+                child: Text('No Posts'),
+              ),
             );
           }
           return Column(
@@ -237,30 +247,39 @@ class _FollowerPostWidgetState extends State<FollowerPostWidget> {
     like.isNotEmpty ? liked = true : null;
     return Column(
       children: [
-        ListTile(
-          contentPadding: EdgeInsets.all(0),
-          leading: CircleAvatar(
-            backgroundColor: Colors.grey,
-            backgroundImage:
-                CachedNetworkImageProvider(widget._post.user.profileUrl),
-            radius: 20,
-          ),
-          title: Text(
-            widget._post.user.name,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
+        InkWell(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  SingleView(post: widget._post, liked: liked),
             ),
           ),
-          subtitle: widget._post.details.product.title.isNotEmpty
-              ? Text(
-                  "${widget._post.details.product.title}",
-                  style: TextStyle(color: kGrey),
-                )
-              : Text(
-                  "${widget._post.details.product.content}",
-                  style: TextStyle(color: kGrey),
-                ),
-          trailing: Text(widget._post.lapse),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(0),
+            leading: CircleAvatar(
+              backgroundColor: Colors.grey,
+              backgroundImage:
+                  CachedNetworkImageProvider(widget._post.user.profileUrl),
+              radius: 20,
+            ),
+            title: Text(
+              widget._post.user.name,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            subtitle: widget._post.details.product.title.isNotEmpty
+                ? Text(
+                    "${widget._post.details.product.title}",
+                    style: TextStyle(color: kGrey),
+                  )
+                : Text(
+                    "${widget._post.details.product.content}",
+                    style: TextStyle(color: kGrey),
+                  ),
+            trailing: Text(widget._post.lapse),
+          ),
         ),
         SizedBox(height: 10),
         StaggeredGridView.countBuilder(

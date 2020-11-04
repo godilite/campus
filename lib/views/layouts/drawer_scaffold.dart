@@ -4,6 +4,7 @@ import 'package:camp/models/user_account.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/home/homepage.dart';
+import 'package:camp/views/home/notification.dart';
 import 'package:camp/views/messaging/message_list.dart';
 import 'package:camp/views/post/create_post.dart';
 import 'package:camp/views/profile/edit_profile.dart';
@@ -105,13 +106,17 @@ class _DrawScaffoldState extends State<DrawScaffold> {
       case 2:
         return Navigator.push(context,
             MaterialPageRoute(builder: (BuildContext context) => CreatePost()));
+      case 3:
+        return Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    NotificationPage(userId: user.id, uid: user.uid)));
       case 4:
         return Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (BuildContext context) => ProfileOwnPage(
-                      user: user,
-                    )));
+                builder: (BuildContext context) => ProfileOwnPage()));
       default:
         return new Text("Error");
     }
@@ -125,15 +130,21 @@ class _DrawScaffoldState extends State<DrawScaffold> {
   void initState() {
     _authService.auth.authStateChanges().listen((User user) {
       user == null ? print('no user') : getUser();
-      setState(() {});
     });
     super.initState();
   }
 
   getUser() async {
-    UserAccount _user = await _authService.currentUser();
-    setState(() {
-      user = _user;
+    _authService.userReference
+        .doc(_authService.auth.currentUser.uid)
+        .snapshots()
+        .listen((event) async {
+      UserAccount _user = await _authService.currentUser();
+      if (this.mounted) {
+        setState(() {
+          user = _user;
+        });
+      }
     });
   }
 
@@ -154,9 +165,8 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (BuildContext context) => ProfileOwnPage(
-                                    user: user,
-                                  ))),
+                              builder: (BuildContext context) =>
+                                  ProfileOwnPage())),
                       child: CircleAvatar(
                         backgroundColor: kYellow,
                         minRadius: 40,
@@ -186,9 +196,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (BuildContext context) => ProfileOwnPage(
-                        user: user,
-                      ),
+                      builder: (BuildContext context) => ProfileOwnPage(),
                     ),
                   ),
                   child: Text(

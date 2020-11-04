@@ -94,7 +94,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                                 baseColor: Colors.grey[200],
                                 highlightColor: Colors.grey[350],
                                 child: Container(
-                                  width: _width * 0.45,
+                                  width: _width * 0.5,
                                   height: 200,
                                 ),
                               ),

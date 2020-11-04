@@ -427,25 +427,23 @@ class _HomeViewState extends State<HomeView> {
         builder: (context, snapshot) {
           if (snapshot.data == null &&
               snapshot.connectionState != ConnectionState.done) {
-            return SliverStaggeredGrid.countBuilder(
-              crossAxisCount: 4,
-              itemCount: 1,
-              itemBuilder: (BuildContext context, int index) =>
-                  Center(child: ColorLoader2()),
-              staggeredTileBuilder: (int index) => StaggeredTile.fit(4),
-              mainAxisSpacing: 4.0,
-              crossAxisSpacing: 4.0,
+            return SliverToBoxAdapter(
+              child: Center(child: ColorLoader2()),
             );
           }
           return SliverStaggeredGrid.count(
             crossAxisCount: 4,
             children: snapshot.data.map((Datum post) {
-              return ItemWidget(post: post);
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: ItemWidget(post: post),
+              );
             }).toList(),
             staggeredTiles: snapshot.data
                 .map<StaggeredTile>((_) => StaggeredTile.fit(2))
                 .toList(),
-            mainAxisSpacing: 10,
+            mainAxisSpacing: 0,
+            crossAxisSpacing: 0,
           );
         });
   }

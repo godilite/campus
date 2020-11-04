@@ -121,8 +121,8 @@ class _SingleViewState extends State<SingleView> {
               },
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Icon(FlutterIcons.ellipsis1_ant,
-                    size: 35, color: Colors.grey.shade500),
+                child: Icon(CupertinoIcons.ellipsis,
+                    size: 25, color: Colors.grey.shade700),
               ),
             ),
           ],
@@ -139,224 +139,179 @@ class _SingleViewState extends State<SingleView> {
                   bottomLeft: Radius.circular(40),
                 ),
               ),
-              child: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
-                child: images.length > 0
-                    ? Column(children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(40),
-                              topLeft: Radius.circular(40),
-                            ),
-                            color: Colors.white,
-                          ),
-                          child: Stack(
-                            children: [
-                              CarouselSlider.builder(
-                                options: CarouselOptions(
-                                    autoPlay: false,
-                                    height: viewportConstraints.maxWidth,
-                                    viewportFraction: 1,
-                                    enableInfiniteScroll: false,
-                                    onPageChanged: (index, reason) {
-                                      setState(() {
-                                        _current = index;
-                                      });
-                                    }),
-                                itemCount: images.length,
-                                itemBuilder: (context, index) {
-                                  return InkWell(
-                                    onTap: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            FullPhoto(url: images[index]),
-                                      ),
-                                    ),
-                                    child: Image(
-                                        image: CachedNetworkImageProvider(
-                                            images[index]),
-                                        fit: BoxFit.fitWidth),
-                                  );
-                                },
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(40),
+                  topLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40),
+                  bottomLeft: Radius.circular(40),
+                ),
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
+                  child: images.length > 0
+                      ? Column(children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(40),
+                                topLeft: Radius.circular(40),
                               ),
-                              Positioned(
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: images.map((url) {
-                                    int index = images.indexOf(url);
-                                    return Container(
-                                      width: 5.0,
-                                      height: 5.0,
-                                      margin: EdgeInsets.symmetric(
-                                          vertical: 10.0, horizontal: 2.0),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: _current == index
-                                            ? Color.fromRGBO(0, 0, 0, 0.9)
-                                            : Color.fromRGBO(0, 0, 0, 0.4),
+                              color: Colors.white,
+                            ),
+                            child: Stack(
+                              children: [
+                                CarouselSlider.builder(
+                                  options: CarouselOptions(
+                                      autoPlay: false,
+                                      height: viewportConstraints.maxWidth,
+                                      viewportFraction: 1,
+                                      enableInfiniteScroll: false,
+                                      onPageChanged: (index, reason) {
+                                        setState(() {
+                                          _current = index;
+                                        });
+                                      }),
+                                  itemCount: images.length,
+                                  itemBuilder: (context, index) {
+                                    return InkWell(
+                                      onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              FullPhoto(url: images[index]),
+                                        ),
                                       ),
+                                      child: Image(
+                                          image: CachedNetworkImageProvider(
+                                              images[index]),
+                                          fit: BoxFit.fitWidth),
                                     );
-                                  }).toList(),
+                                  },
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                  offset: Offset(0, 3),
-                                  color: Colors.grey.shade200,
-                                  blurRadius: 5)
-                            ],
-                            borderRadius: BorderRadius.only(
-                              bottomRight: Radius.circular(40),
-                              bottomLeft: Radius.circular(40),
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: images.map((url) {
+                                      int index = images.indexOf(url);
+                                      return Container(
+                                        width: 5.0,
+                                        height: 5.0,
+                                        margin: EdgeInsets.symmetric(
+                                            vertical: 10.0, horizontal: 2.0),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: _current == index
+                                              ? Color.fromRGBO(0, 0, 0, 0.9)
+                                              : Color.fromRGBO(0, 0, 0, 0.4),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ListTile(
-                                leading: user != null && user.profileUrl != null
-                                    ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(50),
-                                        child: CachedNetworkImage(
-                                          placeholder: (context, url) =>
-                                              Container(
-                                            child: Icon(
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                    offset: Offset(0, 3),
+                                    color: Colors.grey.shade200,
+                                    blurRadius: 5)
+                              ],
+                              borderRadius: BorderRadius.only(
+                                bottomRight: Radius.circular(40),
+                                bottomLeft: Radius.circular(40),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListTile(
+                                  leading:
+                                      user != null && user.profileUrl != null
+                                          ? ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(40),
+                                              child: CachedNetworkImage(
+                                                placeholder: (context, url) =>
+                                                    Container(
+                                                  child: Icon(
+                                                    Icons.account_circle,
+                                                    size: 40.0,
+                                                    color: kGrey,
+                                                  ),
+                                                  width: 40.0,
+                                                  height: 40.0,
+                                                  padding: EdgeInsets.all(0.0),
+                                                ),
+                                                imageUrl: user.profileUrl,
+                                                width: 40.0,
+                                                height: 40.0,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            )
+                                          : Icon(
                                               Icons.account_circle,
                                               size: 50.0,
                                               color: kGrey,
                                             ),
-                                            width: 50.0,
-                                            height: 50.0,
-                                            padding: EdgeInsets.all(0.0),
-                                          ),
-                                          imageUrl: user.profileUrl,
-                                          width: 50.0,
-                                          height: 50.0,
-                                          fit: BoxFit.cover,
+                                  title: Padding(
+                                    padding: EdgeInsets.only(top: 15.0),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text('From',
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 12)),
+                                        SizedBox(
+                                          width: 10,
                                         ),
-                                      )
-                                    : Icon(
-                                        Icons.account_circle,
-                                        size: 50.0,
-                                        color: kGrey,
-                                      ),
-                                title: Padding(
-                                  padding: EdgeInsets.only(top: 15.0),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text('From',
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 12)),
-                                      SizedBox(
-                                        width: 10,
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: InkWell(
-                                          onTap: () => Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => ProfilePage(
-                                                user: widget.post.user,
+                                        Expanded(
+                                          flex: 2,
+                                          child: InkWell(
+                                            onTap: () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProfilePage(
+                                                  user: widget.post.user,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          child: Text(
-                                            widget.post.user.name,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                                color: kText,
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                trailing: Container(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        Flexible(
-                                          flex: 4,
-                                          child: LikeButton(
-                                            countPostion: CountPostion.bottom,
-                                            onTap: _likePost,
-                                            isLiked: liked,
-                                            size: 30,
-                                            circleColor: CircleColor(
-                                                start: Color(0xffFAB7fc),
-                                                end: Color(0xffFAB70A)),
-                                            bubblesColor: BubblesColor(
-                                              dotPrimaryColor:
-                                                  Color(0xffccff0A),
-                                              dotSecondaryColor:
-                                                  Color(0xffFAB70A),
+                                            child: Text(
+                                              widget.post.user.name,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w900),
                                             ),
-                                            likeBuilder: (bool liked) {
-                                              return liked
-                                                  ? Icon(
-                                                      Icons.favorite,
-                                                      color: Colors.red,
-                                                      size: 20,
-                                                    )
-                                                  : Icon(
-                                                      Icons.favorite_outline,
-                                                      color: Colors.grey,
-                                                      size: 20,
-                                                    );
-                                            },
-                                            likeCount: widget.post.details
-                                                .productLikes.length,
-                                            countBuilder: (int count,
-                                                bool liked, String text) {
-                                              var color = liked
-                                                  ? Colors.red
-                                                  : Colors.grey;
-                                              Widget result;
-                                              if (count == 0) {
-                                                result = Text(
-                                                  "",
-                                                  style:
-                                                      TextStyle(color: color),
-                                                );
-                                              } else
-                                                result = Text(
-                                                  text,
-                                                  style:
-                                                      TextStyle(color: color),
-                                                );
-                                              return result;
-                                            },
                                           ),
                                         ),
-                                        Flexible(
-                                          flex: 4,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 10.0),
+                                      ],
+                                    ),
+                                  ),
+                                  trailing: Container(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          Flexible(
+                                            flex: 4,
                                             child: LikeButton(
-                                              onTap: _sharePost,
-                                              size: 20,
+                                              countPostion: CountPostion.bottom,
+                                              onTap: _likePost,
+                                              isLiked: liked,
+                                              size: 30,
                                               circleColor: CircleColor(
                                                   start: Color(0xffFAB7fc),
                                                   end: Color(0xffFAB70A)),
@@ -367,83 +322,201 @@ class _SingleViewState extends State<SingleView> {
                                                     Color(0xffFAB70A),
                                               ),
                                               likeBuilder: (bool liked) {
-                                                return Icon(
-                                                  FlutterIcons.share_sli,
-                                                  color: liked
-                                                      ? Colors.grey
-                                                      : Colors.grey,
-                                                  size: 16,
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                        Flexible(
-                                          flex: 4,
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(
-                                                bottom: 10.0),
-                                            child: LikeButton(
-                                              onTap: _likePost,
-                                              size: 25,
-                                              circleColor: CircleColor(
-                                                  start: Color(0xffFAB7fc),
-                                                  end: Color(0xffFAB70A)),
-                                              bubblesColor: BubblesColor(
-                                                dotPrimaryColor:
-                                                    Color(0xffccff0A),
-                                                dotSecondaryColor:
-                                                    Color(0xffFAB70A),
-                                              ),
-                                              likeBuilder: (bool saved) {
-                                                return saved
+                                                return liked
                                                     ? Icon(
-                                                        CupertinoIcons
-                                                            .bookmark_fill,
-                                                        color: kYellow,
+                                                        Icons.favorite,
+                                                        color: Colors.red,
                                                         size: 20,
                                                       )
                                                     : Icon(
-                                                        CupertinoIcons.bookmark,
+                                                        Icons.favorite_outline,
                                                         color: Colors.grey,
                                                         size: 20,
                                                       );
                                               },
+                                              likeCount: widget.post.details
+                                                  .productLikes.length,
+                                              countBuilder: (int count,
+                                                  bool liked, String text) {
+                                                var color = liked
+                                                    ? Colors.red
+                                                    : Colors.grey;
+                                                Widget result;
+                                                if (count == 0) {
+                                                  result = Text(
+                                                    "",
+                                                    style:
+                                                        TextStyle(color: color),
+                                                  );
+                                                } else
+                                                  result = Text(
+                                                    text,
+                                                    style:
+                                                        TextStyle(color: color),
+                                                  );
+                                                return result;
+                                              },
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                          Flexible(
+                                            flex: 4,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 10.0),
+                                              child: LikeButton(
+                                                onTap: _sharePost,
+                                                size: 20,
+                                                circleColor: CircleColor(
+                                                    start: Color(0xffFAB7fc),
+                                                    end: Color(0xffFAB70A)),
+                                                bubblesColor: BubblesColor(
+                                                  dotPrimaryColor:
+                                                      Color(0xffccff0A),
+                                                  dotSecondaryColor:
+                                                      Color(0xffFAB70A),
+                                                ),
+                                                likeBuilder: (bool liked) {
+                                                  return Icon(
+                                                    FlutterIcons.share_sli,
+                                                    color: liked
+                                                        ? Colors.grey
+                                                        : Colors.grey,
+                                                    size: 16,
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                          Flexible(
+                                            flex: 4,
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 10.0),
+                                              child: LikeButton(
+                                                onTap: _likePost,
+                                                size: 25,
+                                                circleColor: CircleColor(
+                                                    start: Color(0xffFAB7fc),
+                                                    end: Color(0xffFAB70A)),
+                                                bubblesColor: BubblesColor(
+                                                  dotPrimaryColor:
+                                                      Color(0xffccff0A),
+                                                  dotSecondaryColor:
+                                                      Color(0xffFAB70A),
+                                                ),
+                                                likeBuilder: (bool saved) {
+                                                  return saved
+                                                      ? Icon(
+                                                          CupertinoIcons
+                                                              .bookmark_fill,
+                                                          color: kYellow,
+                                                          size: 20,
+                                                        )
+                                                      : Icon(
+                                                          CupertinoIcons
+                                                              .bookmark,
+                                                          color: Colors.grey,
+                                                          size: 20,
+                                                        );
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      width:
+                                          viewportConstraints.maxWidth * 0.3),
+                                  subtitle: RatingBar(
+                                    initialRating: 3,
+                                    minRating: 1,
+                                    direction: Axis.horizontal,
+                                    allowHalfRating: true,
+                                    itemCount: 5,
+                                    itemSize: 10,
+                                    itemPadding:
+                                        EdgeInsets.symmetric(horizontal: 0.02),
+                                    itemBuilder: (context, _) => Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
                                     ),
-                                    width: viewportConstraints.maxWidth * 0.3),
-                                subtitle: RatingBar(
-                                  initialRating: 3,
-                                  minRating: 1,
-                                  direction: Axis.horizontal,
-                                  allowHalfRating: true,
-                                  itemCount: 5,
-                                  itemSize: 10,
-                                  itemPadding:
-                                      EdgeInsets.symmetric(horizontal: 0.02),
-                                  itemBuilder: (context, _) => Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
+                                    onRatingUpdate: (rating) {
+                                      print(rating);
+                                    },
                                   ),
-                                  onRatingUpdate: (rating) {
-                                    print(rating);
-                                  },
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 15.0),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 15.0),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Visibility(
+                                              visible: widget.post.details
+                                                          .product.isForsale ==
+                                                      1
+                                                  ? true
+                                                  : false,
+                                              child: Text(
+                                                widget
+                                                    .post.details.product.title,
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                            ),
+                                            Visibility(
+                                              visible: widget.post.details
+                                                          .product.isForsale ==
+                                                      1
+                                                  ? true
+                                                  : false,
+                                              child: SizedBox(
+                                                height: 10,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: 30.0,
+                                                  top: 10,
+                                                  bottom: 10),
+                                              child: Text(
+                                                widget.post.details.product
+                                                    .content,
+                                                style: TextStyle(fontSize: 13),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Visibility(
+                                        visible: widget.post.details.product
+                                                    .isForsale ==
+                                                1
+                                            ? true
+                                            : false,
+                                        child: Container(
+                                          height: 100,
+                                          color: Colors.grey,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      SizedBox(width: 20),
+                                      Column(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.start,
+                                            MainAxisAlignment.end,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
+                                          SizedBox(
+                                            height: 10,
+                                          ),
                                           Visibility(
                                             visible: widget.post.details.product
                                                         .isForsale ==
@@ -451,161 +524,110 @@ class _SingleViewState extends State<SingleView> {
                                                 ? true
                                                 : false,
                                             child: Text(
-                                              widget.post.details.product.title,
+                                              '₦ ${widget.post.details.product.amount}',
                                               style: TextStyle(
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.w600),
                                             ),
                                           ),
-                                          Visibility(
-                                            visible: widget.post.details.product
-                                                        .isForsale ==
-                                                    1
-                                                ? true
-                                                : false,
-                                            child: SizedBox(
-                                              height: 10,
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                left: 30.0,
-                                                top: 10,
-                                                bottom: 10),
-                                            child: Text(
-                                              widget
-                                                  .post.details.product.content,
-                                              style: TextStyle(fontSize: 13),
-                                            ),
+                                          SizedBox(
+                                            height: 10,
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    Visibility(
-                                      visible: widget.post.details.product
-                                                  .isForsale ==
-                                              1
-                                          ? true
-                                          : false,
-                                      child: Container(
-                                        height: 100,
-                                        color: Colors.grey,
-                                        width: 0.5,
-                                      ),
-                                    ),
-                                    SizedBox(width: 20),
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                        Visibility(
-                                          visible: widget.post.details.product
-                                                      .isForsale ==
-                                                  1
-                                              ? true
-                                              : false,
-                                          child: Text(
-                                            '₦ ${widget.post.details.product.amount}',
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w600),
+                                      SizedBox(height: 20),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          Container(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                  left: 20.0, right: 20, bottom: 0),
+                              child: InkWell(
+                                onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Comment(
+                                              postId: widget
+                                                  .post.details.product.id,
+                                            ))),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    widget.post.details.comments.length == 0
+                                        ? Text(
+                                            'Be the first to comment',
+                                            style:
+                                                TextStyle(color: Colors.grey),
+                                          )
+                                        : Text(
+                                            'View $commentCount ${commentCount > 1 ? 'comments' : 'comment'}',
+                                            style:
+                                                TextStyle(color: Colors.grey),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 20),
+                                    Icon(
+                                      CupertinoIcons.chat_bubble,
+                                      color: kText,
+                                      size: 20,
+                                    )
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        Container(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                                left: 20.0, right: 20, bottom: 0),
-                            child: InkWell(
-                              onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Comment(
-                                            postId:
-                                                widget.post.details.product.id,
-                                          ))),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  widget.post.details.comments.length == 0
-                                      ? Text(
-                                          'Be the first to comment',
-                                          style: TextStyle(color: Colors.grey),
-                                        )
-                                      : Text(
-                                          'View all $commentCount comments',
-                                          style: TextStyle(color: Colors.grey),
-                                        ),
-                                  Icon(
-                                    CupertinoIcons.chat_bubble,
-                                    color: kText,
-                                    size: 20,
-                                  )
-                                ],
-                              ),
                             ),
                           ),
+                          widget.post.details.comments.length > 0
+                              ? Column(
+                                  children: widget.post.details.comments
+                                      .map(
+                                        (e) => ListTile(
+                                          contentPadding: EdgeInsets.only(
+                                              left: 10, right: 10),
+                                          leading: e.user.profileUrl == null
+                                              ? Icon(Icons.account_circle,
+                                                  size: 40)
+                                              : CircleAvatar(
+                                                  backgroundColor: kYellow,
+                                                  backgroundImage:
+                                                      CachedNetworkImageProvider(
+                                                          e.user.profileUrl),
+                                                  radius: 20,
+                                                ),
+                                          title: Text(
+                                            e.user.name,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          subtitle: Text(
+                                            e.comment,
+                                            style:
+                                                TextStyle(color: Colors.black),
+                                          ),
+                                        ),
+                                      )
+                                      .toList())
+                              : Container(
+                                  height: 20,
+                                ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Related Posts',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Padding(
+                              padding: EdgeInsets.only(
+                                  left: 10.0, right: 10, top: 20),
+                              child: suggestedBuilder()),
+                        ])
+                      : Center(
+                          child: Text('loading..'),
                         ),
-                        widget.post.details.comments.length > 0
-                            ? Column(
-                                children: widget.post.details.comments
-                                    .map(
-                                      (e) => ListTile(
-                                        contentPadding: EdgeInsets.only(
-                                            left: 10, right: 10),
-                                        leading: CircleAvatar(
-                                          backgroundColor: kYellow,
-                                          backgroundImage:
-                                              CachedNetworkImageProvider(
-                                                  e.user.profileUrl),
-                                          radius: 20,
-                                        ),
-                                        title: Text(
-                                          e.user.name,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        subtitle: Text(
-                                          e.comment,
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                      ),
-                                    )
-                                    .toList())
-                            : Container(
-                                height: 20,
-                              ),
-                        SizedBox(height: 10),
-                        Text(
-                          'Related Posts',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                        Padding(
-                            padding:
-                                EdgeInsets.only(left: 10.0, right: 10, top: 20),
-                            child: suggestedBuilder()),
-                      ])
-                    : Center(
-                        child: Text('loading..'),
-                      ),
+                ),
               ),
             );
           },

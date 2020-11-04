@@ -8,8 +8,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:camp/main.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'SqliteDb.dart';
 
 class AuthService {
+  var sqlite = SqliteDb.db;
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   FirebaseAuth auth = FirebaseAuth.instance;
   final userReference = FirebaseFirestore.instance.collection("users");
@@ -224,25 +226,6 @@ class AuthService {
         ),
       );
       account = await storeUserToBackup(user, userData);
-      userReference.doc(user.user.uid).set({
-        'id': account.id,
-        'name': userData.displayName,
-        'username': userData.username,
-        'email': user.user.email,
-        'profileUrl': user.user.photoURL,
-        'phone': userData.phone,
-        'bio': '',
-        'coverPhoto': '',
-        'uid': user.user.uid,
-        'address': userData.address,
-        'cord': userData.coord,
-        'postCount': 0,
-        'rating': '0',
-        'ratingList': [],
-        'followers': 0,
-        'following': 0,
-        'timestamp': timestamp
-      });
     }
 
     loginUserToBackupServer();
@@ -260,34 +243,15 @@ class AuthService {
   Future<UserAccount> currentUser() async {
     final SharedPreferences prefs = await _prefs;
 
-    Response response;
-    var token = prefs.getString('token');
-    dio.options.headers['content-Type'] = 'application/json';
-    dio.options.headers["authorization"] = "Bearer $token";
-
-    try {
-      response = await dio.get(
-        "http://campusel.ogarnkang.com/api/v1/current/user",
-      );
-    } on DioError catch (e) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx and is also not 304.
-      if (e.error != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request);
-      } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
-        print(e.message);
-      }
+    var id = prefs.getInt('userId');
+    final db = await sqlite.database;
+    var res = await db.query("user", where: "id = ?", whereArgs: [id]);
+    print(res);
+    if (res.isNotEmpty) {
+      return UserAccount.fromJson(res.first);
     }
-    if (response.data.runtimeType == String) {
-      await loginUserToBackupServer();
-      return currentUser();
-    }
-    UserAccount user = UserAccount.fromJson(response.data['account']);
-    return user;
+    await loginUserToBackupServer();
+    return currentUser();
   }
 
   Future<UserAccount> storeUserToBackup(UserCredential user, data) async {
@@ -306,8 +270,8 @@ class AuthService {
         'uid': user.user.uid,
         'coverPhoto': '',
         'address': data.address,
-        'long': data.coord.longitude,
-        'lat': data.coord.latitude
+        'long': data.coord != null ? '${data.coord.longitude}' : "0.0",
+        'lat': data.coord != null ? '${data.coord.latitude}' : "0.0"
       });
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
@@ -330,6 +294,43 @@ class AuthService {
     prefs.setString('coverPhoto', response.data["account"]['coverPhoto']);
 
     UserAccount account = UserAccount.fromJson(response.data["account"]);
+
+    try {
+      final db = await sqlite.database;
+
+      var res = await db
+          .query("user", where: "id = ?", whereArgs: [response.data["id"]]);
+      if (res.isEmpty) {
+        await db.insert("user", response.data["account"]);
+      }
+      await db.update("user", response.data["account"],
+          where: "id = ?", whereArgs: [response.data["id"]]);
+    } catch (e) {
+      print(e);
+    }
+    try {
+      userReference.doc(user.user.uid).set({
+        'id': account.id,
+        'name': account.name,
+        'username': account.username,
+        'email': user.user.email,
+        'profileUrl': user.user.photoURL,
+        'phone': account.phone,
+        'bio': '',
+        'coverPhoto': '',
+        'uid': user.user.uid,
+        'address': account.address,
+        'cord': data.coord ?? '',
+        'postCount': 0,
+        'rating': '0',
+        'ratingList': [],
+        'followers': 0,
+        'following': 0,
+        'timestamp': timestamp
+      });
+    } catch (e) {
+      print(e);
+    }
     return account;
   }
 
@@ -359,6 +360,22 @@ class AuthService {
     prefs.setString('uid', response.data["account"]['uid']);
     prefs.setString('profileUrl', response.data["account"]['profileUrl']);
     prefs.setString('coverPhoto', response.data["account"]['coverPhoto']);
+
+    try {
+      final db = await sqlite.database;
+
+      var res = await db
+          .query("user", where: "id = ?", whereArgs: [response.data["id"]]);
+      if (res.isEmpty) {
+        await db.insert("user", response.data["account"]);
+      }
+      await db.update("user", response.data["account"],
+          where: "id = ?", whereArgs: [response.data["id"]]);
+    } catch (e) {
+      print(e);
+    }
+
+    userReference.doc(auth.currentUser.uid).set({'uid': auth.currentUser.uid});
   }
 
   Future<bool> updateUserToBackup(data) async {
@@ -375,8 +392,8 @@ class AuthService {
         'phone': data['phone'],
         'bio': '',
         'address': data['address'],
-        'long': data['coord'].longitude,
-        'lat': data['coord'].latitude
+        'long': data['coord'] != null ? "${data['coord'].longitude}" : "0.0",
+        'lat': data['coord'] != null ? "${data['coord'].latitude}" : "0.0"
       });
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
@@ -391,6 +408,7 @@ class AuthService {
         print(e.message);
       }
     }
+    loginUserToBackupServer();
 
     return true;
   }
@@ -419,7 +437,7 @@ class AuthService {
         print(e.message);
       }
     }
-
+    loginUserToBackupServer();
     return true;
   }
 
@@ -449,7 +467,7 @@ class AuthService {
         print(e.message);
       }
     }
-
+    loginUserToBackupServer();
     print(response);
 
     return true;
