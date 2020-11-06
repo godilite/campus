@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/CommentService.dart';
+import 'package:camp/views/profile/profile.dart';
+import 'package:camp/views/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:camp/models/comment_model.dart' as c;
@@ -91,15 +93,41 @@ class _CommentState extends State<Comment> {
             itemBuilder: (context, index) {
               return ListTile(
                 leading: dataSnapshot.data[index].user.profileUrl == null
-                    ? Icon(Icons.account_circle, size: 50)
-                    : CircleAvatar(
-                        radius: 20,
-                        backgroundImage: CachedNetworkImageProvider(
-                            "${dataSnapshot.data[index].user.profileUrl}"),
+                    ? InkWell(
+                        onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfilePage(
+                                    user: dataSnapshot.data[index].user),
+                              ),
+                            ),
+                        child: Icon(Icons.account_circle, size: 50))
+                    : InkWell(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProfilePage(
+                                user: dataSnapshot.data[index].user),
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundImage: CachedNetworkImageProvider(
+                              "${dataSnapshot.data[index].user.profileUrl}"),
+                        ),
                       ),
-                title: Text(
-                  "${dataSnapshot.data[index].user.name}",
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                title: InkWell(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ProfilePage(user: dataSnapshot.data[index].user),
+                    ),
+                  ),
+                  child: Text(
+                    "${dataSnapshot.data[index].user.name}",
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
                 subtitle: Text('${dataSnapshot.data[index].comment}'),
                 trailing: Icon(
@@ -149,7 +177,10 @@ class _CommentState extends State<Comment> {
                 maxLines: null,
               ),
               trailing: IconButton(
-                  icon: Icon(Icons.send), onPressed: () => _submitComment()),
+                icon: Icon(Icons.send),
+                onPressed: () => _submitComment(),
+                color: kYellow,
+              ),
             )
           ]);
         }),

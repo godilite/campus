@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
-import 'package:camp/views/layouts/drawer_scaffold.dart';
 import 'package:camp/views/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -26,6 +25,10 @@ class _EditProfileState extends State<EditProfile> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   String profileUrl;
   String coverPhoto;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  SnackBar usernameSnack = SnackBar(
+    content: Text('Profile Updated'),
+  );
 
   @override
   void initState() {
@@ -49,6 +52,7 @@ class _EditProfileState extends State<EditProfile> {
       form.save();
       _authService.updateUserToBackup(data);
     }
+    _scaffoldKey.currentState.showSnackBar(usernameSnack);
   }
 
   ///Gets the current location
@@ -72,175 +76,186 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return DrawScaffold('', LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints viewportConstraints) {
-        return CustomScrollView(slivers: [
-          SliverList(
-            delegate: SliverChildListDelegate([
-              Container(
-                child: profileStack(viewportConstraints),
-                height: viewportConstraints.maxHeight * 0.3,
-                width: viewportConstraints.maxWidth,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 30),
-                child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        TextFormField(
-                          cursorColor: kYellow,
-                          initialValue: widget.user.name,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: InputDecoration(
-                              suffixIcon: Icon(
-                                CupertinoIcons.pencil,
-                                color: kYellow,
+    return Scaffold(
+      key: _scaffoldKey,
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.white,
+      appBar: AppBar(backgroundColor: Colors.transparent),
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints viewportConstraints) {
+          return CustomScrollView(slivers: [
+            SliverList(
+              delegate: SliverChildListDelegate([
+                Container(
+                  child: profileStack(viewportConstraints),
+                  height: viewportConstraints.maxHeight * 0.3,
+                  width: viewportConstraints.maxWidth,
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 30),
+                  child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          TextFormField(
+                            cursorColor: kYellow,
+                            initialValue: widget.user.name,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                                suffixIcon: Icon(
+                                  CupertinoIcons.pencil,
+                                  color: kYellow,
+                                ),
+                                filled: true,
+                                hintStyle: TextStyle(color: Colors.grey),
+                                hintText: 'Name',
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                )),
+                            validator: (val) {
+                              if (val.isEmpty) {
+                                return 'Name is required';
+                              }
+                              return null;
+                            },
+                            onSaved: (val) => data['displayName'] = val,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          TextFormField(
+                            cursorColor: kYellow,
+                            initialValue: widget.user.email,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                                suffixIcon: Icon(
+                                  CupertinoIcons.pencil,
+                                  color: kYellow,
+                                ),
+                                filled: true,
+                                hintStyle: TextStyle(color: Colors.grey),
+                                hintText: 'Email Address',
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                )),
+                            validator: (val) {
+                              if (val.isEmpty) {
+                                return 'Email address is required';
+                              }
+                              return null;
+                            },
+                            onSaved: (val) => data['email'] = val,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          TextFormField(
+                            cursorColor: kYellow,
+                            initialValue: widget.user.phone,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                                suffixIcon: Icon(
+                                  CupertinoIcons.pencil,
+                                  color: kYellow,
+                                ),
+                                filled: true,
+                                hintStyle: TextStyle(color: Colors.grey),
+                                hintText: 'Phone Number',
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                )),
+                            validator: (val) {
+                              if (val.isEmpty) {
+                                return 'Phone Number is required';
+                              }
+                              return null;
+                            },
+                            onSaved: (val) => data['phone'] = val,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          TextFormField(
+                            controller: locationController,
+                            cursorColor: kYellow,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                                suffixIcon: Icon(
+                                  CupertinoIcons.pencil,
+                                  color: kYellow,
+                                ),
+                                filled: true,
+                                hintStyle: TextStyle(color: Colors.grey),
+                                hintText: 'Address',
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                )),
+                            validator: (val) {
+                              if (val.isEmpty) {
+                                return 'Address is required';
+                              }
+                              return null;
+                            },
+                            onSaved: (val) => data['address'] = val,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          TextFormField(
+                            cursorColor: kYellow,
+                            initialValue: widget.user.username,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            decoration: InputDecoration(
+                                suffixIcon: Icon(
+                                  CupertinoIcons.pencil,
+                                  color: kYellow,
+                                ),
+                                filled: true,
+                                hintStyle: TextStyle(color: Colors.grey),
+                                hintText: 'Username',
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                )),
+                            validator: (val) {
+                              if (val.isEmpty) {
+                                return 'Username is required';
+                              }
+                              return null;
+                            },
+                            onSaved: (val) => data['username'] = val,
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          FlatButton(
+                            color: kYellow,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            onPressed: () => _submitForm(),
+                            textColor: Colors.white,
+                            child: Center(
+                              child: Text(
+                                'Save',
+                                style: TextStyle(fontSize: 20),
                               ),
-                              filled: true,
-                              hintStyle: TextStyle(color: Colors.grey),
-                              hintText: 'Name',
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              )),
-                          validator: (val) {
-                            if (val.isEmpty) {
-                              return 'Name is required';
-                            }
-                            return null;
-                          },
-                          onSaved: (val) => data['displayName'] = val,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                          cursorColor: kYellow,
-                          initialValue: widget.user.email,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: InputDecoration(
-                              suffixIcon: Icon(
-                                CupertinoIcons.pencil,
-                                color: kYellow,
-                              ),
-                              filled: true,
-                              hintStyle: TextStyle(color: Colors.grey),
-                              hintText: 'Email Address',
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              )),
-                          validator: (val) {
-                            if (val.isEmpty) {
-                              return 'Email address is required';
-                            }
-                            return null;
-                          },
-                          onSaved: (val) => data['email'] = val,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                          cursorColor: kYellow,
-                          initialValue: widget.user.phone,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: InputDecoration(
-                              suffixIcon: Icon(
-                                CupertinoIcons.pencil,
-                                color: kYellow,
-                              ),
-                              filled: true,
-                              hintStyle: TextStyle(color: Colors.grey),
-                              hintText: 'Phone Number',
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              )),
-                          validator: (val) {
-                            if (val.isEmpty) {
-                              return 'Phone Number is required';
-                            }
-                            return null;
-                          },
-                          onSaved: (val) => data['phone'] = val,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                          controller: locationController,
-                          cursorColor: kYellow,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: InputDecoration(
-                              suffixIcon: Icon(
-                                CupertinoIcons.pencil,
-                                color: kYellow,
-                              ),
-                              filled: true,
-                              hintStyle: TextStyle(color: Colors.grey),
-                              hintText: 'Address',
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              )),
-                          validator: (val) {
-                            if (val.isEmpty) {
-                              return 'Address is required';
-                            }
-                            return null;
-                          },
-                          onSaved: (val) => data['address'] = val,
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                          cursorColor: kYellow,
-                          initialValue: widget.user.username,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          decoration: InputDecoration(
-                              suffixIcon: Icon(
-                                CupertinoIcons.pencil,
-                                color: kYellow,
-                              ),
-                              filled: true,
-                              hintStyle: TextStyle(color: Colors.grey),
-                              hintText: 'Username',
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              )),
-                          validator: (val) {
-                            if (val.isEmpty) {
-                              return 'Username is required';
-                            }
-                            return null;
-                          },
-                          onSaved: (val) => data['username'] = val,
-                        ),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        FlatButton(
-                          color: kYellow,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5)),
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          onPressed: () => _submitForm(),
-                          textColor: Colors.white,
-                          child: Center(
-                            child: Text(
-                              'Save',
-                              style: TextStyle(fontSize: 20),
                             ),
                           ),
-                        ),
-                      ],
-                    )),
-              )
-            ]),
-          ),
-        ]);
-      },
-    ), false, 4);
+                        ],
+                      )),
+                )
+              ]),
+            ),
+          ]);
+        },
+      ),
+    );
   }
 
   Stack profileStack(BoxConstraints viewportConstraints) {
@@ -278,6 +293,7 @@ class _EditProfileState extends State<EditProfile> {
               pictureMenu(context).then(
                 (value) => setState(() {
                   _setProfile();
+                  _scaffoldKey.currentState.showSnackBar(usernameSnack);
                 }),
               );
             },

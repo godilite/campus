@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:bubble/bubble.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:camp/models/user_account.dart';
 import 'package:camp/services/UserService.dart';
 import 'package:camp/views/messaging/chat.dart';
 import 'package:camp/views/styles.dart';
@@ -84,16 +83,22 @@ class _MessageListState extends State<MessageList> {
 
   Container buildAppBar(context, constraints) {
     return Container(
-      height: 100,
+      height: 90,
       padding: EdgeInsets.only(left: 10, right: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          InkWell(
-            onTap: () => Navigator.pop(context),
-            child: Icon(
-              Icons.arrow_back_ios,
-              size: 25,
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => Navigator.pop(context),
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 20,
+                color: kText,
+              ),
             ),
           ),
           SizedBox(
@@ -101,7 +106,8 @@ class _MessageListState extends State<MessageList> {
           ),
           Text(
             'Messages',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 14, fontWeight: FontWeight.w600, color: kGrey),
           )
         ],
       ),
@@ -163,19 +169,19 @@ class _MessageListState extends State<MessageList> {
                               color: kGrey,
                             ),
                           ),
-                          width: 50.0,
-                          height: 50.0,
-                          padding: EdgeInsets.all(15.0),
+                          width: 40.0,
+                          height: 40.0,
+                          padding: EdgeInsets.all(8.0),
                         ),
                         imageUrl: document['reciever']['profileUrl'],
-                        width: 50.0,
-                        height: 50.0,
+                        width: 40.0,
+                        height: 40.0,
                         fit: BoxFit.cover,
                       )
                     : Center(
                         child: Icon(
                           Icons.account_circle,
-                          size: 50.0,
+                          size: 40.0,
                           color: kGrey,
                         ),
                       ),
@@ -191,12 +197,12 @@ class _MessageListState extends State<MessageList> {
                           '${document['reciever']['name']}',
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              color: Colors.black,
+                              color: kText,
                               fontWeight: FontWeight.w800,
                               fontSize: 15),
                         ),
                         alignment: Alignment.centerLeft,
-                        margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 5.0),
+                        margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 5.0),
                       ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -208,7 +214,8 @@ class _MessageListState extends State<MessageList> {
                                       'https://firebasestorage.googleapis.com/v0/b/cmps')
                                   ? Text(
                                       'Sent Photo',
-                                      style: TextStyle(color: Colors.grey),
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 12),
                                     )
                                   : Text(
                                       '${document['message']}',
@@ -226,13 +233,13 @@ class _MessageListState extends State<MessageList> {
                         child: Container(
                           child: Text(
                             '${timeago.format(DateFormat("yyyy-MM-dd hh:mm:ss").parse(document['updated_at']))}',
-                            style: TextStyle(color: kGrey),
+                            style: TextStyle(color: kGrey, fontSize: 12),
                           ),
                         ),
                       )
                     ],
                   ),
-                  margin: EdgeInsets.only(left: 20.0),
+                  margin: EdgeInsets.only(left: 10.0),
                 ),
               ),
             ],
@@ -248,7 +255,7 @@ class _MessageListState extends State<MessageList> {
                           peerAvatar: document['reciever']['profileUrl'],
                         )));
           },
-          padding: EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 10.0),
+          padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         ),
@@ -282,19 +289,19 @@ class _MessageListState extends State<MessageList> {
                               color: kGrey,
                             ),
                           ),
-                          width: 50.0,
+                          width: 40.0,
                           height: 50.0,
                           padding: EdgeInsets.all(15.0),
                         ),
                         imageUrl: document['sender']['profileUrl'],
-                        width: 50.0,
-                        height: 50.0,
+                        width: 40.0,
+                        height: 40.0,
                         fit: BoxFit.cover,
                       )
                     : Center(
                         child: Icon(
                           Icons.account_circle,
-                          size: 50.0,
+                          size: 40.0,
                           color: kGrey,
                         ),
                       ),
@@ -308,7 +315,10 @@ class _MessageListState extends State<MessageList> {
                       Container(
                         child: Text(
                           '${document['sender']['name']}',
-                          style: TextStyle(color: Colors.black),
+                          style: TextStyle(
+                              color: kText,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15),
                         ),
                         alignment: Alignment.centerLeft,
                         margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 5.0),
@@ -321,13 +331,14 @@ class _MessageListState extends State<MessageList> {
                               child: content.contains(
                                       'https://firebasestorage.googleapis.com/v0/b/cmps')
                                   ? Text(
-                                      'Received Photo',
-                                      style: TextStyle(color: Colors.grey),
+                                      'Photo',
+                                      style: TextStyle(
+                                          color: Colors.grey, fontSize: 12),
                                     )
                                   : Text(
-                                      '${document['message'] ?? 'Not available'}',
+                                      '${document['message']}',
                                       overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(color: Colors.black),
+                                      style: TextStyle(color: kText),
                                     ),
                               alignment: Alignment.centerLeft,
                               margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
@@ -336,14 +347,14 @@ class _MessageListState extends State<MessageList> {
                           Container(
                             child: Text(
                               '${timeago.format(DateFormat("yyyy-MM-dd hh:mm:ss").parse(document['updated_at']))}',
-                              style: TextStyle(color: kGrey),
+                              style: TextStyle(color: kGrey, fontSize: 12),
                             ),
                           )
                         ],
                       )
                     ],
                   ),
-                  margin: EdgeInsets.only(left: 20.0),
+                  margin: EdgeInsets.only(left: 10.0),
                 ),
               ),
             ],
@@ -359,7 +370,7 @@ class _MessageListState extends State<MessageList> {
                           peerAvatar: document['sender']['profileUrl'],
                         )));
           },
-          padding: EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 10.0),
+          padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         ),

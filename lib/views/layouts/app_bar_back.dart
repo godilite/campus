@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../styles.dart';
+
 class PageAppbar extends StatelessWidget {
   const PageAppbar({
     Key key,
@@ -20,12 +22,17 @@ class PageAppbar extends StatelessWidget {
 
         ///
         children: <Widget>[
-          InkWell(
-            onTap: () => Navigator.pop(context, true),
-            child: Icon(
-              CupertinoIcons.chevron_back,
-              size: 25,
-              color: Colors.grey,
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => Navigator.pop(context, true),
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 20,
+                color: kText,
+              ),
             ),
           ),
           Row(

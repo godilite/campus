@@ -1,3 +1,4 @@
+import 'package:camp/models/push_notification.dart';
 import 'package:camp/service_locator.dart';
 import 'package:camp/services/AuthService.dart';
 import 'package:camp/views/auth/login.dart';
@@ -39,14 +40,23 @@ class InitialCheck extends StatefulWidget {
 
 class _InitialCheckState extends State<InitialCheck> {
   var _auth = locator<AuthService>();
+  final PushNotificationService _pushNotificationService =
+      locator<PushNotificationService>();
+
   bool isLoggedIn = false;
   @override
   void initState() {
     super.initState();
+    handleStartupLogic();
+  }
+
+  handleStartupLogic() async {
     _auth.auth.authStateChanges().listen((User user) {
       user == null ? isLoggedIn = false : isLoggedIn = true;
       setState(() {});
     });
+
+    await _pushNotificationService.initialise();
   }
 
   @override

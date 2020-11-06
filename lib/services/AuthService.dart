@@ -1,3 +1,4 @@
+import 'package:camp/models/push_notification.dart';
 import 'package:camp/models/user_account.dart';
 import 'package:camp/views/auth/account.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,14 +9,20 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:camp/main.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../service_locator.dart';
 import 'SqliteDb.dart';
 
 class AuthService {
   var sqlite = SqliteDb.db;
+  final PushNotificationService _pushNotificationService =
+      locator<PushNotificationService>();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   FirebaseAuth auth = FirebaseAuth.instance;
   final userReference = FirebaseFirestore.instance.collection("users");
   final usernameReference = FirebaseFirestore.instance.collection("username");
+  final notifyReference =
+      FirebaseFirestore.instance.collection("notifications");
+
   final DateTime timestamp = DateTime.now();
   String baseUrl = 'http://campusel.ogarnkang.com/api';
   Dio dio = new Dio();
@@ -276,15 +283,7 @@ class AuthService {
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
-      if (e.error != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request);
-      } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
-        print(e.message);
-      }
+      print(e);
     }
     final SharedPreferences prefs = await _prefs;
     prefs.setString('token', response.data["access_token"]);
@@ -294,7 +293,8 @@ class AuthService {
     prefs.setString('coverPhoto', response.data["account"]['coverPhoto']);
 
     UserAccount account = UserAccount.fromJson(response.data["account"]);
-
+    String deviceToken = await _pushNotificationService.getToken();
+    updateToken(deviceToken, response.data["access_token"]);
     try {
       final db = await sqlite.database;
 
@@ -336,23 +336,16 @@ class AuthService {
 
   loginUserToBackupServer() async {
     Response response;
-    var token = await auth.currentUser.getIdToken();
 
     try {
+      var token = await auth.currentUser.getIdToken();
+
       response = await dio.post("http://campusel.ogarnkang.com/api/v1/login",
           data: {"token": token});
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
-      if (e.error != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request);
-      } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
-        print(e.message);
-      }
+      print(e);
     }
     final SharedPreferences prefs = await _prefs;
     prefs.setString('token', response.data["access_token"]);
@@ -374,7 +367,8 @@ class AuthService {
     } catch (e) {
       print(e);
     }
-
+    String deviceToken = await _pushNotificationService.getToken();
+    updateToken(deviceToken, response.data["access_token"]);
     userReference.doc(auth.currentUser.uid).set({'uid': auth.currentUser.uid});
   }
 
@@ -398,15 +392,7 @@ class AuthService {
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
-      if (e.error != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request);
-      } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
-        print(e.message);
-      }
+      print(e);
     }
     loginUserToBackupServer();
 
@@ -427,49 +413,67 @@ class AuthService {
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
-      if (e.error != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request);
-      } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
-        print(e.message);
-      }
+      print(e);
     }
     loginUserToBackupServer();
     return true;
   }
 
   Future<bool> updateUserCover(String url) async {
-    Response response;
     final SharedPreferences prefs = await _prefs;
 
     var token = prefs.getString('token');
     dio.options.headers['content-Type'] = 'application/json';
     dio.options.headers["authorization"] = "Bearer $token";
     try {
-      response = await dio.post(
-          "http://campusel.ogarnkang.com/api/v1/update-user-cover",
+      await dio.post("http://campusel.ogarnkang.com/api/v1/update-user-cover",
           data: {
             'coverPhoto': url,
           });
     } on DioError catch (e) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx and is also not 304.
-      if (e.error != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request);
-      } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
-        print(e.message);
-      }
+      print(e);
     }
     loginUserToBackupServer();
-    print(response);
 
     return true;
+  }
+
+  void updateToken(String deviceToken, String authtoken) async {
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $authtoken";
+    try {
+      await dio.post("http://campusel.ogarnkang.com/api/v1/update-device-token",
+          data: {
+            'token': deviceToken,
+          });
+    } on DioError catch (e) {
+      print(e);
+    }
+  }
+
+  Future<int> notifications() async {
+    int count = 0;
+
+    final SharedPreferences prefs = await _prefs;
+
+    Response response;
+    var token = prefs.getString('token');
+    if (token.isEmpty) {
+      return count;
+    }
+    dio.options.headers['content-Type'] = 'application/json';
+    dio.options.headers["authorization"] = "Bearer $token";
+
+    try {
+      response = await dio
+          .get("http://campusel.ogarnkang.com/api/v1/notification-count");
+      count = response.data;
+    } on DioError catch (e) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx and is also not 304.
+      // Something happened in setting up or sending the request that triggered an Error
+      print(e);
+    }
+    return count;
   }
 }

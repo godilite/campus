@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,9 +6,6 @@ import 'package:camp/views/styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:path_provider/path_provider.dart';
 import 'package:share_files_and_screenshot_widgets/share_files_and_screenshot_widgets.dart';
 
 class Watermark extends StatefulWidget {
@@ -23,26 +19,6 @@ class Watermark extends StatefulWidget {
 
 class _WatermarkState extends State<Watermark> {
   GlobalKey previewContainer = GlobalKey();
-
-  Future<File> _capturePng() async {
-    RenderRepaintBoundary boundary =
-        previewContainer.currentContext.findRenderObject();
-
-    if (boundary.debugNeedsPaint) {
-      print("Waiting for boundary to be painted.");
-      await Future.delayed(const Duration(milliseconds: 20));
-      return _capturePng();
-    }
-
-    var image = await boundary.toImage();
-    var byteData = await image.toByteData(format: ImageByteFormat.png);
-
-    Uint8List pngBytes = byteData.buffer.asUint8List();
-    final directory = (await getExternalStorageDirectory()).path;
-    File imgFile = new File('$directory/screenshot.png');
-    imgFile.writeAsBytes(pngBytes);
-    return imgFile;
-  }
 
   int originalSize = 800;
 
@@ -90,9 +66,9 @@ class _WatermarkState extends State<Watermark> {
                           Text(
                             '@${widget.post.user.username}',
                             style: TextStyle(
-                                color: kYellow,
+                                color: Colors.yellow.shade700,
                                 fontSize: 15,
-                                fontWeight: FontWeight.w600),
+                                fontWeight: FontWeight.w500),
                           )
                         ],
                       ),

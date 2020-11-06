@@ -8,6 +8,7 @@ import 'package:camp/views/followers/follower_page.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
 import 'package:camp/views/messaging/chat.dart';
+import 'package:camp/views/messaging/widgets/full_photo.dart';
 import 'package:camp/views/post/widgets/color_loader_2.dart';
 import 'package:camp/views/profile/profile_owner_view.dart';
 import 'package:camp/views/styles.dart';
@@ -145,14 +146,22 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundColor: kYellow,
               minRadius: 37,
               child: widget.user != null && widget.user.profileUrl != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: Image(
-                          width: 70,
-                          height: 70,
-                          fit: BoxFit.fill,
-                          image: CachedNetworkImageProvider(
-                              widget.user.profileUrl)),
+                  ? InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                FullPhoto(url: widget.user.profileUrl)),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: Image(
+                            width: 70,
+                            height: 70,
+                            fit: BoxFit.fill,
+                            image: CachedNetworkImageProvider(
+                                widget.user.profileUrl)),
+                      ),
                     )
                   : Icon(Icons.account_circle, size: 60.0, color: kLightGrey),
             ),

@@ -250,13 +250,11 @@ class UserService {
   void storeChat(int uid, String message) async {
     final SharedPreferences prefs = await _prefs;
 
-    Response response;
     var token = prefs.getString('token');
     dio.options.headers['content-Type'] = 'application/json';
     dio.options.headers["authorization"] = "Bearer $token";
     try {
-      response = await dio.post(
-          "http://campusel.ogarnkang.com/api/v1/messages/send",
+      await dio.post("http://campusel.ogarnkang.com/api/v1/messages/send",
           data: {"reciever_id": uid, 'message': message});
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
@@ -268,7 +266,6 @@ class UserService {
         print(e.message);
       }
     }
-    print(response.data);
   }
 
   Future allChat() async {
@@ -307,17 +304,8 @@ class UserService {
     } on DioError catch (e) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx and is also not 304.
-      if (e.error != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request);
-      } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.request);
-        print(e.message);
-      }
+      print(e);
     }
-    print(response.data);
     return response.data;
   }
 

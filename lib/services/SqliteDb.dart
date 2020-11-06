@@ -39,6 +39,25 @@ class SqliteDb {
           "long TEXT,"
           "lat TEXT"
           ")");
+
+      await db.execute("CREATE TABLE wishlist ("
+          "id INTEGER PRIMARY KEY,"
+          "title TEXT,"
+          "location TEXT,"
+          "profileUrl TEXT,"
+          "image TEXT,"
+          "amount INTEGER,"
+          "longitude TEXT,"
+          "latitude TEXT,"
+          "is_forsale INTEGER,"
+          "content TEXT,"
+          "hashtags TEXT,"
+          "user_id INTEGER,"
+          "created_at TEXT,"
+          "updated_at TEXT,"
+          "long TEXT,"
+          "lat TEXT"
+          ")");
     });
   }
 }

@@ -5,6 +5,7 @@ import 'package:camp/models/product_like.dart';
 import 'package:camp/services/PostService.dart';
 import 'package:camp/views/home/single-item/singleview.dart';
 import 'package:camp/views/profile/profile.dart';
+import 'package:camp/views/styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -67,7 +68,7 @@ class _ItemWidgetState extends State<ItemWidget> {
           _showModalSheet(context, _height, widget._post, _width);
         },
         child: Container(
-          margin: EdgeInsets.only(bottom: 10),
+          margin: EdgeInsets.only(bottom: 15),
           child: Stack(
             fit: StackFit.loose,
             alignment: Alignment.center,
@@ -143,7 +144,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                   likeBuilder: (bool liked) {
                     return Icon(
                       Icons.favorite,
-                      color: liked ? Colors.red : Colors.grey,
+                      color: liked ? Colors.red : kLightGrey,
                       size: 20,
                     );
                   },

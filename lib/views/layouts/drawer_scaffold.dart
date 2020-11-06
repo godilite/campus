@@ -48,6 +48,7 @@ class DrawScaffold extends StatefulWidget {
 class _DrawScaffoldState extends State<DrawScaffold> {
   AuthService _authService = locator<AuthService>();
   UserAccount user;
+  int _count = 0;
 
   /// side bar items
   _getDrawerItemWidget(int pos) {
@@ -131,6 +132,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
     _authService.auth.authStateChanges().listen((User user) {
       user == null ? print('no user') : getUser();
     });
+    getNotifications();
     super.initState();
   }
 
@@ -143,6 +145,20 @@ class _DrawScaffoldState extends State<DrawScaffold> {
       if (this.mounted) {
         setState(() {
           user = _user;
+        });
+      }
+    });
+  }
+
+  getNotifications() async {
+    _authService.notifyReference
+        .doc(_authService.auth.currentUser.uid)
+        .snapshots()
+        .listen((event) async {
+      int notifications = await _authService.notifications();
+      if (this.mounted) {
+        setState(() {
+          _count = notifications;
         });
       }
     });
@@ -274,7 +290,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
                 FloatingNavbarItem(icon: CupertinoIcons.house),
                 FloatingNavbarItem(icon: CupertinoIcons.search),
                 FloatingNavbarItem(icon: CupertinoIcons.add_circled),
-                FloatingNavbarItem(icon: CupertinoIcons.bell),
+                FloatingNavbarItem(icon: CupertinoIcons.bell, counter: _count),
                 FloatingNavbarItem(icon: CupertinoIcons.person_circle),
               ],
             )

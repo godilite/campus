@@ -266,7 +266,9 @@ class _FollowerPostWidgetState extends State<FollowerPostWidget> {
             title: Text(
               widget._post.user.name,
               style: TextStyle(
-                fontWeight: FontWeight.w700,
+                color: kText,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
               ),
             ),
             subtitle: widget._post.details.product.title.isNotEmpty
@@ -276,12 +278,15 @@ class _FollowerPostWidgetState extends State<FollowerPostWidget> {
                   )
                 : Text(
                     "${widget._post.details.product.content}",
-                    style: TextStyle(color: kGrey),
+                    style: TextStyle(fontSize: 12, color: kGrey),
                   ),
-            trailing: Text(widget._post.lapse),
+            trailing: Text(
+              widget._post.lapse,
+              style: TextStyle(fontSize: 12, color: kGrey),
+            ),
           ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 0),
         StaggeredGridView.countBuilder(
           physics: NeverScrollableScrollPhysics(),
           shrinkWrap: true,
@@ -303,7 +308,7 @@ class _FollowerPostWidgetState extends State<FollowerPostWidget> {
               )),
           staggeredTileBuilder: (int index) => StaggeredTile.fit(
               widget._post.details.product.images.length > 1 ? 2 : 3),
-          mainAxisSpacing: 4.0,
+          mainAxisSpacing: 2.0,
           crossAxisSpacing: 8.0,
         ),
         Row(

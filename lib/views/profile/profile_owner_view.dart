@@ -7,17 +7,16 @@ import 'package:camp/services/UserService.dart';
 import 'package:camp/views/followers/follower_page.dart';
 import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
+import 'package:camp/views/messaging/widgets/full_photo.dart';
 import 'package:camp/views/post/widgets/color_loader_2.dart';
 import 'package:camp/views/profile/edit_profile.dart';
 import 'package:camp/views/styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../../helpers.dart';
 import '../../service_locator.dart';
@@ -153,15 +152,22 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
                 backgroundColor: kYellow,
                 minRadius: 37,
                 child: user != null && profileUrl != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: Image(
-                            width: 70,
-                            height: 70,
-                            fit: BoxFit.fill,
-                            image: CachedNetworkImageProvider(
-                              profileUrl,
-                            )),
+                    ? InkWell(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => FullPhoto(url: profileUrl)),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image(
+                              width: 70,
+                              height: 70,
+                              fit: BoxFit.fill,
+                              image: CachedNetworkImageProvider(
+                                profileUrl,
+                              )),
+                        ),
                       )
                     : Icon(Icons.account_circle, size: 60.0, color: kLightGrey),
               ),
@@ -329,13 +335,15 @@ class _ProfileOwnPageState extends State<ProfileOwnPage> {
           child: GestureDetector(
             onTapDown: storePosition,
             onTap: () {
-              pictureMenu(context).then((value) => setState(() {
-                    _setProfile();
-                  }));
+              pictureMenu(context).then(
+                (value) => setState(() {
+                  _setProfile();
+                }),
+              );
             },
             child: CircleAvatar(
               minRadius: 30,
-              backgroundColor: Colors.white30,
+              backgroundColor: Colors.black12,
               child: Icon(
                 Icons.camera_enhance,
                 color: kYellow,

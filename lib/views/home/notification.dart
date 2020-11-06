@@ -79,19 +79,26 @@ class _NotificationPageState extends State<NotificationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          InkWell(
-            onTap: () => Navigator.pop(context),
-            child: Icon(
-              Icons.arrow_back_ios,
-              size: 25,
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => Navigator.pop(context),
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 20,
+                color: kText,
+              ),
             ),
           ),
           SizedBox(
-            height: 10,
+            height: 15,
           ),
           Text(
             'Notifications',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 14, fontWeight: FontWeight.w600, color: kText),
           )
         ],
       ),
@@ -111,7 +118,7 @@ class _NotificationPageState extends State<NotificationPage> {
             );
           } else {
             return ListView.builder(
-              padding: EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(5.0),
               itemBuilder: (context, index) =>
                   buildItem(context, snapshot.data[index]),
               itemCount: snapshot.data.length,
@@ -132,13 +139,13 @@ class _NotificationPageState extends State<NotificationPage> {
               return Text('');
             }
             return Container(
-              margin: EdgeInsets.only(bottom: 10),
+              margin: EdgeInsets.only(bottom: 5),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(7),
                   color: document['read_at'] == null
                       ? Colors.yellow.withOpacity(0.1)
                       : Colors.transparent,
-                  border: Border.all(color: kYellow, width: 1.0)),
+                  border: Border.all(color: kYellow, width: 0.5)),
               child: InkWell(
                 onTap: () => Navigator.push(
                   context,
@@ -149,8 +156,10 @@ class _NotificationPageState extends State<NotificationPage> {
                   ),
                 ),
                 child: ListTile(
-                  title: Text('${snapshot.data.name} commented on your post'),
-                  subtitle: Text(truncate(50, document['data']['comment'])),
+                  title: Text('${snapshot.data.name} commented on your post',
+                      style: TextStyle(color: kText)),
+                  subtitle: Text(truncate(50, document['data']['comment']),
+                      style: TextStyle(color: kGrey, fontSize: 12)),
                 ),
               ),
             );
@@ -164,12 +173,12 @@ class _NotificationPageState extends State<NotificationPage> {
               return Text('');
             }
             return Container(
-              margin: EdgeInsets.only(bottom: 10),
+              margin: EdgeInsets.only(bottom: 5),
               decoration: BoxDecoration(
                   color: document['read_at'] == null
                       ? Colors.yellow.withOpacity(0.1)
                       : Colors.transparent,
-                  border: Border.all(color: kYellow, width: 1.0),
+                  border: Border.all(color: kYellow, width: 0.5),
                   borderRadius: BorderRadius.circular(7)),
               child: InkWell(
                 onTap: () => Navigator.push(
@@ -180,8 +189,10 @@ class _NotificationPageState extends State<NotificationPage> {
                   ),
                 ),
                 child: ListTile(
-                  title: Text('new message from ${snapshot.data.name}'),
-                  subtitle: Text(truncate(50, document['data']['message'])),
+                  title: Text('new message from ${snapshot.data.name}',
+                      style: TextStyle(color: kText)),
+                  subtitle: Text(truncate(50, document['data']['message']),
+                      style: TextStyle(color: kGrey, fontSize: 12)),
                 ),
               ),
             );

@@ -110,21 +110,33 @@ class _SingleViewState extends State<SingleView> {
           elevation: 0,
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios,
-                size: 20, color: Colors.grey.shade500),
+                size: 20, color: Colors.grey.shade900),
             onPressed: () => Navigator.pop(context),
           ),
           actions: [
             GestureDetector(
-              onTapDown: _storePosition,
-              onTap: () {
-                _showMenu();
-              },
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: Icon(CupertinoIcons.ellipsis,
-                    size: 25, color: Colors.grey.shade700),
-              ),
-            ),
+                onTapDown: _storePosition,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                      width: 40,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 2.0, vertical: 0),
+                      child: Center(
+                        child: Material(
+                          elevation: 1,
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(100),
+                          child: IconButton(
+                            onPressed: () {
+                              _showMenu();
+                            },
+                            icon: Icon(CupertinoIcons.ellipsis,
+                                size: 25, color: Colors.grey.shade100),
+                          ),
+                        ),
+                      )),
+                )),
           ],
         ),
         body: LayoutBuilder(
@@ -376,12 +388,17 @@ class _SingleViewState extends State<SingleView> {
                                                       Color(0xffFAB70A),
                                                 ),
                                                 likeBuilder: (bool liked) {
-                                                  return Icon(
-                                                    FlutterIcons.share_sli,
-                                                    color: liked
-                                                        ? Colors.grey
-                                                        : Colors.grey,
-                                                    size: 16,
+                                                  return Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            bottom: 10.0),
+                                                    child: Icon(
+                                                      FlutterIcons.share_sli,
+                                                      color: liked
+                                                          ? Colors.grey
+                                                          : Colors.grey,
+                                                      size: 16,
+                                                    ),
                                                   );
                                                 },
                                               ),
@@ -502,8 +519,8 @@ class _SingleViewState extends State<SingleView> {
                                             ? true
                                             : false,
                                         child: Container(
-                                          height: 100,
-                                          color: Colors.grey,
+                                          height: 90,
+                                          color: Colors.grey.shade300,
                                           width: 0.5,
                                         ),
                                       ),
@@ -588,20 +605,50 @@ class _SingleViewState extends State<SingleView> {
                                           contentPadding: EdgeInsets.only(
                                               left: 10, right: 10),
                                           leading: e.user.profileUrl == null
-                                              ? Icon(Icons.account_circle,
-                                                  size: 40)
-                                              : CircleAvatar(
-                                                  backgroundColor: kYellow,
-                                                  backgroundImage:
-                                                      CachedNetworkImageProvider(
-                                                          e.user.profileUrl),
-                                                  radius: 20,
+                                              ? InkWell(
+                                                  onTap: () => Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ProfilePage(
+                                                              user: e.user),
+                                                    ),
+                                                  ),
+                                                  child: Icon(
+                                                      Icons.account_circle,
+                                                      size: 40),
+                                                )
+                                              : InkWell(
+                                                  onTap: () => Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ProfilePage(
+                                                              user: e.user),
+                                                    ),
+                                                  ),
+                                                  child: CircleAvatar(
+                                                    backgroundColor: kYellow,
+                                                    backgroundImage:
+                                                        CachedNetworkImageProvider(
+                                                            e.user.profileUrl),
+                                                    radius: 20,
+                                                  ),
                                                 ),
-                                          title: Text(
-                                            e.user.name,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
+                                          title: InkWell(
+                                            onTap: () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ProfilePage(user: e.user),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              e.user.name,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                           subtitle: Text(
                                             e.comment,
