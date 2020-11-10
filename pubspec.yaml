@@ -63,6 +63,7 @@ dependencies:
   like_button: ^1.0.4
   share_files_and_screenshot_widgets:
   sqflite: ^1.3.0
+  scrollable_positioned_list: ^0.1.8
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -255,10 +255,10 @@ class _DrawScaffoldState extends State<DrawScaffold> {
               padding: EdgeInsets.all(8.0),
               child: Material(
                 elevation: 1,
-                color: Colors.white24,
+                color: Colors.white.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(50),
                 child: IconButton(
-                    icon: Icon(CupertinoIcons.bars, color: Colors.white),
+                    icon: Icon(CupertinoIcons.bars, color: kGrey),
                     onPressed: () => Scaffold.of(context).openDrawer()),
               ));
         }),
@@ -274,7 +274,7 @@ class _DrawScaffoldState extends State<DrawScaffold> {
               backgroundColor: Colors.white,
               borderRadius: 50,
               itemBorderRadius: 10,
-              shadowColor: Colors.black12,
+//              shadowColor: Colors.black12,
               // shadowBlurRadius: 5,
               // shadowSpreadRadius: 0,
               unselectedItemColor: kText,

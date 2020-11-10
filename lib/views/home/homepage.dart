@@ -8,10 +8,11 @@ import 'package:camp/views/home/components/ItemWidget.dart';
 import 'package:camp/views/home/following.dart';
 import 'package:camp/views/layouts/drawer_scaffold.dart';
 import 'package:camp/views/post/widgets/color_loader_2.dart';
+import 'package:camp/views/sponsored/sponsored.dart';
 import 'package:camp/views/styles.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:flutter/material.dart';
 
 class HomeView extends StatefulWidget {
@@ -22,9 +23,13 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   ScrollController _controller = ScrollController();
   final AsyncMemoizer _memoizer = AsyncMemoizer();
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
   bool showAll = true;
   bool isBottom = false;
   List<Datum> documentList = [];
+  int currentItem = 0;
   PostService _postService = locator<PostService>();
   final postController = StreamController<List<Datum>>.broadcast();
   @override
@@ -168,6 +173,13 @@ class _HomeViewState extends State<HomeView> {
         });
   }
 
+  void scrollTo() {
+    itemScrollController.scrollTo(
+        index: currentItem + 1,
+        duration: Duration(seconds: 2),
+        curve: Curves.easeInOutCubic);
+  }
+
   @override
   Widget build(BuildContext context) {
     double _width = MediaQuery.of(context).size.width;
@@ -178,146 +190,87 @@ class _HomeViewState extends State<HomeView> {
         SliverList(
           delegate: SliverChildListDelegate([
             Container(
-              child: ListView(
-                scrollDirection: Axis.horizontal,
+              height: _height * 0.30,
+              width: _width,
+              decoration: BoxDecoration(
+                color: kYellow,
+                borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(30),
+                    bottomLeft: Radius.circular(30)),
+              ),
+              child: Row(
                 children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 24),
-                    height: _height * 0.30,
-                    width: _width,
-                    decoration: BoxDecoration(
-                      color: kYellow,
-                      borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(30),
-                          bottomLeft: Radius.circular(30)),
-                    ),
-                    child: Stack(
-                      fit: StackFit.passthrough,
-                      children: [
-                        Positioned(
-                          bottom: 10,
-                          right: 20,
-                          child: Container(
-                            height: 30,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'swipe',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white),
-                                ),
-                                SizedBox(
-                                  width: 2,
-                                ),
-                                Icon(
-                                  FlutterIcons.arrowright_ant,
-                                  color: Colors.white,
-                                  size: 20,
-                                )
-                              ],
+                  SizedBox(
+                    width: viewportConstraints.maxWidth * 0.9,
+                    child: ScrollablePositionedList.builder(
+                        itemScrollController: itemScrollController,
+                        itemPositionsListener: itemPositionsListener,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 29,
+                        itemBuilder: (context, index) {
+                          currentItem = index;
+                          return InkWell(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Sponsored(),
+                              ),
                             ),
-                            width: _width * 0.3,
-                          ),
-                        ),
-                      ],
-                    ),
+                            child: Container(
+                              height: viewportConstraints.maxHeight * 0.20,
+                              width: viewportConstraints.maxWidth * 0.56,
+                              child: Stack(
+                                fit: StackFit.passthrough,
+                                children: [
+                                  Positioned(
+                                    top: 35,
+                                    width: viewportConstraints.maxWidth * 0.56,
+                                    height:
+                                        viewportConstraints.maxHeight * 0.20,
+                                    child: Card(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(7)),
+                                      elevation: 2,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 10,
+                                    left: 10,
+                                    width: viewportConstraints.maxWidth * 0.5,
+                                    child: Text(
+                                      'New Shoes pF KAS S JAS LA skdf kdf kjsd ',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(top: 24),
-                    height: _height * 0.30,
-                    width: _width,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(30),
-                          bottomLeft: Radius.circular(30)),
-                    ),
-                    child: Stack(
-                      fit: StackFit.passthrough,
-                      children: [
-                        Positioned(
-                          bottom: 10,
-                          right: 20,
-                          child: Container(
-                            height: 30,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'swipe',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white),
-                                ),
-                                SizedBox(
-                                  width: 2,
-                                ),
-                                Icon(
-                                  FlutterIcons.arrowright_ant,
-                                  color: Colors.white,
-                                  size: 20,
-                                )
-                              ],
-                            ),
-                            width: _width * 0.3,
-                          ),
+                  SizedBox(
+                    width: viewportConstraints.maxWidth * 0.1,
+                    height: viewportConstraints.maxWidth * 0.1,
+                    child: InkWell(
+                      onTap: () => scrollTo(),
+                      child: Card(
+                        shape: CircleBorder(),
+                        elevation: 2,
+                        child: Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colors.grey.shade500,
+                          size: 16,
                         ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 24),
-                    height: _height * 0.30,
-                    width: _width,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(30),
-                          bottomLeft: Radius.circular(30)),
-                    ),
-                    child: Stack(
-                      fit: StackFit.passthrough,
-                      children: [
-                        Positioned(
-                          bottom: 10,
-                          right: 20,
-                          child: Container(
-                            height: 30,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'swipe',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white),
-                                ),
-                                SizedBox(
-                                  width: 2,
-                                ),
-                                Icon(
-                                  FlutterIcons.arrowright_ant,
-                                  color: Colors.white,
-                                  size: 20,
-                                )
-                              ],
-                            ),
-                            width: _width * 0.3,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ],
               ),
-              height: _height * 0.30,
-              width: _width,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomRight: Radius.circular(30),
-                      bottomLeft: Radius.circular(30))),
             ),
             SizedBox(height: 10),
             Padding(
